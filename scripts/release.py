@@ -7,7 +7,7 @@ VERSION='1.0.0'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
- 'css/app-100.css','js/app-100.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md')
+ 'css/app-100.css','js/app-100.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
 OPTIONAL=('js/app-100.js.LEGAL.txt',)
 MAX_ARCHIVE=20*1024*1024
 MAX_UNPACKED=30*1024*1024
@@ -36,10 +36,111 @@ def archive_bytes(files:dict[str,bytes])->bytes:
 def safe_relative(path:str)->bool:
     return bool(path) and '\\' not in path and '\x00' not in path and not path.startswith('/') and all(part not in ('','..','.') for part in path.split('/'))
 
+RUNTIME_DEPENDENCIES={
+    'eventemitter3':('3.1.2','MIT'),
+    'libsodium-sumo':('0.8.4','ISC'),
+    'libsodium-wrappers-sumo':('0.8.4','ISC'),
+    'passwords-client':('1.0.0-beta.6117','ISC'),
+    'process':('0.11.10','MIT'),
+    'querystringify':('2.2.0','MIT'),
+    'requires-port':('1.0.0','MIT'),
+    'url-parse':('1.5.10','MIT'),
+}
+# The pinned passwords-client package has no LICENSE file. Its metadata declares
+# ISC and author Marius Wieschollek. This attribution is reconstructed and is
+# NOT presented as an original upstream license file.
+ISC_PASSWORDS_CLIENT_NOTICE='''Copyright (c) Marius Wieschollek
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+'''
+
+def third_party_license_bundle(root:pathlib.Path)->bytes:
+    """Bundle original notices from the exact locked runtime packages.
+
+    This runs only during package creation, never AIO validation/extraction,
+    which must remain usable without a Node.js/npm installation.
+    """
+    try:
+        lock=json.loads((root/'package-lock.json').read_text(encoding='utf-8'))
+        packages=lock['packages']
+        if lock['lockfileVersion']!=3 or packages['']['version']!=VERSION:
+            raise PackageError('Unexpected lockfile format/version')
+        found=set()
+        pending=list(packages[''].get('dependencies',{}))
+        while pending:
+            name=pending.pop()
+            if name in found:continue
+            if name not in RUNTIME_DEPENDENCIES:
+                raise PackageError('Unreviewed runtime dependency: '+str(name))
+            entry=packages.get('node_modules/'+name)
+            if not isinstance(entry,dict):raise PackageError('Missing locked runtime dependency: '+name)
+            version,license_id=RUNTIME_DEPENDENCIES[name]
+            if entry.get('version')!=version or entry.get('license')!=license_id:
+                raise PackageError('Changed runtime dependency license/version: '+name)
+            found.add(name)
+            pending.extend(entry.get('dependencies',{}))
+            pending.extend(entry.get('optionalDependencies',{}))
+        if found!=RUNTIME_DEPENDENCIES.keys():
+            raise PackageError('Runtime dependency set differs from license inventory')
+        sections=[
+            'Third-party license notices for passwords_otp '+VERSION,
+            'These are runtime package notices; esbuild is a build tool and is not bundled.',
+            'The pinned passwords-client package has no LICENSE file in the inspected installation.',
+            'Its ISC notice below is reconstructed from the declared license and author metadata.',
+            '',
+        ]
+        for name in sorted(found):
+            version,license_id=RUNTIME_DEPENDENCIES[name]
+            directory=root/'node_modules'/name
+            metadata_file=directory/'package.json'
+            if directory.is_symlink() or not directory.is_dir() or metadata_file.is_symlink() or not metadata_file.is_file():
+                raise PackageError('Untrusted/missing installed dependency: '+name)
+            metadata=json.loads(metadata_file.read_text(encoding='utf-8'))
+            if metadata.get('name')!=name or metadata.get('version')!=version or metadata.get('license')!=license_id:
+                raise PackageError('Installed dependency does not match lockfile: '+name)
+            license_text=None;license_source=None
+            for filename in ('LICENSE','LICENSE.md','LICENSE.txt','LICENCE','LICENCE.md','COPYING','NOTICE'):
+                candidate=directory/filename
+                if candidate.is_symlink():raise PackageError('Symlink license notice is forbidden: '+name)
+                if candidate.is_file():
+                    content=candidate.read_bytes()
+                    if not 100<=len(content)<=131072:raise PackageError('Invalid license size: '+name)
+                    license_text=content.decode('utf-8-sig')
+                    license_source='Original npm package file: '+filename
+                    break
+            if license_text is None:
+                if name!='passwords-client' or version!='1.0.0-beta.6117':
+                    raise PackageError('Missing original license file: '+name)
+                author=metadata.get('author','')
+                if isinstance(author,dict):author=author.get('name','')
+                if not isinstance(author,str) or 'Wieschollek' not in author:
+                    raise PackageError('Missing expected upstream author metadata for ISC fallback')
+                license_text=ISC_PASSWORDS_CLIENT_NOTICE
+                license_source='Reconstructed standard ISC notice; not an original upstream LICENSE file'
+            if not re.search(r'copyright',license_text,re.I) or 'Permission' not in license_text or 'THE SOFTWARE IS PROVIDED' not in license_text:
+                raise PackageError('Incomplete third-party license notice: '+name)
+            sections.extend(['-'*72,f'{name}@{version} | {license_id}',license_source,'',license_text.rstrip(),''])
+        return ('\n'.join(sections).rstrip()+'\n').encode('utf-8')
+    except (OSError,UnicodeError,KeyError,TypeError,json.JSONDecodeError) as error:
+        raise PackageError('Cannot assemble third-party licenses: '+str(error)) from error
+
 def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
     if not re.fullmatch(r'[0-9a-f]{40}',commit):raise PackageError('Invalid source commit')
     files={}
     for relative in RUNTIME+OPTIONAL:
+        if relative=='THIRD_PARTY_LICENSES.txt':
+            files[relative]=third_party_license_bundle(root)
+            continue
         path=root/relative
         if relative in OPTIONAL and not path.exists():continue
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):raise PackageError('Unsafe/missing runtime input: '+relative)
