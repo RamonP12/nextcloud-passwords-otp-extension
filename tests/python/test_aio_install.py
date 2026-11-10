@@ -1,0 +1,526 @@
+import argparse
+import io
+import json
+import os
+import pathlib
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / 'scripts'))
+import aio_install as aio
+import release
+
+REAL_ASSERT_ENABLED_SCOPE = aio.AioBackend.assert_enabled_scope
+
+COMMIT = 'a' * 40
+PACKAGE_HASH = 'b' * 64
+BASE = {'container_id': 'cid', 'image': 'ghcr.io/nextcloud-releases/aio-nextcloud:latest',
+        'mount': {'Type': 'volume', 'Name': 'nextcloud_aio_nextcloud',
+                  'Source': '/var/lib/docker/volumes/nextcloud_aio_nextcloud/_data',
+                  'Destination': '/var/www/html', 'RW': True},
+        'nextcloud': '35.0.2', 'passwords': '2026.11.20', 'php': '8.5.12', 'db': 'pgsql',
+        'checker': '', 'passwords_enabled': True}
+
+
+def args(**overrides):
+    data = dict(expect_nc='35.0.2', expect_passwords='2026.11.20', sha256=PACKAGE_HASH,
+                confirm_production=False, ack_backup=False,
+                accept_unapproved_rc=False, accept_browser_token_risk=False,
+                group=None, all_users=False, allow_aio_update_for_rollback=False)
+    data.update(overrides)
+    return argparse.Namespace(**data)
+
+
+class FakeBackend:
+    def __init__(self, fail=None):
+        self.base = json.loads(json.dumps(BASE))
+        self.calls = []
+        self.fail = fail
+        self.published = False
+        self.enabled = False
+        self.disabled = False
+        self.moved = False
+        self.groups = {'pilot', 'otp-pilot', 'otp-test'}
+        self.scope_value = 'no'
+        self.override_scope = None
+        self.lose_group_after_staging = None
+    def assert_group_exists(self, group):
+        self.calls.append('group:info:'+group)
+        if group not in self.groups:
+            raise aio.AioError('Target group does not exist or cannot be verified: '+repr(group))
+    def occ(self, *arguments, **kwargs):
+        if arguments == ('config:app:get', aio.APP, 'enabled'):
+            return self.scope_value
+        raise AssertionError(('unexpected fake occ', arguments))
+    def tick(self, name):
+        self.calls.append(name)
+        if name == self.fail:
+            raise aio.AioError('injected ' + name)
+    def fingerprint(self, nc, passwords):
+        self.tick('fingerprint')
+        assert nc == '35.0.2' and passwords == '2026.11.20'
+        return dict(self.base)
+    def prepare(self, source, transaction, expected):
+        self.tick('prepare')
+        assert (source / 'appinfo/info.xml').exists()
+        if self.lose_group_after_staging:
+            self.groups.discard(self.lose_group_after_staging)
+        return aio.CUSTOM + '/.passwords-otp-stage-' + transaction
+    def publish(self, stage):
+        self.tick('publish')
+        self.published = True
+    def enable(self, group):
+        self.tick('enable')
+        if group is not None:
+            self.assert_group_exists(group)
+        self.enabled = True
+        self.scope_value = (self.override_scope if self.override_scope is not None else
+                            json.dumps([group]) if group is not None else 'yes')
+        # Simulate the real backend's immediate post-enable scope check.
+        REAL_ASSERT_ENABLED_SCOPE(self, group)
+    def verify(self, version, expected, before, group):
+        self.tick('verify')
+        REAL_ASSERT_ENABLED_SCOPE(self, group)
+        assert version == '1.0.0'
+        assert before == BASE
+        assert self.base == before
+        assert self.enabled
+    def verify_emergency(self, version, expected, before):
+        self.tick('verify_emergency')
+        assert self.enabled and self.published
+        if self.base['mount'] != before['mount']:
+            raise aio.AioError('Persistent AIO app-volume identity changed; STOP')
+    def live_exists(self):
+        self.calls.append('live_exists')
+        return self.published
+    def safe_disable(self):
+        self.tick('disable')
+        self.disabled = True
+        self.enabled = False
+        self.scope_value = 'no'
+        return True
+    def move_out_of_service(self, tx, label):
+        self.tick('move')
+        self.moved = True
+        return aio.CUSTOM + '/.passwords-otp-' + label + '-' + tx
+    def cleanup_stage(self, stage):
+        self.calls.append('cleanup')
+
+
+def package_fixture(root):
+    for name in release.RUNTIME:
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b'synthetic-data')
+    (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.0</version></info>')
+    (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
+    (root / 'js/app-100.js').write_text('PASSWORDS_OTP_JS_100_VERIFIED' + '.' * 10011)
+    (root / 'css/app-100.css').write_text('PASSWORDS_OTP_CSS_100_VERIFIED')
+    data, manifest = release.make_package(root, COMMIT)
+    path = root / 'candidate.zip'
+    path.write_bytes(data)
+    return path, manifest, {name: release.digest(b) for name, b in release.validate_package(data, release.digest(data))[0].items()}
+
+
+class Gates(unittest.TestCase):
+    def test_requires_acknowledgements_and_explicit_scope(self):
+        for change in ({}, {'confirm_production': True}, {'confirm_production': True, 'ack_backup': True},
+                       {'confirm_production': True, 'ack_backup': True, 'accept_unapproved_rc': True},
+                       {'confirm_production': True, 'ack_backup': True,
+                        'accept_unapproved_rc': True, 'accept_browser_token_risk': True}):
+            with self.subTest(change=change):
+                with self.assertRaises(aio.AioError):aio.require_confirmation(args(**change))
+        valid = dict(confirm_production=True, ack_backup=True, accept_unapproved_rc=True,
+                     accept_browser_token_risk=True)
+        aio.require_confirmation(args(**valid, group='otp-pilot'))
+        aio.require_confirmation(args(**valid, all_users=True))
+        with self.assertRaises(aio.AioError):aio.require_confirmation(args(**valid, all_users=True, group='otp'))
+        with self.assertRaises(aio.AioError):aio.require_confirmation(args(**valid, group='abc\nxyz'))
+
+    def test_rejects_remote_docker_context(self):
+        with patch.dict(os.environ, {'DOCKER_CONTEXT': 'remote', 'DOCKER_HOST': 'unix:///var/run/docker.sock'}):
+            with patch.object(aio, 'invoke', return_value=json.dumps([
+                {'Endpoints': {'docker': {'Host': 'ssh://other-host'}}}])):
+                with self.assertRaisesRegex(aio.AioError, 'Remote'):aio.local_docker()
+
+    def test_mount_only_persistent_writable(self):
+        info = {'Mounts': [dict(BASE['mount'])]}
+        self.assertEqual(aio.AioBackend.source_mount(info)['RW'], True)
+        for value in [False, None]:
+            info['Mounts'][0]['RW'] = value
+            with self.assertRaises(aio.AioError):aio.AioBackend.source_mount(info)
+        with self.assertRaises(aio.AioError):aio.AioBackend.source_mount({'Mounts': []})
+
+    def test_check_base_versions_pgsql_and_image(self):
+        b = aio.AioBackend()
+        info = {'Name':'/nextcloud-aio-nextcloud','State':{'Running':True},
+                'Config':{'Image':'ghcr.io/nextcloud-releases/aio-nextcloud:latest'},
+                'Mounts':[dict(BASE['mount'])], 'Id':'cid'}
+        def docker(*arguments, **kwargs):return json.dumps([info])
+        def occ(*arguments, **kwargs):
+            if arguments[0]=='status':return json.dumps({'installed':True,'maintenance':False,'versionstring':'35.0.2.2'})
+            if arguments[:2]==('config:system:get','dbtype'):return 'pgsql'
+            if arguments[:2]==('config:system:get','appcodechecker'):return None
+            if arguments[0]=='app:list':return json.dumps({'enabled':{'passwords':'2026.11.20'},'disabled':{}})
+            raise AssertionError(arguments)
+        with patch.object(aio,'local_docker'), patch.object(b,'docker',side_effect=docker),\
+            patch.object(b,'sh'), patch.object(b,'occ',side_effect=occ),patch.object(b,'exec',return_value='8.5.12'):
+            self.assertEqual(b.check_base('35.0.2','2026.11.20')['nextcloud'],'35.0.2.2')
+            info['Config']['Image']='attacker/aio-nextcloud:latest'
+            with self.assertRaisesRegex(aio.AioError,'image'):b.check_base('35.0.2','2026.11.20')
+            info['Config']['Image']='ghcr.io/nextcloud-releases/aio-nextcloud:latest'
+            with self.assertRaisesRegex(aio.AioError,'version'):b.check_base('35.0.3','2026.11.20')
+
+    def test_first_install_preflight_then_install_and_verify(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            package, manifest, expected = package_fixture(root)
+            backend = FakeBackend()
+            preflight = args(group='pilot')
+            aio.preflight(preflight, backend, manifest, PACKAGE_HASH, root)
+            valid = args(confirm_production=True, ack_backup=True, accept_unapproved_rc=True,
+                         accept_browser_token_risk=True, group='pilot')
+            aio.install(valid, backend, release.validate_package(package.read_bytes(), release.digest(package.read_bytes()))[0], manifest, expected, root)
+            self.assertTrue(backend.enabled)
+            self.assertTrue((root/'install.json').exists())
+            aio.verify(valid, backend, manifest, expected, root)
+            self.assertEqual(json.loads((root/'install.json').read_text())['group'],'pilot')
+            aio.rollback(valid, backend, manifest, expected, root)
+            self.assertTrue(backend.disabled);self.assertTrue(backend.moved)
+            self.assertEqual(json.loads((root/'install.json').read_text())['state'],'rolled-back')
+
+    def test_mismatching_fingerprint_blocks_before_mutation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp);package,manifest,expected = package_fixture(root)
+            b = FakeBackend()
+            aio.preflight(args(all_users=True), b, manifest, PACKAGE_HASH, root)
+            b.base['passwords']='2026.11.99'
+            valid = args(confirm_production=True, ack_backup=True, accept_unapproved_rc=True,
+                         accept_browser_token_risk=True, all_users=True)
+            with self.assertRaisesRegex(aio.AioError,'changed'):aio.install(valid,b,
+                 release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertFalse(b.published)
+
+    def test_enable_failure_disables_and_preserves(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend(fail='enable')
+            aio.preflight(args(group='otp-test'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-test')
+            with self.assertRaises(aio.AioError):aio.install(valid,b,
+                release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertTrue(b.disabled);self.assertTrue(b.moved)
+            self.assertFalse((root/'install.json').exists())
+
+    def test_after_enable_verification_failure_disables_and_preserves(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend(fail='verify')
+            aio.preflight(args(group='otp-test'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-test')
+            with self.assertRaises(aio.AioError):aio.install(valid,b,
+                release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertTrue(b.disabled);self.assertTrue(b.moved)
+            self.assertFalse((root/'install.json').exists())
+
+    def test_publish_error_post_move_is_detected_and_rolled_back(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend(fail='publish')
+            b.publish=lambda stage:(setattr(b,'published',True), (_ for _ in ()).throw(aio.AioError('synthetic acknowledged failure')))
+            aio.preflight(args(group='otp-test'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-test')
+            with self.assertRaises(aio.AioError):aio.install(valid,b,
+                release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertTrue(b.disabled);self.assertTrue(b.moved)
+            self.assertIn('live_exists',b.calls)
+
+    def test_pre_publish_failure_never_enables(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend(fail='prepare')
+            aio.preflight(args(group='otp-test'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-test')
+            with self.assertRaises(aio.AioError):aio.install(valid,b,
+                release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertFalse(b.published);self.assertFalse(b.enabled);self.assertFalse(b.moved)
+
+    def test_package_validation_rejects_wrong_digest_and_metadata(self):
+        with tempfile.TemporaryDirectory() as temp:
+            package,manifest,_=package_fixture(pathlib.Path(temp))
+            with self.assertRaises(release.PackageError):aio.load_package(package,'0'*64)
+            files,loaded,digests=aio.load_package(package,release.digest(package.read_bytes()))
+            self.assertFalse(loaded['production_approved']);self.assertIn('BUILD.json',files)
+
+
+    def test_group_info_accepts_only_exact_group_id(self):
+        backend = aio.AioBackend()
+        with patch.object(backend, 'occ', return_value=json.dumps({
+            'groupID':'otp-pilot','displayName':'Friendly pilot name','backends':['Database']})) as occ:
+            backend.assert_group_exists('otp-pilot')
+            occ.assert_called_once_with('group:info','otp-pilot','--output=json')
+        for response in [json.dumps({'groupID':'otp-piolt'}),
+                         json.dumps({'groupID':'OTP-PILOT'}),
+                         '[]', 'invalid-json', '{}']:
+            with self.subTest(response=response),patch.object(backend,'occ',return_value=response):
+                with self.assertRaises(aio.AioError):backend.assert_group_exists('otp-pilot')
+        with patch.object(backend,'occ',side_effect=aio.AioError('synthetic not found')):
+            with self.assertRaises(aio.AioError):backend.assert_group_exists('otp-piolt')
+
+    def test_effective_app_enablement_scope_must_be_exact(self):
+        backend = aio.AioBackend()
+        for invalid in ['yes','no','[]','["wrong"]','["otp-pilot","extra"]',
+                        'null','1','{}','invalid-json','["otp-piolt"]']:
+            with self.subTest(value=invalid),patch.object(backend,'occ',return_value=invalid):
+                with self.assertRaises(aio.AioError):backend.assert_enabled_scope('otp-pilot')
+        with patch.object(backend,'occ',return_value='["otp-pilot"]'):
+            backend.assert_enabled_scope('otp-pilot')
+        with patch.object(backend,'occ',return_value='yes'):
+            backend.assert_enabled_scope(None)
+        with patch.object(backend,'occ',return_value='["otp-pilot"]'):
+            with self.assertRaises(aio.AioError):backend.assert_enabled_scope(None)
+
+    def test_actual_backend_enable_checks_group_before_occ_and_saved_scope_after(self):
+        backend = aio.AioBackend()
+        calls=[]
+        def occ(*arguments):
+            calls.append(arguments)
+            if arguments[0]=='group:info':
+                return json.dumps({'groupID':arguments[1]})
+            if arguments[0]=='app:enable':
+                return 'enabled'   # OCC exit 0 can conceal fallback to all users
+            if arguments[0]=='config:app:get':
+                return 'yes'
+            raise AssertionError(arguments)
+        with patch.object(backend,'occ',side_effect=occ):
+            with self.assertRaisesRegex(aio.AioError,'scope'):backend.enable('otp-pilot')
+        self.assertEqual(calls, [('group:info','otp-pilot','--output=json'),
+                                 ('app:enable','--groups=otp-pilot',aio.APP),
+                                 ('config:app:get',aio.APP,'enabled')])
+
+    def test_preflight_rejects_absent_group_and_never_writes_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend()
+            with self.assertRaisesRegex(aio.AioError,'group'):aio.preflight(args(group='otp-piolt'),b,manifest,PACKAGE_HASH,root)
+            self.assertFalse((root/'preflight.json').exists())
+            self.assertFalse(b.published)
+            with self.assertRaisesRegex(aio.AioError,'Specify exactly one'):
+                aio.preflight(args(),b,manifest,PACKAGE_HASH,root)
+            self.assertFalse((root/'preflight.json').exists())
+
+    def test_preflight_scope_is_immutable_at_install(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend()
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-test')
+            with self.assertRaisesRegex(aio.AioError,'changed'):
+                aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertFalse(b.published)
+
+    def test_group_deleted_after_preflight_blocks_before_publish(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend()
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            b.groups.discard('otp-pilot')
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            with self.assertRaisesRegex(aio.AioError,'does not exist'):
+                aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertFalse(b.published)
+
+    def test_group_deleted_during_staging_triggers_disabled_recovery(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend();b.lose_group_after_staging='otp-pilot'
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            with self.assertRaises(aio.AioError):
+                aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertTrue(b.disabled and b.moved)
+            self.assertFalse((root/'install.json').exists())
+
+    def test_occ_success_global_fallback_triggers_recovery_not_install_pass(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend();b.override_scope='yes'  # Simulates OCC silently enabling globally
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            with self.assertRaises(aio.AioError):
+                aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertTrue(b.disabled and b.moved)
+            self.assertFalse((root/'install.json').exists())
+            self.assertEqual(json.loads(next(root.glob('install-*.json')).read_text())['state'],'failed-disabled-preserved')
+
+    def test_successful_global_enable_requires_explicit_all_users(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend()
+            aio.preflight(args(all_users=True),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,all_users=True)
+            aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            self.assertEqual(b.scope_value,'yes')
+            aio.verify(valid,b,manifest,expected,root)
+            self.assertEqual(json.loads((root/'install.json').read_text())['scope'],{'type':'all-users','group':None})
+
+    def test_verify_and_rollback_refuse_scope_drift(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root)
+            b=FakeBackend()
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            b.scope_value='yes'
+            with self.assertRaisesRegex(aio.AioError,'scope'):aio.verify(valid,b,manifest,expected,root)
+            with self.assertRaisesRegex(aio.AioError,'scope'):aio.rollback(valid,b,manifest,expected,root)
+            self.assertFalse(b.disabled)
+
+
+
+    def test_real_main_cli_dispatch_preflight_install_verify_rollback(self):
+        """Exercise the ACTUAL argparse/main/exclusive_state path, not just helpers."""
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            package, manifest, expected = package_fixture(root)
+            sha = release.digest(package.read_bytes())
+            backend = FakeBackend()
+            common = ['--package', str(package), '--sha256', sha,
+                      '--state-dir', str(root/'receipts'), '--group', 'otp-pilot']
+            confirmations = ['--confirm-production', '--ack-aio-backup',
+                             '--accept-unapproved-rc', '--accept-browser-token-risk']
+            with patch.object(aio, 'AioBackend', return_value=backend):
+                self.assertIsNone(aio.main(['--preflight', *common]))
+                receipt = root/'receipts'/'preflight.json'
+                self.assertTrue(receipt.is_file())
+                self.assertEqual(json.loads(receipt.read_text())['scope'],
+                                 {'type':'group','group':'otp-pilot'})
+                self.assertIsNone(aio.main(['--install', *common, *confirmations]))
+                self.assertTrue((root/'receipts'/'install.json').is_file())
+                self.assertIsNone(aio.main(['--verify', *common]))
+                self.assertIsNone(aio.main(['--rollback', *common,
+                                              '--confirm-production', '--ack-aio-backup']))
+                self.assertEqual(json.loads((root/'receipts'/'install.json').read_text())['state'],
+                                 'rolled-back')
+            self.assertTrue(backend.disabled and backend.moved)
+            self.assertFalse(backend.enabled)
+
+    def test_real_main_cli_dispatch_inspect_is_read_only(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            backend = FakeBackend()
+            with patch.object(aio, 'AioBackend', return_value=backend), \
+                 patch.object(backend, 'check_base', return_value=dict(BASE), create=True):
+                self.assertIsNone(aio.main(['--inspect', '--state-dir', str(root/'unused')]))
+            self.assertFalse((root/'unused').exists())
+            self.assertFalse(backend.published)
+
+    def test_real_main_cli_rejects_typo_before_any_install_or_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,_,_=package_fixture(root)
+            sha=release.digest(package.read_bytes());backend=FakeBackend()
+            common=['--package',str(package),'--sha256',sha,'--state-dir',str(root/'receipts')]
+            with patch.object(aio, 'AioBackend', return_value=backend):
+                with self.assertRaisesRegex(aio.AioError, 'group'):
+                    aio.main(['--preflight', *common, '--group','otp-piolt'])
+                self.assertFalse((root/'receipts'/'preflight.json').exists())
+                self.assertFalse(backend.published)
+                with self.assertRaisesRegex(aio.AioError, 'Specify exactly one'):
+                    aio.main(['--preflight', *common])
+
+    def test_real_main_cli_enforces_scope_against_stale_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,_,_=package_fixture(root)
+            sha=release.digest(package.read_bytes());backend=FakeBackend()
+            common=['--package',str(package),'--sha256',sha,'--state-dir',str(root/'receipts')]
+            confirmations=['--confirm-production','--ack-aio-backup',
+                           '--accept-unapproved-rc','--accept-browser-token-risk']
+            with patch.object(aio, 'AioBackend', return_value=backend):
+                aio.main(['--preflight',*common,'--group','otp-pilot'])
+                with self.assertRaisesRegex(aio.AioError, 'changed'):
+                    aio.main(['--install',*common,'--group','otp-test',*confirmations])
+                self.assertFalse(backend.published)
+                with self.assertRaisesRegex(aio.AioError, 'Install requires'):
+                    aio.main(['--install',*common,'--group','otp-pilot'])
+                self.assertFalse(backend.published)
+
+    def test_real_main_cli_rejects_global_fallback_and_recovers(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,_,_=package_fixture(root)
+            sha=release.digest(package.read_bytes());backend=FakeBackend()
+            common=['--package',str(package),'--sha256',sha,'--state-dir',str(root/'receipts'),
+                    '--group','otp-pilot']
+            confirmations=['--confirm-production','--ack-aio-backup',
+                           '--accept-unapproved-rc','--accept-browser-token-risk']
+            with patch.object(aio, 'AioBackend', return_value=backend):
+                aio.main(['--preflight',*common])
+                backend.override_scope='yes'  # OCC reports success but enables for ALL users
+                with self.assertRaises(aio.AioError):
+                    aio.main(['--install',*common,*confirmations])
+            self.assertTrue(backend.disabled and backend.moved)
+            self.assertFalse((root/'receipts'/'install.json').exists())
+
+
+    def test_update_blocks_strict_rollback_but_emergency_disables_only_same_app(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root);b=FakeBackend()
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            b.base['container_id']='cid-updated';b.base['nextcloud']='35.0.3';b.base['passwords']='2026.12.0'
+            with self.assertRaises(AssertionError):aio.rollback(valid,b,manifest,expected,root)
+            self.assertFalse(b.disabled)
+            emergency=args(confirm_production=True,ack_backup=True,allow_aio_update_for_rollback=True)
+            aio.rollback(emergency,b,manifest,expected,root)
+            self.assertTrue(b.disabled and b.moved)
+            self.assertEqual(json.loads((root/'install.json').read_text())['mode'],'emergency-after-aio-update')
+
+    def test_emergency_refuses_changed_volume_and_missing_ack(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp);package,manifest,expected=package_fixture(root);b=FakeBackend()
+            aio.preflight(args(group='otp-pilot'),b,manifest,PACKAGE_HASH,root)
+            valid=args(confirm_production=True,ack_backup=True,accept_unapproved_rc=True,
+                       accept_browser_token_risk=True,group='otp-pilot')
+            aio.install(valid,b,release.validate_package(package.read_bytes(),release.digest(package.read_bytes()))[0],manifest,expected,root)
+            with self.assertRaises(aio.AioError):aio.rollback(args(allow_aio_update_for_rollback=True),b,manifest,expected,root)
+            b.base['mount']['Source']='/unexpected/volume'
+            with self.assertRaisesRegex(aio.AioError,'volume'):aio.rollback(
+                args(confirm_production=True,ack_backup=True,allow_aio_update_for_rollback=True),
+                b,manifest,expected,root)
+            self.assertFalse(b.disabled)
+
+    def test_real_emergency_backend_checks_identity_hashes_and_mount(self):
+        b=aio.AioBackend()
+        newer={'Name':'/nextcloud-aio-nextcloud','State':{'Running':True},
+               'Config':{'Image':'ghcr.io/nextcloud-releases/aio-nextcloud:latest'},
+               'Mounts':[dict(BASE['mount'])], 'Id':'new-container-id'}
+        hashes={'appinfo/info.xml':'a'*64}
+        def occ(*arguments):
+            if arguments[:2]==('config:system:get','dbtype'):return 'pgsql'
+            if arguments[0]=='app:list':return json.dumps({'enabled':{aio.APP:'1.0.0'},'disabled':{}})
+            if arguments[:2]==('config:app:get',aio.APP):return '1.0.0'
+            if arguments[0]=='app:getpath':return aio.LIVE
+            raise AssertionError(arguments)
+        with patch.object(aio,'local_docker'),patch.object(b,'docker',side_effect=lambda *args, **kwargs: json.dumps([newer])),             patch.object(b,'occ',side_effect=occ),patch.object(b,'sh',return_value=''),             patch.object(b,'hashes',return_value=hashes) as checked:
+            b.verify_emergency('1.0.0',hashes,BASE)
+            newer['Mounts'][0]['Source']='/wrong/volume'
+            with self.assertRaisesRegex(aio.AioError,'volume'):b.verify_emergency('1.0.0',hashes,BASE)
+            newer['Mounts'][0]['Source']=BASE['mount']['Source']
+            checked.return_value={'unknown':'b'*64}
+            with self.assertRaisesRegex(aio.AioError,'files changed'):b.verify_emergency('1.0.0',hashes,BASE)
+
+
+if __name__ == '__main__':unittest.main()

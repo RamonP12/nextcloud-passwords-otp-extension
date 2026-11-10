@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a new feature or improvement.
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: "Describe the user need and boundaries; avoid sharing confidential Passwords or account data."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the practical use case.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security, compatibility or migration considerations

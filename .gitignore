@@ -1,0 +1,6 @@
+node_modules/
+.build/
+*.pyc
+__pycache__/
+js/app-*.js
+js/app-*.js.LEGAL.txt

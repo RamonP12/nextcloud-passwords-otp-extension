@@ -1,0 +1,70 @@
+# Nextcloud Passwords OTP Code Generator
+
+An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused desktop interface without modifying the original Passwords application.
+
+**Version: 1.0.0** · **License: AGPL-3.0-or-later** · **Distribution: source / manual installation; not in the Nextcloud App Store**
+
+## Features
+
+- View and copy TOTP codes from your own and Passwords-shared entries.
+- Search OTP accounts without losing the underlying entries.
+- Generate TOTP codes locally with WebCrypto (RFC 6238; supported existing SHA-1, SHA-256, SHA-512 configurations).
+- Create **new** Passwords entries with an Android-compatible TOTP custom field; the source Passwords app manages sharing and later edits.
+- Support Passwords vault authentication, including compatible CSE master-passphrase and two-factor challenges.
+- Recheck the Nextcloud login before generating codes for new 30-second time windows and when returning to the page.
+
+## Tested environment
+
+| Component | Validation |
+| --- | --- |
+| Nextcloud | 35.0.2 (internal 35.0.2.2) |
+| Nextcloud Passwords | 2026.11.20 |
+| PHP | 8.4.27 on a Nextcloud AIO pilot; automated security checks on PHP 8.5 |
+| Database | PostgreSQL (AIO pilot), MariaDB (local development fixture) |
+| Browser | Desktop browser pilot; automated synthetic Chromium tests |
+
+The underlying OTP runtime has been operated successfully in an actual five-user AIO pilot and a separate local test environment. **The 1.0.0 versioned package is a new build and must pass its own tests before publishing release binaries.** Other versions and platforms have not been validated; see [Compatibility](docs/COMPATIBILITY.md) and [Validation](docs/VALIDATION.md).
+
+## Requirements and installation
+
+- Nextcloud 35 and the original, enabled Nextcloud Passwords app.
+- A compatible PHP installation and a browser supporting WebCrypto.
+- A verified full Nextcloud/database backup and a documented restore path.
+- For the supplied AIO installer: Docker with a local Unix socket, PostgreSQL, persistent custom_apps storage, Python 3.10+, a verified package, and a real target group.
+
+**The supplied AIO installer performs first-time installs only.** It deliberately refuses an installation where passwords_otp already exists, including upgrades from earlier pilot versions. In particular, **do not run the 1.0.0 AIO first-install command against an existing 0.7.3 deployment**.
+
+Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). This project is not distributed through the Nextcloud App Store.
+
+## What it does not do
+
+- No HOTP counter support.
+- No editing or deleting existing Passwords entries in this interface.
+- No independent, read-only API credential: the Passwords WebUI bearer token has broader privileges than the buttons exposed by this app.
+- No server-guaranteed immediate Passwords API logout when a browser tab closes.
+- No general, tested in-place upgrade tool for production AIO installations.
+- Current user interface is primarily **German**.
+
+Storing account passwords and their TOTP secrets in the same vault may reduce the independence of the second factor. The app is **not** an additional factor protecting access to that vault. Review [Security boundaries](docs/SECURITY_REVIEW.md) before enabling it.
+
+## Development
+
+Requires Node.js 22+, Python 3.10+, and the locked npm dependencies.
+
+~~~sh
+npm ci
+npm test
+npm run test:client
+npm run build
+python3 scripts/release.py .build/package
+~~~
+
+The repository also includes Python, PHP and synthetic Chromium tests. A green build does not substitute for real Nextcloud/Passwords compatibility testing. See [Development and contributions](CONTRIBUTING.md).
+
+## Support, security and licenses
+
+Report functional issues using [GitHub Issues](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues). Report security vulnerabilities **privately** as described in [Security Policy](.github/SECURITY.md). Never post real passwords, TOTP secrets, API tokens, cookies or unredacted network traces.
+
+Own code: **GNU AGPL-3.0-or-later**; see [LICENSE](LICENSE). Bundled dependencies retain their own licenses; see [Third-party notices](THIRD_PARTY_NOTICES.md).
+
+**Unofficial community project.** Not affiliated with or endorsed by Nextcloud GmbH or the original Nextcloud Passwords maintainers.

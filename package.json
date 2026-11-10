@@ -1,0 +1,31 @@
+{
+  "name": "nextcloud-passwords-otp-extension",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/js/*.test.mjs",
+    "test:client": "esbuild tests/client/integration.mjs --bundle --platform=node --target=node22 --format=cjs --outfile=.build/client-test.cjs && node --test .build/client-test.cjs",
+    "build": "esbuild src/ap1/index.js --bundle --format=iife --platform=browser --target=es2022 --minify --legal-comments=linked --outfile=js/app-100.js",
+    "test:php": "php tests/php/security.php"
+  },
+  "dependencies": {
+    "passwords-client": "1.0.0-beta.6117",
+    "libsodium-wrappers-sumo": "0.8.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  },
+  "description": "Independent TOTP viewer and OTP-enabled entry creator for Nextcloud Passwords",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RamonP12/nextcloud-passwords-otp-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues"
+  }
+}

@@ -1,0 +1,15 @@
+# Automatic version bump PRs are paused while the first public v1.0.0
+# source baseline is validated. Re-enable after the release gate is complete.
+# This does not disable GitHub's separate security alerts.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

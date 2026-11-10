@@ -1,0 +1,74 @@
+name: CI - Passwords OTP 1.0.0
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: desktop-rc-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    name: JS, actual client, package, PHP 8.5
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Locked dependencies, unit tests, audit and deterministic package
+        run: python3 scripts/local.py --build
+      - name: PHP 8.5 syntax and controller contracts
+        run: |
+          docker run --rm --network none --read-only -v "$PWD:/src:ro" -w /src php:8.5-cli sh -ec '
+            find appinfo lib templates tests/php -name "*.php" -print0 | xargs -0 -n1 php -l >/dev/null
+            php tests/php/security.php
+          '
+  desktop:
+    name: Chromium desktop and keyboard (synthetic transport)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Isolated Python desktop driver
+        run: |
+          python3 -m venv .build/desktop-venv
+          .build/desktop-venv/bin/pip install --disable-pip-version-check playwright==1.57.0
+      - name: Actual app modules, native modal and desktop reflow
+        run: |
+          export CHROME_BIN="$(command -v google-chrome || command -v chromium)"
+          test -n "$CHROME_BIN"
+          .build/desktop-venv/bin/python tests/browser/desktop.py --output .build/desktop
+  candidate:
+    name: Reproducible verification artifact (not a GitHub Release)
+    needs: [checks, desktop]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          python3 scripts/release.py .build/package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: passwords-otp-1.0.0-unreleased-test-package
+          path: .build/package/*
+          retention-days: 30
+# Real NC35 integration is intentionally performed against the operator's
+# existing localhost fixture, not claimed by this hosted CI workflow.
+# Uploading a CI artifact does not publish or certify a release.

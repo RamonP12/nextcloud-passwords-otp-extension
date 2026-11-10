@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a functional bug using non-sensitive test data.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include credentials, OTP secrets, Passwords exports, cookies or tokens. Security vulnerabilities must be reported privately using the Security Policy."
+  - type: input
+    id: app
+    attributes:
+      label: OTP app version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Nextcloud / Passwords / PHP versions
+      placeholder: "Nextcloud 35.0.2; Passwords 2026.11.20; PHP 8.4"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce with synthetic data
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed result
+    validations:
+      required: true
