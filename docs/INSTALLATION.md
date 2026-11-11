@@ -2,7 +2,7 @@
 
 **Distribution:** unsigned, unofficial GitHub source/release ZIP; not in the Nextcloud App Store. This is a manual **first-install** path, not a supported upgrade procedure.
 
-**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** See [Validation](VALIDATION.md).
+**Release status (2026-11-11):** The exact published v1.0.0 ZIP passed a real manual installation into an existing disposable HTTPS localhost/Docker Compose/MariaDB Nextcloud fixture: **10/10 blocks, 49/49 checks**. A first install of this ZIP on **AIO/PostgreSQL** remains pending. See [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [Validation](VALIDATION.md) and [release integrity](RELEASE_INTEGRITY_v1.0.0.md).
 
 ## Requirements
 
@@ -11,9 +11,13 @@
 - Backups of Nextcloud database and persistent application data, with a tested restoration procedure.
 - For AIO: persistent writable `custom_apps` storage, PostgreSQL, local Docker Unix socket, Python 3.10+, and an existing group for restricted installation.
 
+## Observed local installation (not a general-purpose non-AIO procedure)
+
+The operator completely removed the internal local 0.7.3 app and installed the verified v1.0.0 ZIP into an already running Nextcloud 35.0.2.2 fixture. The original Passwords 2026.11.20 app remained unchanged and the OTP app was restricted to group `otp-v1-pilot`. The recorded 49 checks cover file integrity, CSE, TOTP reference, sharing, group access and session expiry/logout. This is evidence of **one local integration**, not certification of other environments or a turnkey installer.
+
 ## Option A (recommended): use the verified v1.0.0 release ZIP
 
-The [v1.0.0 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0) supplies exactly three files: `passwords_otp-1.0.0.zip`, `passwords_otp-1.0.0.zip.sha256`, and `BUILD.json`. The release link becomes available to the general public after the draft is published.
+The [v1.0.0 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0) supplies exactly three files: `passwords_otp-1.0.0.zip`, `passwords_otp-1.0.0.zip.sha256`, and `BUILD.json`. The release was published on 2026-11-11; these three asset names and their SHA256 digests were verified against GitHub's release metadata.
 
 Download the assets into an empty local directory:
 
@@ -83,7 +87,7 @@ Follow the complete [AIO manual installation guide](AIO_MANUAL_INSTALL.md), incl
 
 ## Non-AIO installations
 
-The app targets Nextcloud 35, but **no general-purpose non-AIO installation procedure is verified** for v1.0.0. The AIO installer is not a generic Docker or bare-metal installer.
+The app targets Nextcloud 35. The published ZIP was successfully deployed in **one local maintainer-specific Docker Compose/MariaDB test environment**, but **no generally supported or documented non-AIO installation procedure** has been released for v1.0.0. The AIO installer is not a generic Docker or bare-metal installer.
 
 ## After installation
 
