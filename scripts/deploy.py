@@ -10,7 +10,7 @@ PHP='passwords-php'; NGINX='passwords-nginx'
 class DeploymentError(RuntimeError):pass
 class RolledBack(DeploymentError):pass
 
-SUPPORTED_ASSETS = {'0.6.1': 'ap061', '0.7.0': 'app-070', '0.7.1': 'app-071', '0.7.2': 'app-072', '0.7.3': 'app-073', '1.0.0': 'app-100', '1.0.1': 'app-100'}
+SUPPORTED_ASSETS = {'0.6.1': 'ap061', '0.7.0': 'app-070', '0.7.1': 'app-071', '0.7.2': 'app-072', '0.7.3': 'app-073', '1.0.0': 'app-100', '1.0.1': 'app-101'}
 def asset_for_version(version:str)->str:
     try:return SUPPORTED_ASSETS[version]
     except KeyError:raise DeploymentError('Unsupported OTP asset version') from None
