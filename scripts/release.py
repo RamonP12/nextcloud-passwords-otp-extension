@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse, hashlib, io, json, os, pathlib, re, stat, subprocess, zipfile
 import xml.etree.ElementTree as ET
-VERSION='1.0.0'
+VERSION='1.0.1'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
