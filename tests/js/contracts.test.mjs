@@ -12,9 +12,9 @@ test('Version and asset references agree; dependency graph is pinned',()=>{
  assert.equal(read('appinfo/info.xml').match(/<version>([^<]+)<\/version>/)?.[1],pkg.version);
  assert.equal(read('templates/main.php').match(/data-template-build="([^"]+)"/)?.[1],pkg.version);
  assert.equal(read('scripts/release.py').match(/^VERSION='([^']+)'/m)?.[1],pkg.version);
- assert.match(read('src/ap1/index.js'),/PASSWORDS_OTP_JS_100_VERIFIED/);assert.match(read('css/app-100.css'),/PASSWORDS_OTP_CSS_100_VERIFIED/);
- assert.equal((read('lib/Controller/PageController.php').match(/'app-100'/g)||[]).length,2);
- // 1.0.1 is a metadata-only hotfix. Runtime bundle/CSS names and byte content remain identical to the verified 1.0.0 files.
+ assert.match(read('src/ap1/index.js'),/PASSWORDS_OTP_JS_101_VERIFIED/);assert.match(read('css/app-101.css'),/PASSWORDS_OTP_CSS_101_VERIFIED/);
+ assert.equal((read('lib/Controller/PageController.php').match(/'app-101'/g)||[]).length,2);
+ // 1.0.1 is a metadata/asset-version hotfix. The only runtime changes are the versioned asset names and build-marker text; business logic remains unchanged.
  assert.match(read('appinfo/info.xml'),/<bugs>https:\/\/github\.com\/RamonP12\/nextcloud-passwords-otp-extension\/issues<\/bugs>/);
  assert.ok(read('appinfo/info.xml').indexOf('</category>')<read('appinfo/info.xml').indexOf('<bugs>'));
  assert.ok(read('appinfo/info.xml').indexOf('</bugs>')<read('appinfo/info.xml').indexOf('<repository>'));
@@ -36,11 +36,11 @@ test('Creation remains the only own password mutation endpoint',()=>{
 });
 test('Browser dialog is closed initially, scoped, modal and keyboard-cycle constrained',()=>{
  const tag=read('templates/main.php').match(/<dialog\b[^>]*>/s)?.[0];assert.ok(tag);assert.doesNotMatch(tag,/\sopen(?:\s|=|>)/);
- const css=read('css/app-100.css');assert.match(css,/:not\(\[open\]\)\s*\{display:none!important/);assert.match(css,/position:fixed;inset:0;margin:auto/);
+ const css=read('css/app-101.css');assert.match(css,/:not\(\[open\]\)\s*\{display:none!important/);assert.match(css,/position:fixed;inset:0;margin:auto/);
  assert.match(read('src/ap1/index.js'),/event\.key !== 'Tab'/);assert.match(read('src/ap1/index.js'),/event\.persisted/);
 });
 test('Only current browser asset is built and no runtime test loader is used',()=>{
- const pkg=JSON.parse(read('package.json'));assert.match(pkg.scripts.build,/outfile=js\/app-100\.js/);
+ const pkg=JSON.parse(read('package.json'));assert.match(pkg.scripts.build,/outfile=js\/app-101\.js/);
  assert.doesNotMatch(pkg.scripts.build,/reference|fixture|ap1\.js|ap061/);
  assert.doesNotMatch(sources('src').map(read).join('\n'),/__otpReferenceDependencies|fixture-client|__cryptoFixture/);
 });
@@ -53,7 +53,7 @@ test('1.0.1 keeps the test badges, counters and manual lock REMOVED',()=>{
   assert.ok(!code.includes(id),id+' must not be queried');
  }
  assert.doesNotMatch(code,/countEl|cseEl|lockButton/);
- assert.doesNotMatch(read('css/app-100.css'),/passwords-otp-ap0__(?:version|notice|metrics|metric)/);
+ assert.doesNotMatch(read('css/app-101.css'),/passwords-otp-ap0__(?:version|notice|metrics|metric)/);
 });
 test('1.0.1 uses the exact requested German title, subtitle and explanatory copy',()=>{
  const template=read('templates/main.php');
@@ -110,5 +110,5 @@ test('Full snapshot render creates all OTP rows before filtering; Chromium uses 
  const presenter=read('src/ap3/ui.mjs');
  assert.match(presenter,/renderOtpView\(snapshot, '', this\.nodes, this\.doc/);
  assert.match(presenter,/this\.filter\(query\)/);
- assert.match(read('tests/browser/desktop.py'),/css\/app-100\.css/);
+ assert.match(read('tests/browser/desktop.py'),/css\/app-101\.css/);
 });
