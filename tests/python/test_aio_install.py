@@ -121,8 +121,8 @@ def package_fixture(root):
         target.write_bytes(b'synthetic-data')
     (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.1</version></info>')
     (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
-    (root / 'js/app-100.js').write_text('PASSWORDS_OTP_JS_100_VERIFIED' + '.' * 10011)
-    (root / 'css/app-100.css').write_text('PASSWORDS_OTP_CSS_100_VERIFIED')
+    (root / 'js/app-101.js').write_text('PASSWORDS_OTP_JS_101_VERIFIED' + '.' * 10011)
+    (root / 'css/app-101.css').write_text('PASSWORDS_OTP_CSS_101_VERIFIED')
     with patch.object(release, 'third_party_license_bundle',
                       return_value=b'SYNTHETIC AIO TEST LICENSE NOTICES - NOT FOR DISTRIBUTION\n') as licenses:
         data, manifest = release.make_package(root, COMMIT)
