@@ -39,6 +39,6 @@ This checklist covers **repository administration only**. The **v1.0.0 tag is pr
 
 - Release source commit: `56d6de06e4825c9bd03b4b07dec5825d64228390`.
 - Release ZIP SHA256: `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256`.
-- The new untagged `main` documentation commits do **not** change the tested release; `v1.0.0` remains immutable.
+- New documentation commits on moving `main` do **not** change the tagged v1.0.0 source or the current release files. The **tag reference is protected**, but the **published release assets are not GitHub-immutable** (`immutable=false`); use the recorded checksums for subsequent integrity checks.
 - GitHub Actions checks are **currently disabled**. The exact published v1.0.0 package **has** passed the local Docker Compose/MariaDB app-installation and 49/49 browser/integrity checks; a **separate AIO/PostgreSQL first-install acceptance** remains outstanding.
 - If any admin control cannot be activated, stop and report the gap rather than claiming it is enabled.
