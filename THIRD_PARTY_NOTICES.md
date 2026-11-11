@@ -20,7 +20,7 @@ Every generated release ZIP must contain **THIRD_PARTY_LICENSES.txt**, with the 
 
 **Special case: passwords-client.** This pinned npm package does not contain a separate LICENSE file in the inspected installation. Its package metadata declares ISC and names Marius Wieschollek as the author. For precisely this pinned version, the generator supplies a reconstructed standard ISC notice with that attribution, clearly identified as **not an original upstream license file**. A changed version or missing expected metadata stops the build.
 
-esbuild's optional **js/app-100.js.LEGAL.txt** contains only build-preserved legal comments. It is supplementary and cannot replace the complete license file. esbuild itself is a build-only dependency and is not distributed in the release ZIP.
+esbuild's optional **js/app-101.js.LEGAL.txt** contains only build-preserved legal comments. It is supplementary and cannot replace the complete license file. esbuild itself is a build-only dependency and is not distributed in the release ZIP.
 
 Nextcloud and Nextcloud Passwords are external runtime dependencies; their code is not relicensed by this project. Their names are used solely to describe compatibility and do not imply an endorsement.
 
