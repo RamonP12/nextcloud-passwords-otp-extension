@@ -6,7 +6,7 @@ class PackageTests(unittest.TestCase):
   for name in release.RUNTIME:
    if name=='THIRD_PARTY_LICENSES.txt':continue
    p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'fixture')
-  (root/'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.1</version></info>')
+  (root/'appinfo/info.xml').write_text('<info><id>passwords_otp</id><name>Test</name><summary>Test</summary><description>Test</description><version>1.0.1</version><licence>AGPL-3.0-or-later</licence><author>Test</author><category>security</category><bugs>https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues</bugs><repository>https://github.com/RamonP12/nextcloud-passwords-otp-extension</repository><dependencies><nextcloud min-version="35"/></dependencies></info>')
   (root/'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
   (root/'js/app-101.js').write_text('/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_101_VERIFIED\n'+'x'*10001)
   (root/'css/app-101.css').write_text('PASSWORDS_OTP_CSS_101_VERIFIED')
@@ -27,6 +27,23 @@ class PackageTests(unittest.TestCase):
    self.assertIn('Reconstructed standard ISC notice',notices)
    release.extract_checked(files,root/'unpacked');self.assertEqual((root/'unpacked/js/app-101.js').read_bytes(),files['js/app-101.js'])
    with self.assertRaises(release.PackageError):release.extract_checked(files,root/'unpacked')
+ def test_missing_bugs_element_fails_closed(self):
+  with tempfile.TemporaryDirectory() as temp:
+   root=pathlib.Path(temp);self.fixture(root)
+   xml=root/'appinfo/info.xml'
+   xml.write_text(xml.read_text().replace('<bugs>https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues</bugs>',''))
+   with self.assertRaisesRegex(release.PackageError,'bugs'):
+    release.make_package(root,'a'*40)
+ def test_bugs_element_in_wrong_xsd_order_fails_closed(self):
+  with tempfile.TemporaryDirectory() as temp:
+   root=pathlib.Path(temp);self.fixture(root)
+   xml=root/'appinfo/info.xml'
+   content=xml.read_text()
+   b='<bugs>https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues</bugs>'
+   content=content.replace(b,'').replace('</repository>','</repository>'+b)
+   xml.write_text(content)
+   with self.assertRaisesRegex(release.PackageError,'sequence'):
+    release.make_package(root,'a'*40)
  def test_wrong_sha_and_missing_bundle(self):
   with tempfile.TemporaryDirectory()as temp:
    root=pathlib.Path(temp);self.fixture(root);a,_=release.make_package(root,'a'*40)
