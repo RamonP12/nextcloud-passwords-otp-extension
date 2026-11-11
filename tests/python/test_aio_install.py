@@ -119,7 +119,7 @@ def package_fixture(root):
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(b'synthetic-data')
-    (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.1</version></info>')
+    (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><name>Test</name><summary>Test</summary><description>Test</description><version>1.0.1</version><licence>AGPL-3.0-or-later</licence><author>Test</author><category>security</category><bugs>https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues</bugs><repository>https://github.com/RamonP12/nextcloud-passwords-otp-extension</repository><dependencies><nextcloud min-version="35"/></dependencies></info>')
     (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
     (root / 'js/app-101.js').write_text('PASSWORDS_OTP_JS_101_VERIFIED' + '.' * 10011)
     (root / 'css/app-101.css').write_text('PASSWORDS_OTP_CSS_101_VERIFIED')
