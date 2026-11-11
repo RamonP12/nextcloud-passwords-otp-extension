@@ -5,7 +5,7 @@ import {renderOtpView} from '../ap2/view.mjs';
 import {TotpPresenter} from '../ap3/ui.mjs';
 import {makeSessionCheck} from '../ap9/session-check.mjs';
 import {boundedRequest} from './network.mjs';
-document.getElementById('passwords-otp-app')?.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_100_VERIFIED');
+document.getElementById('passwords-otp-app')?.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_101_VERIFIED');
 const byId = id => document.getElementById(id);
 const el = id => byId('passwords-otp-ap1-' + id);
 const statusEl = el('status'), form = el('login');
