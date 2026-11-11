@@ -2,7 +2,7 @@
 
 **Scope:** a fresh installation of `passwords_otp` on Nextcloud AIO with **Nextcloud 35.0.2**, official **Passwords 2026.11.20**, PostgreSQL, PHP 8.3–8.5, persistent `custom_apps` storage and a valid restricted user group.
 
-**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** No general production or App Store approval is claimed. The package is unsigned; `BUILD.json` intentionally contains `production_approved=false`.
+**The published v1.0.0 ZIP passed a separate local Docker Compose/MariaDB acceptance (10/10 blocks, 49/49 checks), but a real first installation on AIO/PostgreSQL of this exact ZIP is still pending.** The local outcome must not be treated as authorization to run these AIO procedures on production. See [2026-11-11 acceptance report](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md). No general production or App Store approval is claimed. The package is unsigned; `BUILD.json` intentionally contains `production_approved=false`.
 
 **No in-place upgrades.** The AIO installer refuses an existing `passwords_otp` app. The original Passwords app is not changed. The legacy flag `--accept-unapproved-rc` remains the explicit acknowledgement required by the v1.0.0 installer; it does not denote an approved release.
 
