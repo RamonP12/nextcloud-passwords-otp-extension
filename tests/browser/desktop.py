@@ -103,8 +103,8 @@ def main():
                 expect(page.locator('#passwords-otp-ap12-help')).to_have_text('Hier kann ein neuer OTP Eintrag zu deinen Passw\u00f6rtern hinzugef\u00fcgt werden. Er wird in der Passwords App gespeichert und kann \u00fcber diese App auch verwaltet (gel\u00f6scht, ver\u00e4ndert) und mit anderen NextCloud Benutzern geteilt werden.')
                 expect(page.locator('.passwords-otp-ap0__version,.passwords-otp-ap0__notice,.passwords-otp-ap0__metrics,#passwords-otp-ap1-lock,#passwords-otp-ap1-count,#passwords-otp-ap1-cse,#passwords-otp-ap2-count,#passwords-otp-ap2-invalid')).to_have_count(0)
                 assert 'Testversion' not in page.locator('body').inner_text()
-                assert '1.0.0' not in page.locator('body').inner_text()
-                assert page.locator('#passwords-otp-app').get_attribute('data-template-build')=='1.0.0'
+                assert '1.0.1' not in page.locator('body').inner_text()
+                assert page.locator('#passwords-otp-app').get_attribute('data-template-build')=='1.0.1'
                 modal=page.locator('#passwords-otp-ap12-dialog');opener=page.locator('#passwords-otp-ap12-open')
                 expect(opener).to_have_text('Neues OTP Passwort hinzuf\u00fcgen')
                 expect(page.locator('#passwords-otp-ap12-title')).to_have_text('Neues OTP Passwort hinzuf\u00fcgen')
