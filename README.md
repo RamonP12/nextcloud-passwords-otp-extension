@@ -23,10 +23,10 @@ An **independent, unofficial Nextcloud app** that displays time-based one-time p
 | Nextcloud | 35.0.2 (internal 35.0.2.2) |
 | Nextcloud Passwords | 2026.11.20 |
 | PHP | 8.4.27 on a Nextcloud AIO pilot; automated security checks on PHP 8.5 |
-| Database | PostgreSQL (AIO pilot), MariaDB (local development fixture) |
-| Browser | Desktop browser pilot; automated synthetic Chromium tests |
+| Database | PostgreSQL (earlier internal AIO pilot); MariaDB (published v1.0.0 local acceptance) |
+| Browser | Real desktop browser acceptance on localhost; earlier pilot and synthetic Chromium tests |
 
-**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** Earlier internal pilot results are documented separately and do not constitute acceptance of the published 1.0.0 ZIP. Other versions and platforms have not been validated; see [Compatibility](docs/COMPATIBILITY.md) and [Validation](docs/VALIDATION.md).
+**The exact published v1.0.0 ZIP passed a manual localhost/Docker Compose acceptance on 2026-11-11: 10/10 test blocks and 49/49 individual checks.** This was a fresh v1.0.0 app installation into an existing disposable Nextcloud/MariaDB test fixture after removing an older internal candidate. **A real AIO/PostgreSQL first-install of the published ZIP is still outstanding**; the earlier internal AIO pilot does not satisfy that gate. See [full local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [validation](docs/VALIDATION.md), [compatibility](docs/COMPATIBILITY.md) and [release integrity / mutability record](docs/RELEASE_INTEGRITY_v1.0.0.md).
 
 ## Requirements and installation
 

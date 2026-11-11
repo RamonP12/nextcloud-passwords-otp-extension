@@ -14,6 +14,6 @@ All notable changes to the publicly maintained project are documented here. The 
 
 **Compatibility:** Nextcloud 35.0.2, Passwords 2026.11.20; broader versions are unverified.
 
-**Status:** Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending. The verified ZIP is bound to tag `v1.0.0` (source commit `56d6de06e4825c9bd03b4b07dec5825d64228390`); release integrity and bundled licenses were checked independently. No general production approval is claimed.
+**Post-release acceptance (2026-11-11):** The **exact published v1.0.0 ZIP** passed installation and functional verification in the maintainer's disposable local Nextcloud 35.0.2.2 / Passwords 2026.11.20 / Docker Compose / MariaDB fixture: **10/10 blocks, 49/49 checks**. See [local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md). The verified ZIP remains bound to tag `v1.0.0` (source commit `56d6de06e4825c9bd03b4b07dec5825d64228390`); **no tagged code or release asset has been changed**. Fresh published-ZIP AIO/PostgreSQL acceptance remains outstanding. No general production approval is claimed.
 
 **Earlier internal versions:** 0.7.3 was not publicly released. An installation already running an internal candidate requires a separately developed and tested upgrade procedure.

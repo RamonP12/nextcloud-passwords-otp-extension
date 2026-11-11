@@ -1,5 +1,7 @@
 # v1.0.0 – Initial public-source baseline
 
+> **Historical notes preserved as a publication-time snapshot:** The release body below originally said a real v1.0.0 first-install was still pending. On 2026-11-11, **after publication**, the exact ZIP passed a **local Docker Compose/MariaDB app-installation and 49/49 manual checks**. The **AIO/PostgreSQL first-install remains pending**. Current evidence: [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [validation](VALIDATION.md), [release integrity](RELEASE_INTEGRITY_v1.0.0.md). This addition to `main` documentation does **not** modify the published release description, tag or binary assets.
+
 **Passwort OTP Code Generator** is an independent, unofficial, desktop-oriented companion for [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It displays and copies TOTP codes from personal and shared Passwords records and supports creating new Passwords records with compatible OTP custom fields. It does not modify the original Passwords app.
 
 ## Compatibility and verification
