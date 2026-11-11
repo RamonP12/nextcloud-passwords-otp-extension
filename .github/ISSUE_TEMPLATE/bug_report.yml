@@ -1,10 +1,11 @@
 name: Bug report
-description: Report a functional bug using non-sensitive test data.
+description: Report a functional bug using non-sensitive, synthetic test data.
 title: "[Bug] "
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: "Do not include credentials, OTP secrets, Passwords exports, cookies or tokens. Security vulnerabilities must be reported privately using the Security Policy."
+      value: "Do not post credentials, OTP secrets, Passwords exports, cookies, bearer tokens, personal data or unredacted network traces. Security vulnerabilities must be reported privately using the Security Policy."
   - type: input
     id: app
     attributes:
@@ -19,6 +20,13 @@ body:
       placeholder: "Nextcloud 35.0.2; Passwords 2026.11.20; PHP 8.4"
     validations:
       required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser, operating system and versions
+      placeholder: "Firefox 144 on Linux (desktop)"
+    validations:
+      required: true
   - type: textarea
     id: steps
     attributes:
@@ -31,3 +39,11 @@ body:
       label: Expected and observed result
     validations:
       required: true
+  - type: checkboxes
+    id: no_secrets
+    attributes:
+      label: Data protection confirmation
+      description: Verify before submitting this public issue.
+      options:
+        - label: I confirm this report contains no real secrets, credentials, OTP seeds, personal data, access tokens or unredacted request details.
+          required: true

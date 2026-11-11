@@ -4,21 +4,23 @@
 
 | Version | Status |
 | --- | --- |
-| 1.0.0 | Current public source baseline; limited compatibility and pilot evidence |
-| Earlier internal candidates | Unsupported and not distributed |
+| 1.0.0 | Current unofficial source/release baseline; restricted compatibility evidence |
+| Earlier internal candidates | Unsupported; never distributed as public releases |
 
-## Report vulnerabilities privately
+## Report security vulnerabilities privately
 
-Use the repository's **Private Vulnerability Reporting** feature (Security → Advisories → Report a vulnerability) when enabled. The maintainer must enable this GitHub setting separately; the presence of this policy file does not enable the feature.
+**Use [GitHub Private Vulnerability Reporting](https://github.com/RamonP12/nextcloud-passwords-otp-extension/security/advisories/new)** after it is explicitly enabled for this repository (**Security and quality → Advisories → Report a vulnerability**). The maintainer must activate the feature **immediately after making the repository public**; this file does not enable it.
 
-Do **not** publish exploit details or security-sensitive findings in a public Issue or Pull Request. If private vulnerability reporting is not enabled, first contact the maintainer using an available private GitHub channel to arrange secure disclosure. Do not assume immediate response times; the project is maintained by a small team.
+**No alternative confidential reporting channel is currently configured.** GitHub does **not** provide direct messages between arbitrary users, and this project does not advertise a dedicated security mailbox. Do not assume that an unspecified “private GitHub channel” exists.
 
-Include the affected version, impact and reproduction steps using **synthetic** data. Never attach real Passwords exports, OTP setup secrets, passwords, browser cookies, bearer tokens, CSE proofs, or unredacted HTTP requests.
+If the private-reporting option is not available, **do not publish any vulnerability details**. You may open a minimal, non-sensitive Issue requesting that Private Vulnerability Reporting be enabled; omit exploit details, affected credentials, private infrastructure and proof-of-concept material. Wait for a confirmed confidential channel before sending sensitive content.
+
+When reporting, include the affected version, impact and reproduction steps using **synthetic** data. Never attach real Passwords exports, OTP setup secrets, passwords, cookies, bearer tokens, CSE proofs or unredacted HTTP requests.
 
 ## Security boundaries
 
-The app relies on the original Nextcloud Passwords WebUI API credential. That credential is more privileged than a read-only OTP viewer; browser-side request allowlists cannot enforce a narrower server-side scope. The risk was expressly accepted for the original restricted pilot, not eliminated.
+The app relies on the original Nextcloud Passwords WebUI bearer token. That token has more privileges than the OTP viewer's UI; browser-side request allowlists cannot create a server-enforced least-privilege credential. This architectural limitation remains openly tracked in [issue #1](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/1).
 
-The application also depends on internal Passwords interfaces, and cannot guarantee immediate remote session revocation at browser tab closure. See [Technical security review](../docs/SECURITY_REVIEW.md) for details.
+The app also depends on internal Passwords integration interfaces and cannot guarantee immediate remote token revocation when a browser tab closes. See the [technical security review](../docs/SECURITY_REVIEW.md).
 
-The maintainers will assess reports and coordinate fixes. There is no guaranteed response SLA or general security certification.
+The maintainer will assess and coordinate reports where possible. There is no guaranteed response time, security certification, or general production approval.

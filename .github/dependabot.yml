@@ -1,6 +1,9 @@
-# Automatic version bump PRs are paused while the first public v1.0.0
-# source baseline is validated. Re-enable after the release gate is complete.
-# This does not disable GitHub's separate security alerts.
+# Version-update PRs are intentionally paused while GitHub Actions CI is
+# disabled. The zero limit affects Dependabot VERSION updates only.
+# SECURITY updates are configured independently in Repository Settings ->
+# Advanced Security -> Dependabot security updates. Enable alerts and security
+# updates after the repository is public; do not assume this YAML enables them.
+# Revisit the version-update limit when CI is re-enabled.
 version: 2
 updates:
   - package-ecosystem: npm

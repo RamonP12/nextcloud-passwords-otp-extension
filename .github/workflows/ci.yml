@@ -1,4 +1,6 @@
-name: CI - Passwords OTP 1.0.0
+name: CI - Passwords OTP companion
+# Repository-level Actions execution is currently disabled. This workflow
+# definition is not proof that checks ran on GitHub for this commit.
 on:
   push:
     branches: [main]
@@ -8,7 +10,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: desktop-rc-${{ github.ref }}
+  group: otp-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   checks:
@@ -66,7 +68,7 @@ jobs:
           python3 scripts/release.py .build/package
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: passwords-otp-1.0.0-unreleased-test-package
+          name: passwords-otp-unreleased-test-package
           path: .build/package/*
           retention-days: 30
 # Real NC35 integration is intentionally performed against the operator's
