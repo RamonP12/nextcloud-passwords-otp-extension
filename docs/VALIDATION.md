@@ -1,6 +1,6 @@
 # Validation status – public source baseline v1.0.0
 
-This page distinguishes **observed results** from unperformed deployment gates. A successful ZIP build is not a production deployment approval, security certification, or Nextcloud App Store signature.
+This page distinguishes **observed results** from unperformed deployment gates. **Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** A successful ZIP build is not a production deployment approval, security certification, or Nextcloud App Store signature.
 
 ## Final tested v1.0.0 source and binary (10 November 2026)
 
@@ -23,11 +23,11 @@ The following evidence is specific to source commit `56d6de06e4825c9bd03b4b07dec
 
 **SHA256:** `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256`
 
-The ZIP and separate SHA256/BUILD.json were independently inspected after the local build. The ZIP itself is not committed to this repository; it is intended to be attached as a GitHub release asset.
+The ZIP and separate SHA256/BUILD.json were independently inspected after the local build and attached to the GitHub v1.0.0 release draft. The ZIP itself is not committed to this repository.
 
 **Release-tag rule:** Tag `v1.0.0` must identify **exactly** `56d6de06e4825c9bd03b4b07dec5825d64228390`. Subsequent documentation-only commits on `main` do not invalidate the already-tested ZIP and must not silently move the release tag. If any runtime, dependencies, or packaging code changes, rebuild and revalidate a new candidate.
 
-## Earlier runtime and deployment evidence (before re-versioning)
+## Earlier internal versions – evidence before re-versioning
 
 The underlying OTP behavior passed the operator's earlier local environment:
 
@@ -45,12 +45,15 @@ The PHP security contract was also reported to pass 51 assertions with PHP 8.4 a
 
 The operator accepted the residual Passwords WebUI bearer-token privilege risk only for a limited private pilot; issue #1 tracks this architectural limitation. No security certification, generic production approval, or Nextcloud App Store approval is claimed.
 
-## Remaining publication and installation gates
+## Release preparation complete and acceptance still outstanding
 
-- Create tag `v1.0.0` **on the tested source commit**, not an arbitrary later `main` commit.
-- Publish the exact SHA256-verified ZIP, the `.sha256` file and matching `BUILD.json` with clear compatibility and residual-risk notes.
-- Enable private vulnerability reporting immediately after the new repository becomes public, and keep the previous development archive private.
-- Before making *installation-wide compatibility* claims, perform a real fresh Nextcloud 35 / Passwords 2026.11.20 first-install, inspect access restrictions including out-of-group users, and document the result.
-- Never infer that a previously running 0.7.3 installation has been upgraded to v1.0.0.
+- **Done:** Annotated tag `v1.0.0` points to the exact tested commit, not moving `main`.
+- **Done:** The verified ZIP, `.sha256` and matching `BUILD.json` are uploaded to a private GitHub release draft.
+- **Done:** GitHub source history and release assets were checked to exclude the previously misidentified tag object; the former repositories remain private.
+- **Pending:** Make the clean repository public, immediately enable private vulnerability reporting, secret scanning and push protection, and configure Dependabot alerts/security updates.
+- **Pending:** Publish the existing v1.0.0 draft with the comprehensive release notes and checksum.
+- **Pending:** Perform a real fresh Nextcloud 35 / Passwords 2026.11.20 first-install and out-of-group negative test before making broad compatibility claims.
+- **Pending:** Enable appropriate branch/tag rulesets; status-check enforcement requires a working CI system.
+- **Invariant:** A previously running internal 0.7.3 installation has not been upgraded to v1.0.0.
 
-**Current status:** The source-specific v1.0.0 automated build, ZIP integrity, Git source identity and third-party license review have passed. Publishing the GitHub release and any new live v1.0.0 installation tests are separate outstanding steps. `production_approved=false` is retained.
+**Current status:** Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending. The verified ZIP is attached to an unpublished release draft; publication and live deployment acceptance remain independent steps. `production_approved=false` is retained.

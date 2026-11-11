@@ -14,4 +14,6 @@ All notable changes to the publicly maintained project are documented here. The 
 
 **Compatibility:** Nextcloud 35.0.2, Passwords 2026.11.20; broader versions are unverified.
 
-**Scope:** A public **source** baseline. Do not treat renaming the proven pilot runtime as an independently tested 1.0.0 binary; build and validate packages before creating a release. Existing pilot 0.7.3 instances require a separately developed and tested upgrade procedure.
+**Status:** Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending. The verified ZIP is bound to tag `v1.0.0` (source commit `56d6de06e4825c9bd03b4b07dec5825d64228390`); release integrity and bundled licenses were checked independently. No general production approval is claimed.
+
+**Earlier internal versions:** 0.7.3 was not publicly released. An installation already running an internal candidate requires a separately developed and tested upgrade procedure.

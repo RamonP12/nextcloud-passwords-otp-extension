@@ -19,12 +19,17 @@ python3 scripts/release.py .build/package
 
 The package generator requires a clean Git checkout and commits an immutable **source_commit** to BUILD.json. The built bundle (js/app-100.js) is generated; it is intentionally absent from Git and should not be hand-edited.
 
-## Optional complete local fixture
+## Maintainer-only legacy and local test tools
 
-scripts/local.py --build and --preflight run extra checks (including isolated Chromium, PHP and a local Nextcloud fixture). --install and --verify affect only the developer's specifically configured **localhost test instance** and are not suitable for the production AIO server.
+- `scripts/local.py --build` is the maintainer's comprehensive local preflight wrapper. Its `--preflight`, `--install` and `--verify` modes depend on a separately configured, disposable **localhost-only Nextcloud fixture**. Container names, image names and volume layout in this tool are local test assumptions, **not** a reproducible public setup guide.
+- `scripts/deploy.py` is a **legacy internal upgrade/rollback test tool**, including older 0.x pilot-version scenarios. It is not a supported public production upgrader or a required step for installation of v1.0.0.
+- The public, explicitly gated **first-time AIO** installer is `scripts/aio_install.py`. Its instructions are in [AIO manual installation](AIO_MANUAL_INSTALL.md).
+- The exact local Nextcloud fixture and browser integrations have not been packaged into a self-contained public test environment. Do not interpret a local-fixture unit test as a fresh real v1.0.0 installation acceptance.
 
-**Never run a destructive script against production to satisfy a test gate.** Use dummy accounts and synthetic OTP seeds, and report exactly which real and mocked tests ran.
+**Never run a destructive script against production to satisfy a test gate.** Use dummy accounts and synthetic OTP seeds; distinguish unit tests, synthetic browser tests and live environment checks.
+
+The GitHub Actions workflow is present but **repository-level Actions execution is intentionally disabled** at this stage; no hosted green CI check can currently be asserted or used as a required branch rule. Automating PR merging must await CI activation and one successful workflow run.
 
 ## Release process
 
-Update appinfo/info.xml, package.json, package-lock.json, the asset names and tests consistently; run the full gate on the final commit. Keep release archives bound to that final commit and publish SHA256 and third-party notices. Version 1.0.0 does **not** provide an in-place production upgrade for existing OTP installations.
+Update appinfo/info.xml, package.json, package-lock.json, the asset names and tests consistently; run the full gate on the final commit. Keep release archives bound to that final commit and publish SHA256 and third-party notices. Version 1.0.0 does **not** provide an in-place production upgrade for existing OTP installations. **Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** Reproduce this binary only from tag `v1.0.0`, never from moving `main`.

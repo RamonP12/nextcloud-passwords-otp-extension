@@ -11,6 +11,22 @@ This is an **independent Nextcloud application**, installed as passwords_otp, wi
 
 There is **no separate OTP database**; the app uses the original Passwords records. The UI intentionally has no update/delete functionality for existing entries, and there is no HOTP counter-write operation.
 
+## Source code orientation
+
+The `ap*` directory names are historical internal work-package identifiers, not different release versions or supported components. For this project's v1.0.0 tree:
+
+| Location | Responsibility |
+| --- | --- |
+| `src/ap1/` | Browser entry point, bootstrap, upstream Passwords API client wiring, network/session lifecycle |
+| `src/ap2/` | TOTP record parsing, sanitization and view rendering |
+| `src/ap3/` | WebCrypto TOTP calculation and desktop interaction/controller |
+| `src/ap9/` | Nextcloud browser-session and fingerprint verification |
+| `src/ap12/` | Passwords API route allowlist, validation and create-once flow |
+| `lib/AppInfo/`, `lib/Controller/`, `lib/Service/` | Nextcloud registration, CSRF/session-protected PHP pages and Passwords token adapter |
+| `tests/` | JavaScript contracts, real upstream client fixtures, Python packaging/deployment tests, PHP security checks and synthetic Chromium tests |
+
+These names are kept stable to avoid code churn in a tested release. They are not an installation sequence.
+
 ## Security boundaries
 
 - The upstream **WebUI bearer token is more privileged than read-only TOTP**. Client request allowlists do not reduce its server-side privileges.

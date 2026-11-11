@@ -21,4 +21,4 @@
 - Manual AIO **first install only**. An existing OTP deployment cannot be overwritten by aio_install.py.
 - Unofficial, unsigned source distribution; no App Store support or automatic update channel.
 
-The original OTP runtime was previously validated in a small production pilot. The new 1.0.0 package needs independent release testing after re-versioning; see [Validation](VALIDATION.md).
+**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** The release ZIP, hashes, source commit and third-party notices have been independently checked; this is not an end-to-end AIO acceptance test. Earlier internal-version observations are separated in [Validation](VALIDATION.md).

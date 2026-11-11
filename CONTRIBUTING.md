@@ -21,7 +21,7 @@ npm run build
 python3 -m unittest discover -s tests/python -v
 ~~~
 
-For a full local-Nextcloud gate, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). Existing scripts may require a disposable local Nextcloud fixture and desktop Chromium. Do not run the local deployment tool against a public or productive instance.
+For local and maintainer-only tools, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). Some scripts require a specially prepared, disposable local Nextcloud fixture and desktop Chromium; this configuration is not supplied as a turnkey environment. **Do not run legacy deployment tools against a public or productive instance.** GitHub Actions are currently disabled; do not claim a green hosted CI status.
 
 ## Pull requests
 
