@@ -1,6 +1,8 @@
-# Pre-publication checklist for v1.0.0
+# Historical pre-publication checklist for v1.0.0
 
-This checklist covers **repository administration only**. The verified v1.0.0 ZIP and tag are immutable: do **not** move `v1.0.0`, edit the archive or rebuild its release assets.
+> **Status as of 2026-11-11:** The repository and v1.0.0 release are **already public and published**. The numbered steps below are an archived pre-publication runbook; do **not** repeat draft publication or alter the existing release. A subsequent **local acceptance of the published ZIP passed 49/49 checks**, while AIO/PostgreSQL first-install acceptance remains open. See [validation](VALIDATION.md) and [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md).
+
+This checklist covers **repository administration only**. The **v1.0.0 tag is protected** by an active ruleset, and all three published asset hashes are independently recorded, but GitHub reports **`immutable=false` for the release**: its binary assets are **not** protected by immutable-releases enforcement. Details: [release integrity record](RELEASE_INTEGRITY_v1.0.0.md). Do **not** move `v1.0.0`, edit the archive or rebuild/re-upload release assets.
 
 ## Publication order
 
@@ -38,5 +40,5 @@ This checklist covers **repository administration only**. The verified v1.0.0 ZI
 - Release source commit: `56d6de06e4825c9bd03b4b07dec5825d64228390`.
 - Release ZIP SHA256: `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256`.
 - The new untagged `main` documentation commits do **not** change the tested release; `v1.0.0` remains immutable.
-- All GitHub Actions checks are **currently disabled**, and the latest published v1.0.0 package has **not** passed a documented real first-install verification.
+- GitHub Actions checks are **currently disabled**. The exact published v1.0.0 package **has** passed the local Docker Compose/MariaDB app-installation and 49/49 browser/integrity checks; a **separate AIO/PostgreSQL first-install acceptance** remains outstanding.
 - If any admin control cannot be activated, stop and report the gap rather than claiming it is enabled.
