@@ -8,6 +8,24 @@
 - [Published release identity, SHA256 and protection status](RELEASE_INTEGRITY_v1.0.0.md)
 - [Security limits](SECURITY_REVIEW.md) and [compatibility](COMPATIBILITY.md)
 
+## v1.0.1 candidate: independently observed checks (2026-11-11)
+
+These checks were performed **against a candidate derived from the SHA256-verified official v1.0.0 ZIP** and its precisely versioned source changes; they are **not** a full `npm ci && npm test && npm run test:client && npm run build` on a clean checkout.
+
+| Check | Observed |
+| --- | --- |
+| v1.0.0 input provenance | Official ZIP SHA256 `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256` verified |
+| Nextcloud appinfo | Mandatory `<bugs>`, required top-level elements and ordering checked against the live official App Store `info.xsd` text; **full external XSD validator not yet run** |
+| Version coherence | `1.0.1` in appinfo, template, package/lockfile, release script and AIO installer; `app-101` JS/CSS loader and build markers |
+| PHP contract suite | **51 assertions passed**, PHP **8.4.24**, framework doubles rather than real Nextcloud |
+| PHP syntax | 4 packaged application/template PHP files passed `php -l` |
+| JS syntax | Packaged `app-101.js` passed `node --check`; edited JS test files parsed in isolated V8 |
+| Candidate ZIP/manifest | 13 regular files including `BUILD.json`; SHA256/file inventory/CRC/metadata checks passed, `production_approved=false`; two independent local assemblies byte-identical |
+| Runtime regression surface | Compiled bundle and CSS differ from original verified v1.0.0 **only** in their `_100` → `_101` markers and ZIP paths; PHP controller differs **only** in two asset names |
+| Repository/package match | All **10 tracked files present in the ZIP** were individually matched to GitHub source contents using Git's blob SHA1 format |
+
+**Limitations:** The full source checkout, locked npm packages, the complete original Nextcloud fixture, Chromium harness and networked npm registry were not available to the examining environment. Therefore **fresh JavaScript 179/179, pinned real-client 17/17, Python installer 66/66, npm audit, fresh esbuild double build, official full XSD lint and live Nextcloud 35 first installation are not independently claimed for v1.0.1**. A derived ZIP is a candidate, not the formal GitHub release archive until full gates are satisfied. GitHub Actions remain deliberately disabled.
+
 ## Published source and binary: automated release checks
 
 Results for the **exact source commit** `56d6de06e4825c9bd03b4b07dec5825d64228390`, before the public release:
