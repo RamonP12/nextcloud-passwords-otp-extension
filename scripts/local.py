@@ -37,10 +37,10 @@ def build(commit):
  execute(['npm','test']);execute(['npm','run','test:client'])
  execute(['npm','audit','--audit-level=high'])
  execute([sys.executable,'-m','unittest','discover','-s','tests/python','-v'])
- execute(['npm','run','build']);execute(['node','--check','js/app-100.js'])
- first={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-100.js*')}
+ execute(['npm','run','build']);execute(['node','--check','js/app-101.js'])
+ first={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-101.js*')}
  execute(['npm','run','build'])
- second={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-100.js*')}
+ second={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-101.js*')}
  if first!=second:raise GateError('Browser double build is not byte-identical')
  execute([sys.executable,'scripts/release.py',str(directory/'package')])
  archive=directory/'package'/f'passwords_otp-{VERSION}.zip';sha=digest(archive.read_bytes())
