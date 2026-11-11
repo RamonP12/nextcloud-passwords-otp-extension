@@ -45,7 +45,7 @@ The GitHub API reported `immutable=false` for the **already published** release.
 
 Therefore the correct claim is **"tag protected and current asset identities/hashes verified"**, **not** "the published v1.0.0 release is immutable". The three recorded digests allow later substitutions to be detected by comparison, but the release attachments still have a mutable administrative surface. No signing or GitHub immutable-release attestation is present for this already-published release.
 
-To make **future** releases immutable, a repository administrator must use Settings → General → Releases → **Enable release immutability** **before publishing the next release**. Use a draft, upload and check all assets, then publish. Do **not** delete and republish v1.0.0 solely to retrofit this setting; that would break the requirement to preserve its published state. No administrative setting was changed as part of this record.
+To make **future** releases immutable, a repository administrator must use Settings → General → Releases → **Enable release immutability** **before publishing the next release**. Use a draft, upload and check all assets, then publish. Do **not** delete and republish v1.0.0 solely to retrofit this setting; that would break the requirement to preserve its published state. No administrative setting was changed as part of this record. The follow-up is tracked by [issue #3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/3).
 
 ## Read-only verification steps
 
