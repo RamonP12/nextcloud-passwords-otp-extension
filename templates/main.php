@@ -1,5 +1,5 @@
 <?php declare(strict_types=1); ?>
-<div id="passwords-otp-app" class="passwords-otp-ap0 passwords-otp-ap1" data-template-build="1.0.0">
+<div id="passwords-otp-app" class="passwords-otp-ap0 passwords-otp-ap1" data-template-build="1.0.1">
   <main class="passwords-otp-ap0__panel">
     <header class="passwords-otp-ap0__header">
       <div><h2>Passwort OTP Code Generator</h2><p class="passwords-otp-ap0__subtitle">OTP-Codes aus deinen eigenen gespeicherten OTP-Passwörtern sowie aus den mit dir geteilten OTP-Passwörtern</p></div>
