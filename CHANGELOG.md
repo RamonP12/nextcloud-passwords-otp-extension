@@ -6,7 +6,7 @@ All notable changes to the publicly maintained project are documented here. The 
 
 - Add mandatory `<bugs>` URL to `appinfo/info.xml` in official Nextcloud App Store schema sequence (after category, before repository).
 - Coordinate `1.0.1` across app metadata, package/lockfile, build manifest generator, AIO installer, template build marker and automated contracts.
-- Deliberately **preserve** the audited `js/app-100.js`, `css/app-100.css`, PHP runtime and original Passwords API behavior byte-for-byte; this is not a feature release.
+- Retain the audited OTP logic, but rename assets to `js/app-101.js` and `css/app-101.css` with updated version markers and PHP loader references; this is not a feature release.
 - Local build/package and test evidence for the exact new commit must be recorded independently; the **49/49 live browser acceptance belongs to v1.0.0 only**.
 - No approved in-place upgrade of v1.0.0 or internal 0.7.3 on AIO. `production_approved=false` and the broader Passwords bearer-token risk remain.
 
