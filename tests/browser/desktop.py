@@ -42,7 +42,7 @@ def main():
     initial=base64.b64encode(json.dumps(state).encode()).decode()
     html=f'''<!doctype html><html><head data-requesttoken="synthetic-csrf-token"><meta charset="utf-8"><style>
     body{{margin:0;font-family:Arial,sans-serif}}dialog{{display:block}}
-    {(ROOT/'css/app-100.css').read_text()}</style></head><body>
+    {(ROOT/'css/app-101.css').read_text()}</style></head><body>
     <input type="hidden" id="initial-state-passwords_otp-ap1" value="{initial}">{template}</body></html>'''
     runtime=bundle();passed=[]
     with sync_playwright() as p:
