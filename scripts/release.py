@@ -7,8 +7,8 @@ VERSION='1.0.1'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
- 'css/app-100.css','js/app-100.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
-OPTIONAL=('js/app-100.js.LEGAL.txt',)
+ 'css/app-101.css','js/app-101.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
+OPTIONAL=('js/app-101.js.LEGAL.txt',)
 MAX_ARCHIVE=20*1024*1024
 MAX_UNPACKED=30*1024*1024
 STAMP=(2026,1,1,0,0,0)
@@ -146,9 +146,9 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):raise PackageError('Unsafe/missing runtime input: '+relative)
         files[relative]=path.read_bytes()
     if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
-    js=files['js/app-100.js']
-    if len(js)<10000 or b'PASSWORDS_OTP_JS_100_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
-    if b'PASSWORDS_OTP_CSS_100_VERIFIED' not in files['css/app-100.css']:raise PackageError('CSS marker missing')
+    js=files['js/app-101.js']
+    if len(js)<10000 or b'PASSWORDS_OTP_JS_101_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
+    if b'PASSWORDS_OTP_CSS_101_VERIFIED' not in files['css/app-101.css']:raise PackageError('CSS marker missing')
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
     manifest={'schema':1,'app':'passwords_otp','version':VERSION,'source_commit':commit,'channel':'public-source-baseline',
