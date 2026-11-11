@@ -6,7 +6,7 @@ class PackageTests(unittest.TestCase):
   for name in release.RUNTIME:
    if name=='THIRD_PARTY_LICENSES.txt':continue
    p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'fixture')
-  (root/'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.0</version></info>')
+  (root/'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.1</version></info>')
   (root/'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
   (root/'js/app-100.js').write_text('/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_100_VERIFIED\n'+'x'*10001)
   (root/'css/app-100.css').write_text('PASSWORDS_OTP_CSS_100_VERIFIED')
