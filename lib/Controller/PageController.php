@@ -34,8 +34,8 @@ final class PageController extends Controller {
             } catch (Throwable) { $state = ['status' => 'unavailable', 'reason' => 'integration-unavailable']; }
         }
         $this->initialState->provideInitialState('ap1', $state);
-        Util::addScript(Application::APP_ID, 'app-100');
-        Util::addStyle(Application::APP_ID, 'app-100');
+        Util::addScript(Application::APP_ID, 'app-101');
+        Util::addStyle(Application::APP_ID, 'app-101');
         $response = new TemplateResponse(Application::APP_ID, 'main');
         // Required by the unmodified upstream libsodium/PWDv1r1 implementation.
         $response->getContentSecurityPolicy()->allowEvalWasm(true);
