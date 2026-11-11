@@ -5,7 +5,9 @@
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused desktop interface without modifying the original Passwords application.
 
-**Version: 1.0.0** · **License: AGPL-3.0-or-later** · **Distribution: source / manual installation; not in the Nextcloud App Store**
+**Version: 1.0.1 (unreleased source candidate)** · **Latest published release: v1.0.0** · **License: AGPL-3.0-or-later** · **Distribution: manual source ZIP; not in the Nextcloud App Store**
+
+**v1.0.1 maintenance status:** fixes the mandatory `<bugs>` URL in Nextcloud app metadata, while leaving the validated 1.0.0 JavaScript, CSS and PHP runtime unchanged. The source candidate is **not** a new public release, has not received fresh live installation acceptance and does **not** resolve [the upstream WebUI bearer privilege issue](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/1). Do not use this development branch or moving `main` instead of a versioned, checksum-verified release. See [v1.0.1 candidate notes](docs/RELEASE_NOTES_v1.0.1.md).
 
 ## Features
 
@@ -26,7 +28,7 @@ An **independent, unofficial Nextcloud app** that displays time-based one-time p
 | Database | PostgreSQL (earlier internal AIO pilot); MariaDB (published v1.0.0 local acceptance) |
 | Browser | Real desktop browser acceptance on localhost; earlier pilot and synthetic Chromium tests |
 
-**The exact published v1.0.0 ZIP passed a manual localhost/Docker Compose acceptance on 2026-11-11: 10/10 test blocks and 49/49 individual checks.** This was a fresh v1.0.0 app installation into an existing disposable Nextcloud/MariaDB test fixture after removing an older internal candidate. **A real AIO/PostgreSQL first-install of the published ZIP is still outstanding**; the earlier internal AIO pilot does not satisfy that gate. See [full local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [validation](docs/VALIDATION.md), [compatibility](docs/COMPATIBILITY.md) and [release integrity / mutability record](docs/RELEASE_INTEGRITY_v1.0.0.md).
+**The exact published v1.0.0 ZIP (not the new 1.0.1 candidate) passed a manual localhost/Docker Compose acceptance on 2026-11-11: 10/10 test blocks and 49/49 individual checks.** This was a fresh v1.0.0 app installation into an existing disposable Nextcloud/MariaDB test fixture after removing an older internal candidate. **A real AIO/PostgreSQL first-install of the published ZIP is still outstanding**; the earlier internal AIO pilot does not satisfy that gate. See [full local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [validation](docs/VALIDATION.md), [compatibility](docs/COMPATIBILITY.md) and [release integrity / mutability record](docs/RELEASE_INTEGRITY_v1.0.0.md).
 
 ## Requirements and installation
 
