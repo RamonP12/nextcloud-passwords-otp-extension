@@ -6,7 +6,7 @@
 
 - Fix [issue #2](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/2): add the mandatory `<bugs>` URL to `appinfo/info.xml`, after `<category>` and before `<repository>`, matching the [Nextcloud App Store info.xsd](https://raw.githubusercontent.com/nextcloud/appstore/master/nextcloudappstore/api/v1/release/info.xsd).
 - Update `1.0.1` consistently across application metadata, `package.json`, `package-lock.json`, `scripts/release.py`, `scripts/aio_install.py`, UI template's build identity and version-specific tests.
-- Keep browser JavaScript `js/app-100.js`, CSS `css/app-100.css` and all application PHP classes **byte-identical** to v1.0.0. This is a metadata/package hotfix, not an OTP functional change. The embedded JS/CSS `_100_VERIFIED` markers are intentional names for the unchanged v1.0.0 baseline bundle, not a claim about the appinfo version.
+- Move the versioned browser assets to `js/app-101.js` and `css/app-101.css`, updating only the build-marker strings. `PageController.php` now loads `app-101`; the remaining OTP JavaScript/CSS logic and PHP security/business logic are unchanged from v1.0.0. This is a metadata and cache-busting asset hotfix, not an OTP feature change.
 - Update package's third-party notice header to identify the new package version. Locked dependency versions and full notices remain unchanged.
 
 ## Compatibility and limits
