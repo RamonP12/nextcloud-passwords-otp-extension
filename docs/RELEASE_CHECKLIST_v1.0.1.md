@@ -7,7 +7,7 @@
 - [ ] Exact source commit frozen after all v1.0.1 edits; working checkout clean and tagged only when release is ready.
 - [ ] Verify `appinfo/info.xml` with the official [Nextcloud App Store info.xsd](https://raw.githubusercontent.com/nextcloud/appstore/master/nextcloudappstore/api/v1/release/info.xsd). Mandatory `<bugs>` appears between `<category>` and `<repository>`.
 - [ ] Check version **1.0.1** in `appinfo/info.xml`, `templates/main.php`, `package.json`, both root values in `package-lock.json`, `scripts/release.py`, `scripts/aio_install.py` and versioned tests.
-- [ ] Verify no new OTP runtime code, browser bundle or CSS changes compared with the v1.0.0 baseline.
+- [ ] Verify no OTP business-logic changes compared with the v1.0.0 baseline: only JS/CSS asset names, version marker and the PHP loader reference change.
 - [ ] Verify npm dependency lock and third-party licence inventory are unchanged except application package version.
 - [ ] Ensure GitHub Issue #1 (bearer-token residual risk) remains open; no production approval claimed.
 
@@ -19,7 +19,7 @@
 - [ ] `python3 -m unittest discover -s tests/python -v` — release, installer, rollback and dev safeguards.
 - [ ] `npm run test:php` plus PHP syntax lint on all application and test PHP files.
 - [ ] `npm audit --audit-level=high` — note date and results, not assume prior clean audit.
-- [ ] `npm run build` twice — generated `js/app-100.js` must match both builds and be independently compared to v1.0.0.
+- [ ] `npm run build` twice — generated `js/app-101.js` must match both builds; compare to v1.0.0 `app-100.js` after allowing only the intentional marker replacement.
 - [ ] Run synthetic desktop Chromium/Playwright checks; record browser version, PHP and environment when unavailable.
 - [ ] Generate package from **exact final source commit** with `scripts/release.py` and record ZIP SHA256 and manifest, including `production_approved=false`.
 - [ ] Independently verify all ZIP file hashes, deterministic output, original locked licence notices, no traversal/symlink/extra runtime files.
