@@ -7,13 +7,17 @@ const read=p=>readFileSync(new URL(p,root),'utf8');
 function sources(path){return readdirSync(new URL(path,root),{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?sources(path+'/'+entry.name):[path+'/'+entry.name]);}
 test('Version and asset references agree; dependency graph is pinned',()=>{
  const pkg=JSON.parse(read('package.json')),lock=JSON.parse(read('package-lock.json'));
- assert.equal(pkg.version,'1.0.0');assert.equal(lock.version,pkg.version);assert.equal(lock.packages[''].version,pkg.version);
+ assert.equal(pkg.version,'1.0.1');assert.equal(lock.version,pkg.version);assert.equal(lock.packages[''].version,pkg.version);
  assert.deepEqual(pkg.dependencies,lock.packages[''].dependencies);assert.deepEqual(pkg.devDependencies,lock.packages[''].devDependencies);
  assert.equal(read('appinfo/info.xml').match(/<version>([^<]+)<\/version>/)?.[1],pkg.version);
  assert.equal(read('templates/main.php').match(/data-template-build="([^"]+)"/)?.[1],pkg.version);
  assert.equal(read('scripts/release.py').match(/^VERSION='([^']+)'/m)?.[1],pkg.version);
  assert.match(read('src/ap1/index.js'),/PASSWORDS_OTP_JS_100_VERIFIED/);assert.match(read('css/app-100.css'),/PASSWORDS_OTP_CSS_100_VERIFIED/);
  assert.equal((read('lib/Controller/PageController.php').match(/'app-100'/g)||[]).length,2);
+ // 1.0.1 is a metadata-only hotfix. Runtime bundle/CSS names and byte content remain identical to the verified 1.0.0 files.
+ assert.match(read('appinfo/info.xml'),/<bugs>https:\/\/github\.com\/RamonP12\/nextcloud-passwords-otp-extension\/issues<\/bugs>/);
+ assert.ok(read('appinfo/info.xml').indexOf('</category>')<read('appinfo/info.xml').indexOf('<bugs>'));
+ assert.ok(read('appinfo/info.xml').indexOf('</bugs>')<read('appinfo/info.xml').indexOf('<repository>'));
 });
 test('Removed event-counter implementation and versioned installers are absent',()=>{
  for(const path of ['src/ap4','src/release-policy.mjs','js/ap0.js','css/ap0.css','css/ap053.css','css/ap060.css','css/ap061.css','scripts/local-061-build-install.sh','scripts/matrix.py','tests/integration/e2e.mjs']) {
@@ -41,7 +45,7 @@ test('Only current browser asset is built and no runtime test loader is used',()
  assert.doesNotMatch(sources('src').map(read).join('\n'),/__otpReferenceDependencies|fixture-client|__cryptoFixture/);
 });
 
-test('1.0.0 keeps the test badges, counters and manual lock REMOVED',()=>{
+test('1.0.1 keeps the test badges, counters and manual lock REMOVED',()=>{
  const template=read('templates/main.php'), code=read('src/ap1/index.js');
  assert.doesNotMatch(template,/passwords-otp-ap0__(?:version|notice|metrics|metric)|Desktop-Testversion|isolierte Tests/);
  for(const id of ['passwords-otp-ap1-count','passwords-otp-ap1-cse','passwords-otp-ap2-count','passwords-otp-ap2-invalid','passwords-otp-ap1-lock']) {
@@ -51,7 +55,7 @@ test('1.0.0 keeps the test badges, counters and manual lock REMOVED',()=>{
  assert.doesNotMatch(code,/countEl|cseEl|lockButton/);
  assert.doesNotMatch(read('css/app-100.css'),/passwords-otp-ap0__(?:version|notice|metrics|metric)/);
 });
-test('1.0.0 uses the exact requested German title, subtitle and explanatory copy',()=>{
+test('1.0.1 uses the exact requested German title, subtitle and explanatory copy',()=>{
  const template=read('templates/main.php');
  assert.ok(template.includes('<h2>Passwort OTP Code Generator</h2>'));
  assert.ok(template.includes('OTP-Codes aus deinen eigenen gespeicherten OTP-Passw\u00f6rtern sowie aus den mit dir geteilten OTP-Passw\u00f6rtern'));
@@ -60,7 +64,7 @@ test('1.0.0 uses the exact requested German title, subtitle and explanatory copy
  assert.ok(template.indexOf('id="passwords-otp-ap12-help"')>template.indexOf('id="passwords-otp-ap12-open"'));
  assert.doesNotMatch(template,/Add new OTP Password/);
 });
-test('1.0.0 retains automatic auth guards, page disposal and administrative version',()=>{
+test('1.0.1 retains automatic auth guards, page disposal and administrative version',()=>{
  const code=read('src/ap1/index.js');
  for(const fragment of ['makeSessionCheck','await requireSession()','verifySession','visibilitychange',"addEventListener('focus'","addEventListener('pagehide'",'session?.dispose()','event.persisted'])assert.ok(code.includes(fragment),fragment);
  assert.match(read('appinfo/info.xml'),/<id>passwords_otp<\/id>/);
