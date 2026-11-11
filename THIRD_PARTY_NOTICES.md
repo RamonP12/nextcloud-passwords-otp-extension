@@ -1,6 +1,6 @@
 # Third-party components and licensing
 
-This project is **AGPL-3.0-or-later** for its own source code. Bundled libraries retain their original licenses. All versions below are pinned by the 1.0.0 package lockfile.
+This project is **AGPL-3.0-or-later** for its own source code. Bundled libraries retain their original licenses. All versions below are pinned by the 1.0.1 package lockfile.
 
 | Component | Locked version | License | Distribution |
 | --- | --- | --- | --- |
