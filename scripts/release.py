@@ -21,6 +21,21 @@ def identity(xml:bytes)->tuple[str,str]:
     node=ET.fromstring(xml)
     return node.findtext('id',''),node.findtext('version','')
 
+def assert_appinfo_contract(xml:bytes)->None:
+    """Fail closed on the v1.0.1 XSD regression; full XSD lint is a separate gate."""
+    if identity(xml)!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
+    node=ET.fromstring(xml)
+    names=[child.tag for child in node]
+    for required in ('id','name','summary','description','version','licence','author','category','bugs','dependencies'):
+        if names.count(required)!=1:raise PackageError('Missing or duplicate appinfo XSD required element: '+required)
+    category=names.index('category')
+    bugs=names.index('bugs')
+    repository=names.index('repository') if 'repository' in names else names.index('dependencies')
+    dependencies=names.index('dependencies')
+    if not (category<bugs<repository<=dependencies):raise PackageError('Appinfo XSD sequence: category/bugs/repository/dependencies')
+    if node.findtext('bugs')!='https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues':
+        raise PackageError('Unexpected issue-tracker URL in appinfo')
+
 def canonical_json(value)->bytes:return (json.dumps(value,indent=2,sort_keys=True,ensure_ascii=True)+'\n').encode()
 
 def archive_bytes(files:dict[str,bytes])->bytes:
@@ -145,7 +160,7 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
         if relative in OPTIONAL and not path.exists():continue
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):raise PackageError('Unsafe/missing runtime input: '+relative)
         files[relative]=path.read_bytes()
-    if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
+    assert_appinfo_contract(files['appinfo/info.xml'])
     js=files['js/app-101.js']
     if len(js)<10000 or b'PASSWORDS_OTP_JS_101_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
     if b'PASSWORDS_OTP_CSS_101_VERIFIED' not in files['css/app-101.css']:raise PackageError('CSS marker missing')
@@ -179,7 +194,8 @@ def validate_package(data:bytes,expected_sha256:str)->tuple[dict[str,bytes],dict
         raise PackageError('Incorrect manifest identity/channel')
     if manifest.get('channel')!='public-source-baseline' or not re.fullmatch(r'[0-9a-f]{40}',manifest.get('source_commit','')):raise PackageError('Invalid provenance')
     expected={key:digest(value) for key,value in sorted(files.items()) if key!='BUILD.json'}
-    if expected!=manifest.get('files') or identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Manifest file integrity mismatch')
+    if expected!=manifest.get('files'):raise PackageError('Manifest file integrity mismatch')
+    assert_appinfo_contract(files['appinfo/info.xml'])
     return files,manifest
 
 def extract_checked(files:dict[str,bytes],destination:pathlib.Path)->None:
