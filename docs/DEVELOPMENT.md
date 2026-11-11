@@ -1,6 +1,6 @@
 # Development and local tests
 
-The public project starts at **v1.0.0**. Work from main, use short feature branches and Pull Requests, and keep regression tests for authentication and OTP logic.
+The public project starts at **v1.0.0**. Current unreleased **v1.0.1** corrects appinfo schema and coordinated version metadata without altering the tested OTP runtime. Work from main, use short feature branches and Pull Requests, and keep regression tests for authentication and OTP logic. The 1.0.0 live acceptance must not be represented as an independent acceptance of 1.0.1.
 
 ## Tooling
 
