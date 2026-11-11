@@ -7,7 +7,7 @@ An **independent, unofficial Nextcloud app** that displays time-based one-time p
 
 **Version: 1.0.1 (unreleased source candidate)** · **Latest published release: v1.0.0** · **License: AGPL-3.0-or-later** · **Distribution: manual source ZIP; not in the Nextcloud App Store**
 
-**v1.0.1 maintenance status:** fixes the mandatory `<bugs>` URL in Nextcloud app metadata, while leaving the validated 1.0.0 JavaScript, CSS and PHP runtime unchanged. The source candidate is **not** a new public release, has not received fresh live installation acceptance and does **not** resolve [the upstream WebUI bearer privilege issue](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/1). Do not use this development branch or moving `main` instead of a versioned, checksum-verified release. See [v1.0.1 candidate notes](docs/RELEASE_NOTES_v1.0.1.md).
+**v1.0.1 maintenance status:** fixes the mandatory `<bugs>` URL in Nextcloud app metadata, while retaining the validated 1.0.0 OTP business logic and updating only versioned JS/CSS markers, asset names and the PHP loader reference. The source candidate is **not** a new public release, has not received fresh live installation acceptance and does **not** resolve [the upstream WebUI bearer privilege issue](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/1). Do not use this development branch or moving `main` instead of a versioned, checksum-verified release. See [v1.0.1 candidate notes](docs/RELEASE_NOTES_v1.0.1.md).
 
 ## Features
 
