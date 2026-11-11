@@ -1,4 +1,7 @@
-# Nextcloud Passwords OTP Code Generator
+# Passwort OTP Code Generator – unofficial companion for Nextcloud Passwords
+
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
+[![Release: v1.0.0](https://img.shields.io/badge/release-v1.0.0-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0)
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused desktop interface without modifying the original Passwords application.
 
@@ -23,7 +26,7 @@ An **independent, unofficial Nextcloud app** that displays time-based one-time p
 | Database | PostgreSQL (AIO pilot), MariaDB (local development fixture) |
 | Browser | Desktop browser pilot; automated synthetic Chromium tests |
 
-The underlying OTP runtime has been operated successfully in an actual five-user AIO pilot and a separate local test environment. **The 1.0.0 versioned package is a new build and must pass its own tests before publishing release binaries.** Other versions and platforms have not been validated; see [Compatibility](docs/COMPATIBILITY.md) and [Validation](docs/VALIDATION.md).
+**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** Earlier internal pilot results are documented separately and do not constitute acceptance of the published 1.0.0 ZIP. Other versions and platforms have not been validated; see [Compatibility](docs/COMPATIBILITY.md) and [Validation](docs/VALIDATION.md).
 
 ## Requirements and installation
 
@@ -34,7 +37,7 @@ The underlying OTP runtime has been operated successfully in an actual five-user
 
 **The supplied AIO installer performs first-time installs only.** It deliberately refuses an installation where passwords_otp already exists, including upgrades from earlier pilot versions. In particular, **do not run the 1.0.0 AIO first-install command against an existing 0.7.3 deployment**.
 
-Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). This project is not distributed through the Nextcloud App Store.
+Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). Download the exact release ZIP and verify its published SHA256, or build **from tag `v1.0.0` rather than moving `main`**. This project is not distributed through the Nextcloud App Store.
 
 ## What it does not do
 
@@ -59,7 +62,7 @@ npm run build
 python3 scripts/release.py .build/package
 ~~~
 
-The repository also includes Python, PHP and synthetic Chromium tests. A green build does not substitute for real Nextcloud/Passwords compatibility testing. See [Development and contributions](CONTRIBUTING.md).
+The repository also includes Python, PHP and synthetic Chromium tests. A green build does not substitute for real Nextcloud/Passwords compatibility testing. The CI workflow is currently disabled, so no CI passing-status badge is displayed. See [Development and contributions](CONTRIBUTING.md).
 
 ## Support, security and licenses
 
