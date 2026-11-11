@@ -83,7 +83,7 @@ class FakeBackend:
     def verify(self, version, expected, before, group):
         self.tick('verify')
         REAL_ASSERT_ENABLED_SCOPE(self, group)
-        assert version == '1.0.0'
+        assert version == '1.0.1'
         assert before == BASE
         assert self.base == before
         assert self.enabled
@@ -119,7 +119,7 @@ def package_fixture(root):
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(b'synthetic-data')
-    (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.0</version></info>')
+    (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>1.0.1</version></info>')
     (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
     (root / 'js/app-100.js').write_text('PASSWORDS_OTP_JS_100_VERIFIED' + '.' * 10011)
     (root / 'css/app-100.css').write_text('PASSWORDS_OTP_CSS_100_VERIFIED')
@@ -520,17 +520,17 @@ class Gates(unittest.TestCase):
         hashes={'appinfo/info.xml':'a'*64}
         def occ(*arguments):
             if arguments[:2]==('config:system:get','dbtype'):return 'pgsql'
-            if arguments[0]=='app:list':return json.dumps({'enabled':{aio.APP:'1.0.0'},'disabled':{}})
-            if arguments[:2]==('config:app:get',aio.APP):return '1.0.0'
+            if arguments[0]=='app:list':return json.dumps({'enabled':{aio.APP:'1.0.1'},'disabled':{}})
+            if arguments[:2]==('config:app:get',aio.APP):return '1.0.1'
             if arguments[0]=='app:getpath':return aio.LIVE
             raise AssertionError(arguments)
         with patch.object(aio,'local_docker'),patch.object(b,'docker',side_effect=lambda *args, **kwargs: json.dumps([newer])),             patch.object(b,'occ',side_effect=occ),patch.object(b,'sh',return_value=''),             patch.object(b,'hashes',return_value=hashes) as checked:
-            b.verify_emergency('1.0.0',hashes,BASE)
+            b.verify_emergency('1.0.1',hashes,BASE)
             newer['Mounts'][0]['Source']='/wrong/volume'
-            with self.assertRaisesRegex(aio.AioError,'volume'):b.verify_emergency('1.0.0',hashes,BASE)
+            with self.assertRaisesRegex(aio.AioError,'volume'):b.verify_emergency('1.0.1',hashes,BASE)
             newer['Mounts'][0]['Source']=BASE['mount']['Source']
             checked.return_value={'unknown':'b'*64}
-            with self.assertRaisesRegex(aio.AioError,'files changed'):b.verify_emergency('1.0.0',hashes,BASE)
+            with self.assertRaisesRegex(aio.AioError,'files changed'):b.verify_emergency('1.0.1',hashes,BASE)
 
 
 if __name__ == '__main__':unittest.main()
