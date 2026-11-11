@@ -7,8 +7,8 @@
 | Nextcloud | 35.0.2 / internal 35.0.2.2 | appinfo currently restricts the major version to 35 |
 | Nextcloud Passwords | 2026.11.20 | Depends on internal upstream PHP classes and API behavior |
 | PHP | 8.4.27 live AIO; PHP 8.5.12 synthetic security contracts | appinfo declares 8.3–8.5 |
-| Databases | PostgreSQL on a small AIO pilot; MariaDB 11.8 local fixture | Not a broad matrix |
-| Browser | Real desktop pilot; synthetic Chromium tests | Other browsers/mobile not exhaustively tested |
+| Databases | MariaDB in the verified published-ZIP local test; PostgreSQL only in an earlier internal AIO pilot | Published v1.0.0 ZIP **not** yet accepted on AIO/PostgreSQL |
+| Browser | Real localhost desktop functional tests in Chrome/Firefox; earlier synthetic Chromium tests | Other browsers/mobile not exhaustively tested |
 | Container | Official AIO image, persistent app volume | Installer rejects other images/setup |
 
 **No guarantee is made for newer Nextcloud or Passwords versions.** Updating the original Passwords app may change internal ApiTokenHelper / EnvironmentService interfaces. Test a new combination before upgrading.
@@ -21,4 +21,4 @@
 - Manual AIO **first install only**. An existing OTP deployment cannot be overwritten by aio_install.py.
 - Unofficial, unsigned source distribution; no App Store support or automatic update channel.
 
-**Automated v1.0.0 release checks passed; a real first-install test of the v1.0.0 package is still pending.** The release ZIP, hashes, source commit and third-party notices have been independently checked; this is not an end-to-end AIO acceptance test. Earlier internal-version observations are separated in [Validation](VALIDATION.md).
+**2026-11-11: the exact public v1.0.0 ZIP passed first app installation into an existing disposable localhost Nextcloud/MariaDB fixture: 10/10 blocks and 49/49 checks, including an out-of-group negative test, CSE and release-file integrity.** This is **not** an AIO/PostgreSQL first-install or general production acceptance. The release ZIP, hashes, source commit and third-party notices remain unchanged. See [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [release integrity](RELEASE_INTEGRITY_v1.0.0.md) and [validation](VALIDATION.md).
