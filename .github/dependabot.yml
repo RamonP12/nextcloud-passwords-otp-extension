@@ -1,8 +1,8 @@
 # Version-update PRs are intentionally paused while GitHub Actions CI is
 # disabled. The zero limit affects Dependabot VERSION updates only.
-# SECURITY updates are configured independently in Repository Settings ->
-# Advanced Security -> Dependabot security updates. Enable alerts and security
-# updates after the repository is public; do not assume this YAML enables them.
+# Security alerts and security-update pull requests are configured
+# independently in Repository Settings -> Advanced Security; this file does
+# not enable or disable those repository settings.
 # Revisit the version-update limit when CI is re-enabled.
 version: 2
 updates:

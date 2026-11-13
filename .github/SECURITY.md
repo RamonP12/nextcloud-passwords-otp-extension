@@ -9,13 +9,11 @@
 
 ## Report security vulnerabilities privately
 
-**Use [GitHub Private Vulnerability Reporting](https://github.com/RamonP12/nextcloud-passwords-otp-extension/security/advisories/new)** after it is explicitly enabled for this repository (**Security and quality → Advisories → Report a vulnerability**). The maintainer must activate the feature **immediately after making the repository public**; this file does not enable it.
+**Report vulnerabilities through [GitHub Private Vulnerability Reporting](https://github.com/RamonP12/nextcloud-passwords-otp-extension/security/advisories/new)** using the repository's **Report a vulnerability** action.
 
-**No alternative confidential reporting channel is currently configured.** GitHub does **not** provide direct messages between arbitrary users, and this project does not advertise a dedicated security mailbox. Do not assume that an unspecified “private GitHub channel” exists.
+Do **not** disclose vulnerability details in public GitHub issues, discussions, or pull requests. No alternative confidential reporting channel is advertised. The maintainer will triage incoming private reports and coordinate disclosure where possible.
 
-If the private-reporting option is not available, **do not publish any vulnerability details**. You may open a minimal, non-sensitive Issue requesting that Private Vulnerability Reporting be enabled; omit exploit details, affected credentials, private infrastructure and proof-of-concept material. Wait for a confirmed confidential channel before sending sensitive content.
-
-When reporting, include the affected version, impact and reproduction steps using **synthetic** data. Never attach real Passwords exports, OTP setup secrets, passwords, cookies, bearer tokens, CSE proofs or unredacted HTTP requests.
+Include the affected version, impact and reproduction steps using **synthetic** data. Never attach real Passwords exports, OTP setup secrets, passwords, cookies, bearer tokens, CSE proofs or unredacted HTTP requests.
 
 ## Security boundaries
 

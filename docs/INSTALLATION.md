@@ -19,16 +19,21 @@ The operator completely removed the internal local 0.7.3 app and installed the v
 
 The [v1.0.0 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0) supplies exactly three files: `passwords_otp-1.0.0.zip`, `passwords_otp-1.0.0.zip.sha256`, and `BUILD.json`. The release was published on 2026-11-11; these three asset names and their SHA256 digests were verified against GitHub's release metadata.
 
-Download the assets into an empty local directory:
+The assets can be downloaded directly from the **public** release, without an authenticated GitHub CLI. Use the following stable, tag-specific download URLs:
+
+- [passwords_otp-1.0.0.zip](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/download/v1.0.0/passwords_otp-1.0.0.zip)
+- [passwords_otp-1.0.0.zip.sha256](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/download/v1.0.0/passwords_otp-1.0.0.zip.sha256)
+- [BUILD.json](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/download/v1.0.0/BUILD.json)
+
+Alternatively, download all three files using `curl`:
 
 ```sh
 mkdir -p otp-release-v1.0.0
-gh release download v1.0.0 \
-  --repo RamonP12/nextcloud-passwords-otp-extension \
-  --pattern 'passwords_otp-1.0.0.zip*' \
-  --pattern 'BUILD.json' \
-  --dir otp-release-v1.0.0
 cd otp-release-v1.0.0
+BASE='https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/download/v1.0.0'
+curl --fail --location --remote-name "$BASE/passwords_otp-1.0.0.zip"
+curl --fail --location --remote-name "$BASE/passwords_otp-1.0.0.zip.sha256"
+curl --fail --location --remote-name "$BASE/BUILD.json"
 sha256sum -c passwords_otp-1.0.0.zip.sha256
 printf '%s  %s\n' \
   'ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256' \
