@@ -1,10 +1,30 @@
-# Validation status — v1.0.0
+# Validation status — v1.0.0 and v1.0.1 candidate
+
+> **v1.0.1 is a metadata-only source candidate.** The 10/10 manual blocks and 49/49 checks below are evidence for the **published v1.0.0 ZIP only**. They must not be copied as a fresh real-browser or AIO/PostgreSQL acceptance of v1.0.1. The coordinated version bump and appinfo schema regression are tracked in [issue #2](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/2), with candidate notes at [v1.0.1](RELEASE_NOTES_v1.0.1.md). Existing OTP logic remains unchanged; only versioned JS/CSS markers, asset names and the PHP loader reference differ. General production approval remains withheld.
 
 **As of 2026-11-11: local installation and functional acceptance of the exact published v1.0.0 ZIP PASSED (10/10 blocks, 49/49 checks).** The separate **Nextcloud AIO/PostgreSQL** first-install gate for this published ZIP has **not** been performed. No generic production approval, independent security audit, App Store approval or signing is claimed.
 
 - [Full local acceptance evidence (49/49)](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md)
 - [Published release identity, SHA256 and protection status](RELEASE_INTEGRITY_v1.0.0.md)
 - [Security limits](SECURITY_REVIEW.md) and [compatibility](COMPATIBILITY.md)
+
+## v1.0.1 candidate: independently observed checks (2026-11-11)
+
+These checks were performed **against a candidate derived from the SHA256-verified official v1.0.0 ZIP** and its precisely versioned source changes; they are **not** a full `npm ci && npm test && npm run test:client && npm run build` on a clean checkout.
+
+| Check | Observed |
+| --- | --- |
+| v1.0.0 input provenance | Official ZIP SHA256 `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256` verified |
+| Nextcloud appinfo | Mandatory `<bugs>`, required top-level elements and ordering checked against the live official App Store `info.xsd` text; **full external XSD validator not yet run** |
+| Version coherence | `1.0.1` in appinfo, template, package/lockfile, release script and AIO installer; `app-101` JS/CSS loader and build markers |
+| PHP contract suite | **51 assertions passed**, PHP **8.4.24**, framework doubles rather than real Nextcloud |
+| PHP syntax | 4 packaged application/template PHP files passed `php -l` |
+| JS syntax | Packaged `app-101.js` passed `node --check`; edited JS test files parsed in isolated V8 |
+| Candidate ZIP/manifest | 13 regular files including `BUILD.json`; SHA256/file inventory/CRC/metadata checks passed, `production_approved=false`; two independent local assemblies byte-identical |
+| Runtime regression surface | Compiled bundle and CSS differ from original verified v1.0.0 **only** in their `_100` → `_101` markers and ZIP paths; PHP controller differs **only** in two asset names |
+| Repository/package match | All **10 tracked files present in the ZIP** were individually matched to GitHub source contents using Git's blob SHA1 format |
+
+**Limitations:** The full source checkout, locked npm packages, the complete original Nextcloud fixture, Chromium harness and networked npm registry were not available to the examining environment. Therefore **fresh JavaScript 179/179, pinned real-client 17/17, Python installer 66/66, npm audit, fresh esbuild double build, official full XSD lint and live Nextcloud 35 first installation are not independently claimed for v1.0.1**. A derived ZIP is a candidate, not the formal GitHub release archive until full gates are satisfied. GitHub Actions remain deliberately disabled.
 
 ## Published source and binary: automated release checks
 

@@ -92,6 +92,7 @@ class DeployTests(unittest.TestCase):
   self.assertEqual(deploy.asset_for_version('0.7.2'),'app-072')
   self.assertEqual(deploy.asset_for_version('0.7.1'),'app-071')
   self.assertEqual(deploy.asset_for_version('1.0.0'),'app-100')
+  self.assertEqual(deploy.asset_for_version('1.0.1'),'app-101')
   with self.assertRaises(deploy.DeploymentError):deploy.asset_for_version('0.7.99')
  def test_071_upgrade_and_explicit_rollback_to_070(self):
   with tempfile.TemporaryDirectory()as temp:

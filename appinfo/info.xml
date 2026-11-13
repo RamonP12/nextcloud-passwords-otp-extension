@@ -4,11 +4,12 @@
     <name>Passwort OTP Code Generator</name>
     <summary>View and copy TOTP codes, including shared entries, and create OTP entries</summary>
     <description>Unofficial companion for Nextcloud Passwords: view and copy your own or shared TOTP codes, and create new Passwords entries with OTP fields. Supports client-side TOTP generation and Passwords CSE authentication. Does not edit or delete existing entries. Tested with Nextcloud 35.0.2 and Passwords 2026.11.20. See SECURITY.md for security boundaries.</description>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <licence>AGPL-3.0-or-later</licence>
     <author>RamonP12</author>
     <namespace>PasswordsOtp</namespace>
     <category>security</category>
+    <bugs>https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues</bugs>
     <repository>https://github.com/RamonP12/nextcloud-passwords-otp-extension</repository>
     <dependencies><php min-version="8.3" max-version="8.5"/><nextcloud min-version="35" max-version="35"/></dependencies>
     <navigations><navigation><name>Passwort OTP Code Generator</name><route>passwords_otp.page.index</route><icon>app.svg</icon><order>75</order></navigation></navigations>

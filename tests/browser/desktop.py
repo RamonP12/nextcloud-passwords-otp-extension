@@ -42,7 +42,7 @@ def main():
     initial=base64.b64encode(json.dumps(state).encode()).decode()
     html=f'''<!doctype html><html><head data-requesttoken="synthetic-csrf-token"><meta charset="utf-8"><style>
     body{{margin:0;font-family:Arial,sans-serif}}dialog{{display:block}}
-    {(ROOT/'css/app-100.css').read_text()}</style></head><body>
+    {(ROOT/'css/app-101.css').read_text()}</style></head><body>
     <input type="hidden" id="initial-state-passwords_otp-ap1" value="{initial}">{template}</body></html>'''
     runtime=bundle();passed=[]
     with sync_playwright() as p:
@@ -103,8 +103,8 @@ def main():
                 expect(page.locator('#passwords-otp-ap12-help')).to_have_text('Hier kann ein neuer OTP Eintrag zu deinen Passw\u00f6rtern hinzugef\u00fcgt werden. Er wird in der Passwords App gespeichert und kann \u00fcber diese App auch verwaltet (gel\u00f6scht, ver\u00e4ndert) und mit anderen NextCloud Benutzern geteilt werden.')
                 expect(page.locator('.passwords-otp-ap0__version,.passwords-otp-ap0__notice,.passwords-otp-ap0__metrics,#passwords-otp-ap1-lock,#passwords-otp-ap1-count,#passwords-otp-ap1-cse,#passwords-otp-ap2-count,#passwords-otp-ap2-invalid')).to_have_count(0)
                 assert 'Testversion' not in page.locator('body').inner_text()
-                assert '1.0.0' not in page.locator('body').inner_text()
-                assert page.locator('#passwords-otp-app').get_attribute('data-template-build')=='1.0.0'
+                assert '1.0.1' not in page.locator('body').inner_text()
+                assert page.locator('#passwords-otp-app').get_attribute('data-template-build')=='1.0.1'
                 modal=page.locator('#passwords-otp-ap12-dialog');opener=page.locator('#passwords-otp-ap12-open')
                 expect(opener).to_have_text('Neues OTP Passwort hinzuf\u00fcgen')
                 expect(page.locator('#passwords-otp-ap12-title')).to_have_text('Neues OTP Passwort hinzuf\u00fcgen')

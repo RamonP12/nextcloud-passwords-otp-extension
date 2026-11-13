@@ -1,5 +1,7 @@
 # Compatibility and supported scope
 
+**Release distinction (2026-11-11):** The **published v1.0.0** ZIP passed 49/49 local acceptance checks. The **v1.0.1 metadata-only candidate** retains the identical audited OTP runtime and Nextcloud/Passwords compatibility declaration but requires its **own version-bound package tests and live browser installation acceptance**. The target AIO/PostgreSQL first install and production sign-off remain open; do not generalize the 1.0.0 observations to a new binary.
+
 ## Validated environment
 
 | Component | Verified | Boundary |

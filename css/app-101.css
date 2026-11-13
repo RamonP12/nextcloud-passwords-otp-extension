@@ -1,4 +1,4 @@
-/* PASSWORDS_OTP_CSS_100_VERIFIED. Scoped desktop styling, including narrow windows/zoom. */
+/* PASSWORDS_OTP_CSS_101_VERIFIED. Scoped desktop styling, including narrow windows/zoom. */
 .passwords-otp-ap0, .passwords-otp-ap0 *, .passwords-otp-ap0 *::before, .passwords-otp-ap0 *::after {box-sizing:border-box;}
 .passwords-otp-ap0 {display:block;width:100%;max-width:none;min-height:calc(100vh - 84px);height:auto;margin:0;padding:clamp(12px,2.5vw,32px);overflow:visible;color:var(--color-main-text,#222);background:var(--color-main-background,#fff);font-size:15px;line-height:1.5;}
 .passwords-otp-ap0__panel {display:block;width:100%;max-width:960px;min-width:0;height:auto;margin:0 auto;padding:clamp(18px,2.2vw,30px);border:1px solid var(--color-border,#ddd);border-radius:16px;background:var(--color-main-background,#fff);box-shadow:0 3px 20px rgb(0 0 0 / 4%);}

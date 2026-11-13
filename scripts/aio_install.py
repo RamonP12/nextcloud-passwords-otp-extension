@@ -27,7 +27,7 @@ APP = 'passwords_otp'
 CUSTOM = '/var/www/html/custom_apps'
 LIVE = CUSTOM + '/' + APP
 IMAGE = re.compile(r'^ghcr\.io/nextcloud-releases/aio-nextcloud(?::[^\s/]+|@sha256:[0-9a-f]{64})$')
-EXPECTED_VERSION = '1.0.0'
+EXPECTED_VERSION = '1.0.1'
 DEFAULT_STATE = pathlib.Path('/var/lib/passwords-otp-aio-installer')
 MAX_APP_FILE_BYTES = 30 * 1024 * 1024
 
@@ -276,7 +276,7 @@ def load_package(path: pathlib.Path, sha: str) -> tuple[dict[str, bytes], dict, 
     files, manifest = validate_package(data, sha)
     if manifest['version'] != EXPECTED_VERSION or manifest['production_approved'] is not False \
             or manifest['channel'] != 'public-source-baseline':
-        raise AioError('Only the reviewed 1.0.0 public source pilot package is supported')
+        raise AioError('Only the reviewed 1.0.1 public source pilot package is supported')
     return files, manifest, {name: digest(contents) for name, contents in files.items()}
 
 
@@ -470,7 +470,7 @@ def rollback(args, backend: AioBackend, manifest: dict,
 
 
 def main(argv: list[str] | None = None):
-    parser = argparse.ArgumentParser(description='AIO first-install ONLY (requires prebuilt, SHA-verified OTP 1.0.0)')
+    parser = argparse.ArgumentParser(description='AIO first-install ONLY (requires prebuilt, SHA-verified OTP 1.0.1)')
     group = parser.add_mutually_exclusive_group(required=True)
     for mode in ('inspect', 'preflight', 'install', 'verify', 'rollback'):
         group.add_argument('--' + mode, action='store_true')

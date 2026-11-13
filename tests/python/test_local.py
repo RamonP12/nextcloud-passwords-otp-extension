@@ -3,7 +3,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[2]/'scripts'))
 import local
 COMMIT='a'*40
-BUILD={'status':'PASS','source_commit':COMMIT,'version':'1.0.0','archive_sha256':'b'*64,'production':False}
+BUILD={'status':'PASS','source_commit':COMMIT,'version':'1.0.1','archive_sha256':'b'*64,'production':False}
 class FakeBackend:
  def __init__(self):
   self.before={'version':'0.6.1','files':{'appinfo/info.xml':'a'},'passwords':'2026.11.20','nextcloud':'35.0.2','container_id':'local-test'}

@@ -3,12 +3,12 @@
 from __future__ import annotations
 import argparse, hashlib, io, json, os, pathlib, re, stat, subprocess, zipfile
 import xml.etree.ElementTree as ET
-VERSION='1.0.0'
+VERSION='1.0.1'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
- 'css/app-100.css','js/app-100.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
-OPTIONAL=('js/app-100.js.LEGAL.txt',)
+ 'css/app-101.css','js/app-101.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
+OPTIONAL=('js/app-101.js.LEGAL.txt',)
 MAX_ARCHIVE=20*1024*1024
 MAX_UNPACKED=30*1024*1024
 STAMP=(2026,1,1,0,0,0)
@@ -20,6 +20,21 @@ def identity(xml:bytes)->tuple[str,str]:
     if b'<!DOCTYPE' in xml or len(xml)>100000:raise PackageError('Unsafe metadata')
     node=ET.fromstring(xml)
     return node.findtext('id',''),node.findtext('version','')
+
+def assert_appinfo_contract(xml:bytes)->None:
+    """Fail closed on the v1.0.1 XSD regression; full XSD lint is a separate gate."""
+    if identity(xml)!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
+    node=ET.fromstring(xml)
+    names=[child.tag for child in node]
+    for required in ('id','name','summary','description','version','licence','author','category','bugs','dependencies'):
+        if names.count(required)!=1:raise PackageError('Missing or duplicate appinfo XSD required element: '+required)
+    category=names.index('category')
+    bugs=names.index('bugs')
+    repository=names.index('repository') if 'repository' in names else names.index('dependencies')
+    dependencies=names.index('dependencies')
+    if not (category<bugs<repository<=dependencies):raise PackageError('Appinfo XSD sequence: category/bugs/repository/dependencies')
+    if node.findtext('bugs')!='https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues':
+        raise PackageError('Unexpected issue-tracker URL in appinfo')
 
 def canonical_json(value)->bytes:return (json.dumps(value,indent=2,sort_keys=True,ensure_ascii=True)+'\n').encode()
 
@@ -145,10 +160,10 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
         if relative in OPTIONAL and not path.exists():continue
         if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):raise PackageError('Unsafe/missing runtime input: '+relative)
         files[relative]=path.read_bytes()
-    if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
-    js=files['js/app-100.js']
-    if len(js)<10000 or b'PASSWORDS_OTP_JS_100_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
-    if b'PASSWORDS_OTP_CSS_100_VERIFIED' not in files['css/app-100.css']:raise PackageError('CSS marker missing')
+    assert_appinfo_contract(files['appinfo/info.xml'])
+    js=files['js/app-101.js']
+    if len(js)<10000 or b'PASSWORDS_OTP_JS_101_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
+    if b'PASSWORDS_OTP_CSS_101_VERIFIED' not in files['css/app-101.css']:raise PackageError('CSS marker missing')
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
     manifest={'schema':1,'app':'passwords_otp','version':VERSION,'source_commit':commit,'channel':'public-source-baseline',
@@ -179,7 +194,8 @@ def validate_package(data:bytes,expected_sha256:str)->tuple[dict[str,bytes],dict
         raise PackageError('Incorrect manifest identity/channel')
     if manifest.get('channel')!='public-source-baseline' or not re.fullmatch(r'[0-9a-f]{40}',manifest.get('source_commit','')):raise PackageError('Invalid provenance')
     expected={key:digest(value) for key,value in sorted(files.items()) if key!='BUILD.json'}
-    if expected!=manifest.get('files') or identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Manifest file integrity mismatch')
+    if expected!=manifest.get('files'):raise PackageError('Manifest file integrity mismatch')
+    assert_appinfo_contract(files['appinfo/info.xml'])
     return files,manifest
 
 def extract_checked(files:dict[str,bytes],destination:pathlib.Path)->None:

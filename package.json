@@ -1,7 +1,7 @@
 {
   "name": "nextcloud-passwords-otp-extension",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --test tests/js/*.test.mjs",
     "test:client": "esbuild tests/client/integration.mjs --bundle --platform=node --target=node22 --format=cjs --outfile=.build/client-test.cjs && node --test .build/client-test.cjs",
-    "build": "esbuild src/ap1/index.js --bundle --format=iife --platform=browser --target=es2022 --minify --legal-comments=linked --outfile=js/app-100.js",
+    "build": "esbuild src/ap1/index.js --bundle --format=iife --platform=browser --target=es2022 --minify --legal-comments=linked --outfile=js/app-101.js",
     "test:php": "php tests/php/security.php"
   },
   "dependencies": {
