@@ -1,44 +1,26 @@
-# Historical pre-publication checklist for v1.0.0
+# v1.0.0 publication record (historical)
 
-> **Status as of 2026-11-11:** The repository and v1.0.0 release are **already public and published**. The numbered steps below are an archived pre-publication runbook; do **not** repeat draft publication or alter the existing release. A subsequent **local acceptance of the published ZIP passed 49/49 checks**, while AIO/PostgreSQL first-install acceptance remains open. See [validation](VALIDATION.md) and [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md).
+> **Publication completed on 2026-11-11.** This is a record, not a runbook to execute again. Never re-publish, retag or replace the verified v1.0.0 assets.
 
-This checklist covers **repository administration only**. The **v1.0.0 tag is protected** by an active ruleset, and all three published asset hashes are independently recorded, but GitHub reports **`immutable=false` for the release**: its binary assets are **not** protected by immutable-releases enforcement. Details: [release integrity record](RELEASE_INTEGRITY_v1.0.0.md). Do **not** move `v1.0.0`, edit the archive or rebuild/re-upload release assets.
+## Published baseline
 
-## Publication order
+- Public repository: [RamonP12/nextcloud-passwords-otp-extension](https://github.com/RamonP12/nextcloud-passwords-otp-extension)
+- Published release: [v1.0.0](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0)
+- Release source commit: `56d6de06e4825c9bd03b4b07dec5825d64228390`
+- Release ZIP SHA256: `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256`
+- The `v*` tags and `main` are protected by active repository rulesets.
+- **v1.0.0 release attachments are not immutable**: GitHub reported `immutable=false`. Enabling release immutability later only affects future releases; see [release integrity record](RELEASE_INTEGRITY_v1.0.0.md) and [issue #3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/3).
 
-1. Review the GitHub profile in an **unauthenticated** browser to ensure the displayed name, profile links and contact fields do not reveal unwanted identity. The corrected tag uses the pseudonym and a GitHub noreply address.
-2. Ensure the **new clean repository** is private and that the two historical repositories remain private and archived. The old sensitive tag object must yield 404 **in the clean repository**.
-3. In the clean repository Settings, switch **visibility to Public**. This change exposes the current source history and published metadata immediately.
-4. **Immediately** enable **Private Vulnerability Reporting** at Security and quality → Advanced Security/Advisories. Confirm that **Report a vulnerability** appears for an unauthenticated visitor. No other confidential channel is advertised.
-5. Enable **Dependency graph**, **Dependabot alerts**, **Dependabot security updates**, **Secret scanning** and **Push protection** (where offered) in Settings → Advanced Security. These are settings, not enabled by merely adding `.github/dependabot.yml`. Regular Dependabot **version-update** PRs remain paused by `open-pull-requests-limit: 0`; security updates are separate.
-6. Update the existing **draft** release with [these notes](RELEASE_NOTES_v1.0.0.md) from a checkout of the current `main`:
+## Security and acceptance
 
-   ```sh
-   gh release edit v1.0.0 \
-     --repo RamonP12/nextcloud-passwords-otp-extension \
-     --notes-file docs/RELEASE_NOTES_v1.0.0.md
-   gh release view v1.0.0 \
-     --repo RamonP12/nextcloud-passwords-otp-extension \
-     --json isDraft,tagName,assets
-   ```
+- Vulnerability reports belong in [GitHub Private Vulnerability Reporting](../.github/SECURITY.md). The feature is configured in repository settings, not by the policy file itself.
+- Dependency scanning/alerts and security updates are separate GitHub repository settings. The [Dependabot configuration](../.github/dependabot.yml) currently pauses routine version-update PRs while CI is disabled.
+- The exact published v1.0.0 ZIP passed local Nextcloud 35 / MariaDB acceptance: **10/10 blocks, 49/49 checks**. See [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md) and [validation](VALIDATION.md).
+- A fresh AIO/PostgreSQL first-install acceptance remains open; `production_approved=false`.
+- GitHub Actions has no recorded runs while disabled. Do not require a green CI check until workflows are enabled and a named check is observed.
 
-7. After reviewing the release preview and asset SHA256, **publish** the draft:
+## Future releases
 
-   ```sh
-   gh release edit v1.0.0 \
-     --repo RamonP12/nextcloud-passwords-otp-extension \
-     --draft=false
-   ```
+Before publishing a future version, enable release immutability, complete the version-specific validation and integrity checks, upload and verify assets in a draft, and publish only after release gates pass. Preserve the historical v1.0.0 tag and assets unchanged.
 
-8. Set up GitHub **rulesets** for branch `main` (restrict deletion/force pushes; require PRs when workflow is operational) and tags matching `v*` (restrict updates and deletions). **Do not require green CI checks while GitHub Actions are disabled**, or every PR will be blocked. Enable and verify CI deliberately before requiring named checks. Select no unnecessary bypass actors.
-9. Under Repository Settings, optionally disable unused **Projects**, permit only **Squash merge**, and enable **Automatically delete head branches**.
-10. Set repository topics: `nextcloud`, `nextcloud-app`, `totp`, `otp`, `2fa`, `passwords`.
-11. Confirm as an unauthenticated visitor that the release assets download, the issue and security reporting are accessible, `main` and the tagged sources contain no private contact details, and the old quarantine remains private.
-
-## Invariants
-
-- Release source commit: `56d6de06e4825c9bd03b4b07dec5825d64228390`.
-- Release ZIP SHA256: `ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256`.
-- New documentation commits on moving `main` do **not** change the tagged v1.0.0 source or the current release files. The **tag reference is protected**, but the **published release assets are not GitHub-immutable** (`immutable=false`); use the recorded checksums for subsequent integrity checks.
-- GitHub Actions checks are **currently disabled**. The exact published v1.0.0 package **has** passed the local Docker Compose/MariaDB app-installation and 49/49 browser/integrity checks; a **separate AIO/PostgreSQL first-install acceptance** remains outstanding.
-- If any admin control cannot be activated, stop and report the gap rather than claiming it is enabled.
+For the full historical integrity evidence and read-only verification steps, refer to [RELEASE_INTEGRITY_v1.0.0.md](RELEASE_INTEGRITY_v1.0.0.md).
