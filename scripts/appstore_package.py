@@ -209,6 +209,8 @@ def verify_tar(data: bytes, files: dict[str, bytes]) -> None:
 
 def package(archive: pathlib.Path, sha: str, signed_app: pathlib.Path,
             destination: pathlib.Path) -> tuple[str, dict]:
+    if destination.resolve().is_relative_to(signed_app.resolve()):
+        raise PackageError('Tar output must be outside the signed app directory')
     originals, manifest = source_files(archive, sha)
     files = signed_files(signed_app, originals)
     data = tar_bytes(files)
