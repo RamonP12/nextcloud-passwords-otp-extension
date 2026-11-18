@@ -65,6 +65,8 @@ class AppStorePackageTests(unittest.TestCase):
                 appstore.package(archive, sha, app, root / 'unsigned.tar.gz')
             self.assertFalse((root / 'unsigned.tar.gz').exists())
             self.sign_synthetically(app, files)
+            with self.assertRaisesRegex(appstore.PackageError, 'outside the signed app'):
+                appstore.package(archive, sha, app, app / 'invalid.tar.gz')
             digest1, _ = appstore.package(archive, sha, app, root / 'first.tar.gz')
             digest2, _ = appstore.package(archive, sha, app, root / 'second.tar.gz')
             self.assertEqual(digest1, digest2)
