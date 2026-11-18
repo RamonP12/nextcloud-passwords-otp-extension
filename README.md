@@ -71,3 +71,7 @@ Report functional issues using [GitHub Issues](https://github.com/RamonP12/nextc
 Own code: **GNU AGPL-3.0-or-later**; see [LICENSE](LICENSE). Bundled dependencies retain their own licenses; see [Third-party notices](THIRD_PARTY_NOTICES.md).
 
 **Unofficial community project.** Not affiliated with or endorsed by Nextcloud GmbH or the original Nextcloud Passwords maintainers.
+
+## Future Nextcloud App Store package format
+
+The repository already uses a normal Nextcloud app source layout. A separate [App Store packaging workflow](docs/APPSTORE_PACKAGING.md) prepares the application for an `occ`-signed, single-root `.tar.gz` release without modifying the existing verified ZIP/AIO distribution. **This is preparation only**: the app is not yet registered or published in the Nextcloud App Store, and signing, installation and security release gates remain open.
