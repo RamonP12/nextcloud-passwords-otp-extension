@@ -33,3 +33,9 @@ The GitHub Actions workflow is present but **repository-level Actions execution 
 ## Release process
 
 Update appinfo/info.xml, package.json, package-lock.json, the asset names and tests consistently; run the full gate on the final commit. Keep release archives bound to that final commit and publish SHA256 and third-party notices. Version 1.0.0 does **not** provide an in-place production upgrade for existing OTP installations. **Automated release checks and real localhost installation of the exact ZIP passed; the first-install test on AIO/PostgreSQL is still pending.** Reproduce this binary only from tag `v1.0.0`, never from moving `main`. See [validation](VALIDATION.md) and [release integrity](RELEASE_INTEGRITY_v1.0.0.md).
+
+## App Store-compatible distribution (separate signing channel)
+
+The source tree already follows the standard Nextcloud app directory layout. For future App Store releases, **do not distribute the GitHub auto-generated source archive**: use the dedicated, signed `passwords_otp/` tarball workflow in [App Store packaging](APPSTORE_PACKAGING.md). The new tool stages a hash-verified versioned ZIP, then only packages files signed by a real Nextcloud `occ integrity:sign-app` run. A separate tarball signature, manual certificate registration and release approval are still necessary. This path is deliberately not part of the old AIO ZIP installer and does not modify v1.0.0.
+
+The synthetic unit tests for the packaging gate run with the normal `python3 -m unittest discover -s tests/python -v`. GitHub Actions is not required.
