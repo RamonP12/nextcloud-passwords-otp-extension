@@ -24,8 +24,8 @@ APP_ID = 'passwords_otp'
 SIGNATURE = 'appinfo/signature.json'
 MAX_ARCHIVE = 20_000_000
 MAX_UNPACKED = 30 * 1024 * 1024
-MAX_FILES = 64
-APP_DIRS = frozenset(('appinfo', 'lib', 'templates', 'css', 'js', 'img', 'l10n'))
+MAX_FILES = 512
+APP_DIRS = frozenset(('appinfo', 'lib', 'templates', 'css', 'js', 'img', 'l10n', 'vendor'))
 ROOT_FILES = frozenset(('LICENSE', 'THIRD_PARTY_NOTICES.md',
                         'THIRD_PARTY_LICENSES.txt', 'BUILD.json'))
 
