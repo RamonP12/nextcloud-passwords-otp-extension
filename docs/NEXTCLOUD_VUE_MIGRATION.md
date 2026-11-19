@@ -67,6 +67,7 @@ The unchanged core paths are listed in the validation record. PHP changes are li
 | Default password-field behavior could contact the password-strength service | Explicitly disable strength checking and trailing action for these sensitive fields | Browser request allowlist and real workflow checks |
 | A package could pair a clean newer source commit with an older frontend build | Complete source-input hashes, production-mode metadata and independent package revalidation | Added/removed/edited input, mode and inventory rejection tests |
 | Source could change between initial clean-tree verification and package output | Recheck HEAD and worktree after the two package constructions | Packaging regression tests |
+| CSS minification removed the installer's existing build marker | Emit the fixed marker after minification and before output hashing; retain the installer/package rejection check | Initial clean-package rejection followed by verified corrected output and a new clean-source gate |
 | Default shared build configuration brought unused vulnerable dependency chains | Minimal explicit Vite configuration and reviewed minimatch override | Full npm audit and production-module inventory |
 
 These findings illustrate why a widget-for-widget replacement alone would not have completed this migration. The additional work concerns actual asynchronous, security and shell-integration behavior.

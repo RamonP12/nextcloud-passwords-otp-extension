@@ -27,6 +27,19 @@ function bundleInventory() {
         name: 'otp-bundle-inventory',
         configResolved(config) { mode = config.mode; command = config.command; },
         buildStart() { sourceInputs = inputs(); },
+        generateBundle: {
+            order: 'post',
+            handler(_options, bundle) {
+                const css = bundle['css/app-110.css'];
+                if (css?.type !== 'asset' || typeof css.source !== 'string') {
+                    throw new Error('Missing final CSS asset for installer marker');
+                }
+                // CSS minification removes source comments. Preserve the
+                // installer's fixed build sentinel in the final output before
+                // writeBundle binds the emitted bytes to source/module hashes.
+                css.source = '/*! PASSWORDS_OTP_CSS_110_VERIFIED */\n' + css.source;
+            },
+        },
         writeBundle(_options, bundle) {
             if (JSON.stringify(sourceInputs) !== JSON.stringify(inputs())) throw new Error('Frontend changed during compilation');
             const assets = {};

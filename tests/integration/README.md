@@ -126,6 +126,8 @@ the app's verified build marker must be present.
 For the normal user, it reads the real incoming share, creates exactly one new
 record per explicit save, verifies input Enter does not submit, compares OTPs
 against an independent implementation, copies through the real browser API,
+checks that native `progress.max` is 30 and `ceil(progress.value)` matches the
+textual countdown for the public RFC test record,
 filters the list, cycles Tab/Shift+Tab immediately after opening, checks Escape
 and focus restoration, and checks that reopening has cleared the secret. Clearing
 the Nextcloud browser session and sending a focus event must remove the protected

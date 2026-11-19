@@ -12,6 +12,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -155,19 +156,28 @@ class RealFixture:
         return row
 
     def assert_code_and_copy(self, row):
-        output = row.locator('output')
         button = row.locator('.passwords-otp-ap3__copy')
         expect(button).to_be_enabled(timeout=45000)
         progress = row.locator('.passwords-otp-ap3__progress').bounding_box()
         assert progress and progress['height'] >= 4 and progress['width'] >= 64, 'Countdown progress bar must be visibly rendered'
-        # Capture the browser's actual time and DOM code in the same task. Retry
-        # only across a natural TOTP boundary, without replacing the real clock.
+        # Capture actual time, code and native progress semantics atomically.
+        # Native fill transitions can be mid-animation in a screenshot; their
+        # value/max and the textual countdown must still agree. Retry only
+        # across a natural TOTP boundary, without replacing the real clock.
         for _ in range(3):
-            sample = output.evaluate('(el) => ({now: Date.now(), code: el.textContent})')
+            sample = row.evaluate('''(element) => {
+                const progress = element.querySelector('.passwords-otp-ap3__progress');
+                return {now: Date.now(), code: element.querySelector('output').textContent,
+                    progress_max: progress.max, progress_value: progress.value,
+                    countdown: element.querySelector('.passwords-otp-account__time span').textContent};
+            }''')
             if sample['code'] == totp(sample['now']):
                 break
             self.page.wait_for_timeout(1100)
         assert sample['code'] == totp(sample['now']), 'TOTP differs from independent HMAC calculation'
+        assert sample['progress_max'] == 30, 'Native progress maximum must match the RFC fixture period'
+        countdown = re.fullmatch(r'Noch (\d+) s gültig', sample['countdown'])
+        assert countdown and math.ceil(sample['progress_value']) == int(countdown[1]), 'Native progress value and textual countdown disagree'
         button.click()
         expect(self.page.locator('#passwords-otp-ap3-feedback')).to_contain_text('kopiert')
         if self.browser_name == 'chromium':
