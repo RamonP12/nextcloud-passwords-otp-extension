@@ -25,8 +25,8 @@ class PackageTests(unittest.TestCase):
             '<info><id>passwords_otp</id><version>' + release.VERSION + '</version></info>')
         (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
         (root / release.JS_ASSET).write_text(
-            '/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_111_VERIFIED\n' + 'x' * 10001)
-        (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_111_VERIFIED')
+            '/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_112_VERIFIED\n' + 'x' * 10001)
+        (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_112_VERIFIED')
         packages = {
             '': {'version': release.VERSION, 'dependencies': {'passwords-client': '1.0.0-beta.6117', 'widget': '1.0.0'}},
             'node_modules/passwords-client': {'version': '1.0.0-beta.6117', 'license': 'ISC',
@@ -347,10 +347,12 @@ class PackageTests(unittest.TestCase):
         for head, status in [('b' * 40, ''), ('a' * 40, ' M src/main.js\n')]:
             with self.subTest(head=head, status=status), tempfile.TemporaryDirectory() as temp:
                 root = pathlib.Path(temp)
+                self.fixture(root)
+                archive, manifest = release.make_package(root, 'a' * 40)
                 output = root / 'candidate'
                 with patch.object(release, 'ROOT', root), \
                         patch.object(sys, 'argv', ['release.py', str(output)]), \
-                        patch.object(release, 'make_package', return_value=(b'identical archive fixture', {})), \
+                        patch.object(release, 'make_package', return_value=(archive, manifest)), \
                         patch.object(release.subprocess, 'check_output', side_effect=['a' * 40, '', head, status]):
                     with self.assertRaisesRegex(release.PackageError, 'changed during packaging'):
                         release.main()

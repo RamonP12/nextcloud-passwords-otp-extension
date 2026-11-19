@@ -249,14 +249,14 @@ def headers_and_boundaries(fixture, response):
     assert headers.get('referrer-policy') == 'no-referrer'
     csp = headers.get('content-security-policy', '')
     assert "'wasm-unsafe-eval'" in csp and "'unsafe-eval'" not in csp
-    assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_111_VERIFIED'
+    assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_112_VERIFIED'
     assert page.locator('#initial-state-passwords_otp-ap1').count() == 0
-    module = page.locator('script[src*="/passwords_otp/js/app-111.mjs"]')
+    module = page.locator('script[src*="/passwords_otp/js/app-112.mjs"]')
     assert module.get_attribute('type') == 'module'
     asset = page.request.get(urljoin(fixture.base + '/', module.get_attribute('src')))
     assert asset.status == 200
     assert asset.headers['content-type'].split(';')[0] in {'text/javascript', 'application/javascript'}
-    assert hashlib.sha256(asset.body()).hexdigest() == hashlib.sha256((ROOT / 'js/app-111.mjs').read_bytes()).hexdigest()
+    assert hashlib.sha256(asset.body()).hexdigest() == hashlib.sha256((ROOT / 'js/app-112.mjs').read_bytes()).hexdigest()
     csrf = page.locator('head').get_attribute('data-requesttoken')
     session = page.request.get(fixture.base + '/index.php/apps/passwords_otp/session-status')
     assert session.status == 200 and session.json()['authenticated'] is True
@@ -389,7 +389,7 @@ def main():
                   'Rate limits, ambiguous write failures and BFCache events are covered by the separate synthetic browser/lifecycle suite.',
                   'This disposable fixture does not establish AIO, PostgreSQL, proxy-specific or production acceptance.'],
               'sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                         for name in ['js/app-111.mjs', 'css/app-111.css']}}
+                         for name in ['js/app-112.mjs', 'css/app-112.css']}}
     if args.browser == 'firefox':
         report['limitations'].append('Firefox validates real user-triggered clipboard.writeText success; clipboard contents are independently read in Chromium only.')
     try:

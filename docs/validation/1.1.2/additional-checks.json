@@ -1,0 +1,70 @@
+{
+  "app_version": "1.1.2",
+  "appstore_publication": false,
+  "browser_asset_hashes_match_clean_build": true,
+  "chromium": {
+    "reason": "Previous workspace launch was blocked by socket EPERM before application startup; current regression uses Firefox. No 1.1.2 Chromium pass claimed.",
+    "status": "NOT_RUN"
+  },
+  "double_frontend_build": "byte-identical",
+  "double_zip_and_tar_build": "byte-identical",
+  "frontend_exceptions": [
+    "src/main.js and src/styles.css: version markers only"
+  ],
+  "github_actions": "NOT_RUN quota unavailable; manual-only workflow retained",
+  "independent_review": {
+    "scope": "PHP lifecycle and packaging reviews; repeated core component24/PHP177; documentation corrections applied",
+    "status": "PASS"
+  },
+  "live_nextcloud_112": "NOT_RUN; laptop lifecycle acceptance remains separate",
+  "metadata_schema": {
+    "sha256": "f51024ffc9b94bd305ab2a4d2c498d6c3cc9e3bbcd9e2c1413bb2188f0b71fb7",
+    "source": "https://github.com/nextcloud/server/blob/v35.0.2/resources/app-info.xsd",
+    "status": "PASS"
+  },
+  "nextcloud_code_signing": "NOT_RUN; no real app signing credential supplied",
+  "npm_audit_reported_vulnerabilities": 0,
+  "performed_at_utc": "2026-11-19T10:18:08.184347+00:00",
+  "production_approved": false,
+  "schema": 1,
+  "status": "PASS",
+  "tested_source_commit": "36c78d2721432644651f3deae8de3708ea0191ac",
+  "tests": {
+    "actual_passwords_client_and_libsodium": 17,
+    "firefox_browser_cases": 30,
+    "javascript": 237,
+    "nextcloud_core_component_cases": 24,
+    "php_dependency_assertions": 110,
+    "php_security_assertions": 67,
+    "php_syntax_files": 13,
+    "python": 102
+  },
+  "tools": {
+    "node": "24.22.3",
+    "npm": "11.9.0",
+    "php": "8.4.27",
+    "playwright": "1.62.0",
+    "python": "3.12.14"
+  },
+  "unchanged_frontend_sources_vs_v1_1_1": [
+    "src/App.vue",
+    "src/ap1/bootstrap.mjs",
+    "src/ap1/network.mjs",
+    "src/ap1/session.mjs",
+    "src/ap1/upstream.js",
+    "src/ap12/api-policy.mjs",
+    "src/ap12/create.mjs",
+    "src/ap2/parser.mjs",
+    "src/ap2/view.mjs",
+    "src/ap3/totp.mjs",
+    "src/ap3/ui.mjs",
+    "src/ap9/session-check.mjs",
+    "src/components/OtpAccountList.vue",
+    "src/components/OtpCreateDialog.vue",
+    "src/components/VaultUnlock.vue",
+    "src/ui/controller.mjs",
+    "src/ui/dom-safety.mjs",
+    "src/ui/failure-boundary.mjs",
+    "src/ui/messages.mjs"
+  ]
+}

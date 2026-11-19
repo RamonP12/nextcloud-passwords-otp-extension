@@ -1,0 +1,142 @@
+{
+  "files": {
+    "core/Command/App/Disable.php": {
+      "bytes": 2360,
+      "sha256": "e390652d8682c0e9713d1fb19b83f62a08a691d2ab6402ca0b49df485778ef78"
+    },
+    "core/Command/App/Enable.php": {
+      "bytes": 4300,
+      "sha256": "f5f7fed65b391472446024ee4558c88c3aeadc73933225ebbb45509f6d6e57cf"
+    },
+    "core/Command/App/Install.php": {
+      "bytes": 2156,
+      "sha256": "034d168a666ed34df7ec5a0630d07ee800a36c3a3f5af5bef5e535e236ba34e7"
+    },
+    "core/Command/App/Remove.php": {
+      "bytes": 5006,
+      "sha256": "f9f90061b4f73c27d9e19a7368dc5cbae95fe90a43dcab67ae40af23e4aa138d"
+    },
+    "lib/private/App/AppManager.php": {
+      "bytes": 38317,
+      "sha256": "5e2382c24ad5dbbdd6ad79e5bc890426e3e9493b1c9b4e5b525f0743fbb0db99"
+    },
+    "lib/private/AppFramework/Bootstrap/Coordinator.php": {
+      "bytes": 6436,
+      "sha256": "c5bca51efa480a65d942d9d154876998b4fdb503248966eeba001c76be57caf4"
+    },
+    "lib/private/DB/MigrationService.php": {
+      "bytes": 28329,
+      "sha256": "d0338a956b55cffa54ec2bdc8ec1e3a0a6711408f3b8b850ec25be4a997d9bc2"
+    },
+    "lib/private/EventDispatcher/ServiceEventListener.php": {
+      "bytes": 1471,
+      "sha256": "0fff0c14fae0723f9c13d6ef56caca4f90dd4ba7db53f2805fa6e42a792d0482"
+    },
+    "lib/private/Installer.php": {
+      "bytes": 19078,
+      "sha256": "90541cf63ae41216dd947751895233cb10e8e380b7ab06e0c0f1090a57a03962"
+    },
+    "lib/private/Repair.php": {
+      "bytes": 9237,
+      "sha256": "01d707b9c0df4042ca3622d827f43b62f361b1b030acc727b5df4fc55db606d3"
+    },
+    "lib/private/Repair/Events/RepairAdvanceEvent.php": {
+      "bytes": 504,
+      "sha256": "f030f01d2e3c108d5488a8d9b58cbc751e9c322a4f5a8bf3b0a987e7507d0c31"
+    },
+    "lib/private/Repair/Events/RepairErrorEvent.php": {
+      "bytes": 394,
+      "sha256": "cf89641f8e95a76bb09caee552c775f77e839c4f3294472ee7254d7b4c5d5c62"
+    },
+    "lib/private/Repair/Events/RepairFinishEvent.php": {
+      "bytes": 261,
+      "sha256": "91eb738e6f65ab7630a633c66a0715cc28e13d4df2460983a0b2733840cbbb9c"
+    },
+    "lib/private/Repair/Events/RepairInfoEvent.php": {
+      "bytes": 393,
+      "sha256": "98b3f903ef7d9a639a3dead18d2ce2254c2c71a756d5d8215ef385ad37a751db"
+    },
+    "lib/private/Repair/Events/RepairStartEvent.php": {
+      "bytes": 484,
+      "sha256": "cf2d84474f239aa2118ac9302ddba41f43636c11b5509d62a7add3b9acd23f25"
+    },
+    "lib/private/Repair/Events/RepairStepEvent.php": {
+      "bytes": 396,
+      "sha256": "a17fa05d46826567d7b8f09fb1a0e8a7e4dfa4cb181e5519ab9a34000f0fb36e"
+    },
+    "lib/private/Repair/Events/RepairWarningEvent.php": {
+      "bytes": 396,
+      "sha256": "f87867faf6c1944448d144fab432283fc74f3b1a6ee25e614dff21b9580dc3b9"
+    },
+    "lib/public/App/AppPathNotFoundException.php": {
+      "bytes": 272,
+      "sha256": "95527c775c229f043a257508603df8620a749c82154767d13b50ef888a41fd26"
+    },
+    "lib/public/App/Events/AppDisableEvent.php": {
+      "bytes": 587,
+      "sha256": "dc80b718cdc14dd9fd393b94eaaab728f2537baff4c2e9e171578874e6ad01bd"
+    },
+    "lib/public/App/Events/AppEnableEvent.php": {
+      "bytes": 814,
+      "sha256": "21ae83f4ff2bd95f17656e63a6e03b61b5bafc5f712217c20e823f8a3c214557"
+    },
+    "lib/public/App/Events/AppUpdateEvent.php": {
+      "bytes": 557,
+      "sha256": "13a8a86a351656c943f216ddba2c67726f5af81f6b05891836f81caf1a0e4095"
+    },
+    "lib/public/App/IAppManager.php": {
+      "bytes": 10536,
+      "sha256": "89c88198dce6a31f63e0e870e909ef0f31b5f889ac9e38ecc9456ce3267d4f09"
+    },
+    "lib/public/App/ManagerEvent.php": {
+      "bytes": 1695,
+      "sha256": "0a1e8b9c7f93e644b72bb8b5765d84f609c64cac5cc8dbb556b9257832fd09b7"
+    },
+    "lib/public/AppFramework/Utility/ITimeFactory.php": {
+      "bytes": 1248,
+      "sha256": "0639d6834ff385030cc56f17310632dcb24017e272817ab9ae3d91cb5af6f537"
+    },
+    "lib/public/BackgroundJob/IJob.php": {
+      "bytes": 2081,
+      "sha256": "c927e063e8d79bf05e44e679e1752d13f1361e09795246e9b50943ed2475d28c"
+    },
+    "lib/public/BackgroundJob/IParallelAwareJob.php": {
+      "bytes": 558,
+      "sha256": "67154dd96b79daa0a8a618ba99463e0348739264ac3e5291d2b970202abadbd7"
+    },
+    "lib/public/BackgroundJob/Job.php": {
+      "bytes": 2801,
+      "sha256": "17932cefeb416bb34651a89420efb7c4313e54d8cd832194c004d81939570de1"
+    },
+    "lib/public/BackgroundJob/TimedJob.php": {
+      "bytes": 2581,
+      "sha256": "ed0737f50481e55a850a4b0483d6a09ed5c656855e0c464987a454cbe5afafe9"
+    },
+    "lib/public/EventDispatcher/Event.php": {
+      "bytes": 1752,
+      "sha256": "59e50d933879a0150bee6aacd7d062d047015150f5b7599db9cac3d00549f24c"
+    },
+    "lib/public/EventDispatcher/IEventListener.php": {
+      "bytes": 402,
+      "sha256": "6ea6c0c417a00671a9e27dfd61fb4f47cd3a1d5286a82faf4f7e871a62e5028f"
+    },
+    "lib/public/Migration/IMigrationStep.php": {
+      "bytes": 1553,
+      "sha256": "10087789322b347f21b56e0fa72a8317ad9480c3ab2efac134f771021659a28c"
+    },
+    "lib/public/Migration/IOutput.php": {
+      "bytes": 952,
+      "sha256": "0cd005981ac4687254addccaa7a9f1a437d5d82714f6205e6e89c241890f7459"
+    },
+    "lib/public/Migration/IRepairStep.php": {
+      "bytes": 577,
+      "sha256": "f8643268a01d991042d6b4783fa9c36b389eeb31f3f74f5b6f597232f69eab9c"
+    },
+    "lib/public/Migration/SimpleMigrationStep.php": {
+      "bytes": 1422,
+      "sha256": "c477b5f76f0504d150917ff507a984592fc671f588de3cb8d7d5729dbce2ceda"
+    }
+  },
+  "ref": "v35.0.2",
+  "repository": "nextcloud/server"
+}

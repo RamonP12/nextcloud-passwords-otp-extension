@@ -3,12 +3,15 @@
 from __future__ import annotations
 import argparse, hashlib, io, json, os, pathlib, re, stat, subprocess, zipfile
 import xml.etree.ElementTree as ET
-VERSION='1.1.1'
+VERSION='1.1.2'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-JS_ASSET='js/app-111.mjs'
-CSS_ASSET='css/app-111.css'
+JS_ASSET='js/app-112.mjs'
+CSS_ASSET='css/app-112.css'
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
- 'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
+ 'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php',
+ 'lib/Service/PasswordsDependency.php','lib/Listener/PasswordsLifecycleListener.php',
+ 'lib/BackgroundJob/CheckPasswordsDependency.php',
+ 'lib/Migration/Version010102Date20261119000000.php','lib/Migration/RemoveDependencyJob.php','templates/main.php',
  CSS_ASSET,JS_ASSET,'img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
 OPTIONAL=()
 LICENSE_INVENTORY='scripts/runtime-licenses.json'
@@ -294,8 +297,8 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
         files[relative]=checked_file(root,relative).read_bytes()
     if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
     js=files[JS_ASSET]
-    if len(js)<10000 or b'PASSWORDS_OTP_JS_111_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
-    if b'PASSWORDS_OTP_CSS_111_VERIFIED' not in files[CSS_ASSET]:raise PackageError('CSS marker missing')
+    if len(js)<10000 or b'PASSWORDS_OTP_JS_112_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
+    if b'PASSWORDS_OTP_CSS_112_VERIFIED' not in files[CSS_ASSET]:raise PackageError('CSS marker missing')
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
     bundle_inputs=validate_bundle_metadata(root,files)
@@ -349,6 +352,12 @@ def main():
     data,manifest=make_package(ROOT,commit)
     second,_=make_package(ROOT,commit)
     if data!=second:raise PackageError('Double packaging not byte-identical')
+    # The ZIP remains the checked transport for the existing local installer.
+    # Distribute a separately verified single-root TAR for manual installation.
+    # Neither archive has a Nextcloud signature unless explicitly signed later.
+    from appstore_package import manual_archive
+    files,_=validate_package(data,digest(data))
+    tar=manual_archive(files)
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()!=commit \
             or subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip():
         raise PackageError('Source checkout changed during packaging')
@@ -356,6 +365,10 @@ def main():
     filename=f'passwords_otp-{VERSION}.zip'
     (output/filename).write_bytes(data)
     (output/(filename+'.sha256')).write_text(digest(data)+'  '+filename+'\n')
+    tarname=f'passwords_otp-{VERSION}.tar.gz'
+    (output/tarname).write_bytes(tar)
+    (output/(tarname+'.sha256')).write_text(digest(tar)+'  '+tarname+'\n')
     (output/'BUILD.json').write_bytes(canonical_json(manifest))
     print('PACKAGE_PASS source='+commit+' sha256='+digest(data)+' production_approved=false')
+    print('TAR_PASS source='+commit+' sha256='+digest(tar)+' nextcloud_signed=false appstore_published=false')
 if __name__=='__main__':main()

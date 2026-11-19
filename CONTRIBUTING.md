@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.1** is the Nextcloud Vue edition; **1.0.0** is the published historical release. Do not alter existing release tags, assets or recorded checksums.
+Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.2** is the Nextcloud Vue edition with enforced Passwords prerequisites and TAR packaging; **1.0.0** is the published historical release. Do not alter existing release tags, assets or recorded checksums.
 
 ## Before contributing
 
@@ -28,7 +28,7 @@ See [Development](docs/DEVELOPMENT.md) for the isolated Playwright environment, 
 
 **GitHub Actions quota is exhausted and execution is disabled.** The workflow has only a future manual `workflow_dispatch` trigger; pushes and PRs do not request Actions runs. Do not dispatch it or claim a hosted passing status during this migration. Report local checks with their exact scope and source version.
 
-Real Nextcloud integration is separate from synthetic unit/browser tests. See [1.1.1 verification](docs/VALIDATION_VUE_1.1.1.md), the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical candidate validation](docs/VALIDATION_VUE_1.1.0.md) for each fixture and its evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
+Real Nextcloud integration is separate from synthetic unit/browser tests. See [1.1.2 verification](docs/VALIDATION_1.1.2.md), [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md), [historical 1.1.1 verification](docs/VALIDATION_VUE_1.1.1.md), the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical candidate validation](docs/VALIDATION_VUE_1.1.0.md) for each fixture and its evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
 
 ## Pull requests
 
@@ -38,6 +38,8 @@ Real Nextcloud integration is separate from synthetic unit/browser tests. See [1
 4. Update user-facing documentation and [CHANGELOG.md](CHANGELOG.md).
 5. State which tests actually ran. Distinguish unit fixtures, the compiled synthetic browser suite, real Nextcloud integration and AIO/PostgreSQL acceptance.
 6. Review source and dependencies before packaging from a clean commit. Generated JS/CSS must correspond to the current source/config/lock hashes; rebuild after changing those inputs.
+
+Changing the supported Passwords versions requires a new integration review; an install prerequisite does not make private upstream APIs stable. Preserve per-user denial versus global dependency failure, installation failure propagation, disable cascades, cron fallback and rollback bookkeeping. Never replace a missing real signing certificate with a self-signed release certificate.
 
 Changing npm dependencies requires reviewing [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the locked runtime/license inventory and actual bundled module inputs. Do not bypass an inventory, source-freshness or vulnerability gate to make a build pass.
 

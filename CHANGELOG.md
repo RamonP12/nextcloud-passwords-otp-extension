@@ -2,6 +2,18 @@
 
 All notable changes to the publicly maintained project are documented here. The first public source baseline is **1.0.0**; internal development candidates are not published as supported releases.
 
+## [1.1.2] – Passwords dependency and tar.gz distribution (2026-11-19)
+
+- Require Passwords **2026.11.20**, installed and enabled, with matching installed/on-disk metadata before accepting the dependency. Other versions fail closed until a compatibility review explicitly adds support.
+- Add a public Nextcloud prerequisite migration for new installation registration, activation checking, dependency disable handling and a scheduled fallback. No OTP data tables or record conversions are introduced. Files may already be downloaded before installation registration is rejected.
+- Keep per-user/group authorization separate from global dependency failure. Do not globally disable OTP because one user lacks Passwords access. Do not automatically re-enable OTP when Passwords returns.
+- Add deterministic single-root `passwords_otp-1.1.2.tar.gz` distribution with the exact verified runtime payload; retain ZIP transport for existing transactional installation tools. Extend archive tests to hostile paths, links, duplicate/hidden payloads and signed-stage changes.
+- Add a separate signing workflow with Nextcloud 35 signature-format validation, real cryptographic checks, mandatory Nextcloud certificate-trust verification and detached archive-signature verification. Correct the leading-slash hash-path assumption in draft PR #9. No real release signing key/certificate was provided, and no App Store publication is claimed.
+- Align version, `app-112` assets, package inventory and installer checks with 1.1.2, including the new migration/job bookkeeping. Preserve previous public tags/assets and historical evidence.
+- Document current component verification and the additional disposable localhost lifecycle acceptance in [1.1.2 verification](docs/VALIDATION_1.1.2.md) and [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md). The five accepted Vue checks on 1.1.0 are not proof of the new lifecycle behavior.
+
+Ordinary GitHub artifacts remain unsigned, with `production_approved=false`. GitHub Actions is not used. Dependency enforcement does not convert internal Passwords interfaces into public APIs or resolve the broader WebUI bearer-token scope.
+
 ## [1.1.1] – Nextcloud Vue edition (2026-11-19)
 
 - Include the complete Vue migration developed and verified as the internal 1.1.0 candidate below. Version 1.1.0 was not published as a separate GitHub release.

@@ -1,11 +1,11 @@
 # Architecture overview
 
-`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The current **1.1.1 Vue edition** replaces the imperative presentation layer with Vue 3 and Nextcloud Vue components. It introduces **no separate OTP database or data-schema migration**.
+`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The current **1.1.2 Vue edition** uses Vue 3 and Nextcloud Vue components. It adds a Passwords dependency service, public Nextcloud lifecycle listeners, a prerequisite migration and a periodic fallback check. There is **no separate OTP database or OTP data-schema change**; Nextcloud maintains normal migration/job bookkeeping.
 
 ## Request and data flow
 
 1. A valid Nextcloud browser session is required for the page and a CSRF-protected, non-cacheable bootstrap POST. Initial page state contains URLs and a session fingerprint, not the Passwords token.
-2. The PHP adapter uses Passwords' internal `ApiTokenHelper` and `EnvironmentService`, checking authenticated user context and impersonation.
+2. The dependency service verifies Passwords installation, global enablement and exact supported version before the PHP adapter acquires credentials. Per-user authorization is checked separately. The adapter still uses Passwords' internal `ApiTokenHelper` and `EnvironmentService`, checking authenticated user context and impersonation.
 3. The browser controller validates the same-origin HTTPS configuration, creates the pinned upstream client, clears the bootstrap credential references and opens the original Passwords API session.
 4. The domain session completes supported vault/CSE challenges and parses compatible `client.ios.otp` records. It imports non-extractable WebCrypto keys; only public account metadata leaves the session snapshot.
 5. A framework-independent `TotpPresenter` controls code windows, session proofs, the local countdown and copying. The Vue list renders its display snapshots.
@@ -29,10 +29,18 @@ The interface has no operation for updating or deleting existing records and no 
 | `src/ap3/ui.mjs` | DOM-independent `TotpPresenter`, time/authorization guards and trusted-click clipboard operation |
 | `src/ap9/` | Nextcloud browser-session/fingerprint verification |
 | `src/ap12/` | Existing API route allowlist, input validation and create-once domain behavior |
-| `lib/` | Nextcloud registration, controller/CSP/asset loading and Passwords token adapter |
-| `vite.config.js`, `scripts/release.py` | Compilation, exact output inventory, dependency notices and checked archive construction |
+| `lib/` | Dependency migration/listeners/job, public Nextcloud registration, controller/CSP/asset loading and isolated Passwords token adapter |
+| `vite.config.js`, `scripts/release.py`, `scripts/appstore_package.py` | Compilation, exact output inventory, dependency notices, checked ZIP/TAR construction and explicit signing gates |
 
 The historical `ap*` names identify implementation work packages, not release versions or a deployment sequence. They remain on unchanged domain modules to avoid unnecessary changes to authentication and cryptography.
+
+## Passwords dependency lifecycle
+
+The public Nextcloud schema has no arbitrary app-to-app dependency element. The prerequisite is enforced in application code using public OCP interfaces and lifecycle facilities. A new registration fails in the migration if Passwords is absent, disabled or incompatible; downloaded application files may already exist before that check. Activation is checked separately, including reactivation of an existing installation.
+
+Global Passwords disablement causes OTP disablement. Boot, runtime and a five-minute scheduled check handle missed events and file removal; elapsed detection time depends on requests and an operational cron runner. Denial of one user or a group does not cause global disablement. OTP never automatically re-enables itself. Read [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for exact guarantees and edge cases.
+
+This manages lifecycle coupling. It does not remove the private Passwords authentication API dependency or narrow the upstream bearer token.
 
 ## Vue and sensitive state
 
@@ -55,11 +63,11 @@ Vue batches DOM updates. `clearSensitiveDom()` therefore synchronously erases di
 
 ## Build and release boundaries
 
-Vite compiles the Single File Components to exactly **`js/app-111.mjs`** and **`css/app-111.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
+Vite compiles the Single File Components to exactly **`js/app-112.mjs`** and **`css/app-112.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
 
-The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs a deterministic ZIP containing `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
+The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs deterministic ZIP and TAR archives with the same `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
 
-This source includes the missing `appinfo/info.xml` bugs URL identified in PR #5. It does not merge or release the separate v1.0.1 branch. PR #9's App Store signing work remains independent; this migration does not produce a signed App Store release or change the published v1.0.0 assets.
+This source includes the `appinfo/info.xml` bugs URL identified in PR #5. Reviewed TAR/signing preparation incorporates and corrects the draft PR #9 approach: Nextcloud 35 signature hashes use relative paths without leading slashes. The signed path requires the exact runtime files, cryptographic verification and a real Nextcloud certificate-trust check. Ordinary GitHub artifacts remain unsigned; historical tags/assets are unchanged. See [App Store packaging](APPSTORE_PACKAGING.md).
 
 See [Third-party notices](../THIRD_PARTY_NOTICES.md), [Development](DEVELOPMENT.md) and the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
 

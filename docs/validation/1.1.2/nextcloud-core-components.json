@@ -1,0 +1,55 @@
+{
+  "application_files": {
+    "appinfo/info.xml": "7dc88dfe7805cc4806698c5c8f1c141993dbaf05268a660ac56b6078e097db30",
+    "lib/AppInfo/Application.php": "a9fe3d09d255070d39a658d24382b6963b3ad5f83557e823e7bb52216eed75ba",
+    "lib/BackgroundJob/CheckPasswordsDependency.php": "f14723d00800a8c2afdd8577b7dc36fc9a6e2d59602876298c196ce6d1f71d85",
+    "lib/Controller/PageController.php": "1aa20a5251246a24d9d0b5a56c223f77d90f08f3ac92b115e9f6645a06f1a9ff",
+    "lib/Listener/PasswordsLifecycleListener.php": "035f149c61723d29bee9636d41f7496ad3f68a792ddd062759165dc38f944fda",
+    "lib/Migration/RemoveDependencyJob.php": "a100b3b6349e544a8f1e3bf3d57eabb2d20e6475ebfb9e9dc9dfb9508baf3195",
+    "lib/Migration/Version010102Date20261119000000.php": "1ed35fc1d453f60e5a731144cfbcc16ccb9a8330af99786de8021ffbb40c4282",
+    "lib/Service/PasswordsAuthAdapter.php": "fcd06c98cbae8a78a7e686dd7807acf99ebaa60ac64bd0cec4ad607147f14848",
+    "lib/Service/PasswordsDependency.php": "8baf694a92569042f9e992bd881e718b66e7ca2ad748bda7f61a75e84a31adff"
+  },
+  "cases": [
+    "negative-control-repair-exception-is-not-install-gate",
+    "fresh-schema-only-install-rejected-missing-files",
+    "fresh-schema-only-install-rejected-missing-registration",
+    "fresh-schema-only-install-rejected-disabled",
+    "fresh-schema-only-install-rejected-incompatible",
+    "fresh-schema-only-install-rejected-update-pending",
+    "valid-fresh-install-and-enable",
+    "invalid-reenable-rolls-back-all-users",
+    "invalid-reenable-rolls-back-group",
+    "passwords-disable-cascades-with-real-appmanager",
+    "group-restriction-preserves-global-availability",
+    "core-remove-default-cascades",
+    "core-remove-keep-data-requires-boot-fallback",
+    "manual-deletion-next-boot-fails-closed",
+    "existing-111-upgrade-disables-without-blocking-core-upgrade",
+    "core-upgradeapp-invalid-dependency-disables",
+    "core-upgradeapp-valid-111-to-112",
+    "core-passwords-upgrade-event-disables-incompatible-otp",
+    "restoring-passwords-does-not-auto-enable-otp",
+    "real-timedjob-removal-fallback",
+    "negative-control-direct-enable-without-registration-needs-runtime-guard",
+    "negative-control-retained-migration-history-allows-disabled-registration",
+    "real-occ-enable-command-fresh-invalid-install",
+    "real-occ-enable-command-lazy-registration"
+  ],
+  "limitations": [
+    "No real database, DI container or HTTP middleware",
+    "No real Passwords backend or certificate",
+    "No live browser/Nextcloud acceptance",
+    "Core bootstrap registration is modelled, not executed"
+  ],
+  "nextcloud_ref": "v35.0.2",
+  "nextcloud_source_files_verified": 34,
+  "php": "8.4.27",
+  "scope": "Unmodified Nextcloud 35.0.2 core classes with controlled framework, metadata, bootstrap and database doubles; not a live Nextcloud installation",
+  "source_manifest_sha256": "19a7652440b5e62ed6e21e78502815f567d868e93e909d081eeaf066b4208a48",
+  "status": "CORE_COMPONENT_PASS",
+  "test_files": {
+    "tests/integration/core_lifecycle.php": "367ed2b3daaf46e0a44626b53a47f06f436d5716eee58842090b947796a7234e",
+    "tests/integration/nextcloud_lifecycle.py": "679b982ef5be5c999eb4b8e66c3d937b47222395f0bb529901c6e29fcdbddf62"
+  }
+}

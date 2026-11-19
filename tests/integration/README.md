@@ -1,5 +1,9 @@
 # Real Nextcloud integration acceptance
 
+For the separate Nextcloud core-component dependency suite introduced in 1.1.2,
+see [LIFECYCLE.md](LIFECYCLE.md). That suite uses unmodified core classes with
+service doubles; it is distinct from the live browser runner documented here.
+
 `nextcloud.py` runs against an actual disposable Nextcloud installation, with the
 released Passwords app and this app's compiled Vue assets. It supplements
 `tests/browser/desktop.py` and `tests/browser/lifecycle.py`, whose server responses
