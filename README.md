@@ -33,11 +33,11 @@ The app's text remains **German**. Multilingual app content is tracked in [#6](h
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
 | Passwords integration target | Passwords 2026.11.20; exact version required; dependency enforcement does not turn internal upstream classes into public APIs |
-| Version 1.1.3 | [Published release, localhost MariaDB upgrade and separate SQLite upgrade/rollback](docs/VALIDATION_1.1.3.md) |
+| Version 1.1.3 | [Published release and verification on MariaDB, SQLite and PostgreSQL with Redis](docs/VALIDATION_1.1.3.md) |
 | Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
 | Published v1.0.0 | Exact ZIP passed the recorded 2026-11-11 localhost/Nextcloud/MariaDB acceptance: 10/10 blocks, 49/49 checks |
-| Production AIO/PostgreSQL | No general production approval or tested in-place upgrade procedure |
+| Production AIO/PostgreSQL | [One maintainer-confirmed manual 0.7.3 → 1.1.3 replacement](docs/VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19). Full-stack AIO installer and production rollback verification are open. |
 
 The earlier v1.0.0 results are historical evidence, not test results for the Vue migration. See [compatibility](docs/COMPATIBILITY.md), [v1.0.0 local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [historical validation](docs/VALIDATION.md) and the [v1.0.0 release integrity/mutability record](docs/RELEASE_INTEGRITY_v1.0.0.md).
 
@@ -45,7 +45,7 @@ The earlier v1.0.0 results are historical evidence, not test results for the Vue
 
 Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Use the [`v1.1.3` tagged scripts](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.3) for the published 1.1.3 package. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
 
-The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables. A production AIO upgrade path is still open. The maintainer verified the 1.1.2 → 1.1.3 localhost upgrade and core OTP flows. [The 1.1.3 verification record](docs/VALIDATION_1.1.3.md) describes the evidence. [The 1.1.2 acceptance record](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) covers the earlier dependency lifecycle checks.
+The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables. [The 1.1.3 verification record](docs/VALIDATION_1.1.3.md) covers the 1.1.2 → 1.1.3 localhost upgrade and the separate manual replacement on production AIO. [The 1.1.2 acceptance record](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) covers the earlier dependency lifecycle checks.
 
 The Nextcloud server needs the compiled application assets and PHP files; **Node.js and npm are build-time tools**, not production server requirements.
 

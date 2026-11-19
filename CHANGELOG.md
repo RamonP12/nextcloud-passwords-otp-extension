@@ -7,6 +7,7 @@ All notable changes to the publicly maintained project are documented here. The 
 - Use **Passwords OTP Generator** in Nextcloud app administration, navigation and the app heading. The shield icon contains a transparent, diagonal key. The app ID remains `passwords_otp`.
 - Copy the displayed TOTP code by clicking it or using Enter or Space on the focused code. The separate **Code kopieren** button remains available. Both controls share the same validation and clipboard feedback.
 - Publish verified ZIP and TAR.GZ packages from the merge commit. Record the maintainer’s localhost upgrade, the separate SQLite upgrade/rollback and the distribution checks in [1.1.3 verification](docs/VALIDATION_1.1.3.md).
+- Record post-release PostgreSQL/Redis verification and one [maintainer-confirmed manual AIO replacement](docs/VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19) from internal 0.7.3 to 1.1.3.
 
 ## [1.1.2] – Passwords dependency and tar.gz distribution (2026-11-19)
 

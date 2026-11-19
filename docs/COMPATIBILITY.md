@@ -8,22 +8,23 @@ Version 1.1.2 enforces the Passwords dependency and adds an installable TAR alon
 
 | Component | Current target or declaration | Evidence boundary |
 | --- | --- | --- |
-| Nextcloud | Major 35, as restricted by app metadata | 1.1.3 upgrades passed on localhost MariaDB and a separate SQLite fixture using Nextcloud 35.0.2 |
+| Nextcloud | Major 35, as restricted by app metadata | Nextcloud 35.0.2 upgrade evidence includes MariaDB, SQLite and PostgreSQL. A 35.0.3 fresh install passed on PostgreSQL/Redis. |
 | Nextcloud Passwords | **Exactly 2026.11.20**, installed and enabled; installed and on-disk versions must agree | Other versions fail closed until reviewed; internal PHP interfaces remain unsupported upstream coupling |
 | PHP | Metadata permits 8.3–8.5 | A contract test does not establish every permitted PHP/server combination |
 | Browser | Modern browser with ES modules, WebCrypto and clipboard support | Compiled browser checks use a synthetic shell/API; real-server and other-browser evidence is separate |
 | Frontend | Vue 3.5.45 and @nextcloud/vue 9.14.1 | Dependencies pinned in the lockfile; no runtime CDN |
 | Build host | Node.js 22.12+ within 22.x, or 24.x | Node/npm are not required on the installed Nextcloud server |
 | Database | No own OTP tables; a framework migration checks the install prerequisite and a scheduled job checks dependency state | Migration/job bookkeeping uses Nextcloud facilities; rollback and the underlying database need environment-specific acceptance |
-| Installation | Version-matched unsigned TAR and ZIP for transactional localhost and first-install AIO tooling | Localhost 1.1.2 → 1.1.3 upgrade and separate SQLite rollback passed. AIO/PostgreSQL and App Store acceptance are open. |
+| Installation | Version-matched unsigned TAR and ZIP for manual distribution and version-specific tools | One manual AIO 0.7.3 → 1.1.3 replacement passed. Full-stack AIO first-install tooling, production rollback and signed App Store installation remain open. |
 
 The maintainer upgraded the existing **Nextcloud 35.0.2.2 / PHP 8.5.12 / MariaDB /
 Passwords 2026.11.20** fixture from 1.1.2 to 1.1.3. A separate **Nextcloud 35.0.2 /
-PHP 8.4.27 / SQLite** fixture passed upgrade and rollback. See [1.1.3 verification](VALIDATION_1.1.3.md)
-for the installed-server observations and browser test scope. The [1.1.2 localhost
+PHP 8.4.27 / SQLite** fixture passed upgrade and rollback. Isolated PostgreSQL/Redis
+tests and the manual production AIO result are recorded in [1.1.3 verification](VALIDATION_1.1.3.md).
+The [1.1.2 localhost
 record](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) covers the earlier live dependency
 disable/re-enable checks. Live tests for missing or incompatible Passwords,
-eventless removal and per-user group isolation remain open.
+eventless removal and per-user **Passwords** group isolation remain open.
 
 **Newer Nextcloud or Passwords versions are not automatically supported.** In particular, changes to `ApiTokenHelper`, `EnvironmentService`, session behavior or encryption formats require another compatibility review.
 
