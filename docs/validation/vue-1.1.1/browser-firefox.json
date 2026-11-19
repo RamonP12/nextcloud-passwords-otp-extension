@@ -1,0 +1,131 @@
+{
+  "scope": "Production compiled Vue assets, real pinned client/libsodium/browser WebCrypto; synthetic HTTPS API/shell/clipboard only",
+  "browser": "firefox",
+  "results": [
+    {
+      "name": "copy-errors-create-validation-focus-filter",
+      "status": "PASS"
+    },
+    {
+      "name": "expired-open",
+      "status": "PASS"
+    },
+    {
+      "name": "expired-submit",
+      "status": "PASS"
+    },
+    {
+      "name": "rate403",
+      "status": "PASS"
+    },
+    {
+      "name": "rate429",
+      "status": "PASS"
+    },
+    {
+      "name": "uncertain",
+      "status": "PASS"
+    },
+    {
+      "name": "focus-revocation",
+      "status": "PASS"
+    },
+    {
+      "name": "pagehide-bfcache",
+      "status": "PASS"
+    },
+    {
+      "name": "real-client-master-challenge-2fa-retry",
+      "status": "PASS"
+    },
+    {
+      "name": "empty-vault",
+      "status": "PASS"
+    },
+    {
+      "name": "same-code-focus-and-background-dom-repair",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-light-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-light-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-light-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-light-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-dark-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-dark-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-dark-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-dark-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-brand-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-brand-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-brand-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "layout-brand-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "rtl-reflow",
+      "status": "PASS"
+    },
+    {
+      "name": "initial-component-error-stops-before-bootstrap",
+      "status": "PASS"
+    },
+    {
+      "name": "busy-dialog-escape-tab-and-duplicate-submit",
+      "status": "PASS"
+    },
+    {
+      "name": "pagehide-before-create-post-late-settings",
+      "status": "PASS"
+    },
+    {
+      "name": "pagehide-after-create-post-late-ack-bfcache",
+      "status": "PASS"
+    },
+    {
+      "name": "same-tick-identical-code-directive-repair",
+      "status": "PASS"
+    },
+    {
+      "name": "same-tick-secret-input-model-and-dom-erasure",
+      "status": "PASS"
+    }
+  ],
+  "native_browser_zoom_tested": false,
+  "sha256": {
+    "js/app-111.mjs": "9bf219a6bc47b6e6868f7dd0c0e2ef0a70d59cfb60fcf36f5ffeeaf50cb71072",
+    "css/app-111.css": "75f9e35b68d2288378f5eca22cad25f971bb4842df31bd38a15d9bea62c7d3f3"
+  }
+}

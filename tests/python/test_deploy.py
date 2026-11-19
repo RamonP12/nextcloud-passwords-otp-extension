@@ -94,9 +94,10 @@ class DeployTests(unittest.TestCase):
   self.assertEqual(deploy.asset_for_version('1.0.0'),'app-100')
   self.assertEqual(deploy.asset_for_version('1.0.1'),'app-101')
   self.assertEqual(deploy.asset_for_version('1.1.0'),'app-110')
+  self.assertEqual(deploy.asset_for_version('1.1.1'),'app-111')
   with self.assertRaises(deploy.DeploymentError):deploy.asset_for_version('0.7.99')
  def test_http_verification_checks_esm_candidate_and_classic_rollback_assets(self):
-  for version,asset,extension in [('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
+  for version,asset,extension in [('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
    with self.subTest(version=version):
     backend=deploy.DockerBackend();requested=[]
     bodies={'css/'+asset+'.css':b'CSS fixture','js/'+asset+'.'+extension:b'JS fixture'}

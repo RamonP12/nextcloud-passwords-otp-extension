@@ -3,10 +3,10 @@
 from __future__ import annotations
 import argparse, hashlib, io, json, os, pathlib, re, stat, subprocess, zipfile
 import xml.etree.ElementTree as ET
-VERSION='1.1.0'
+VERSION='1.1.1'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-JS_ASSET='js/app-110.mjs'
-CSS_ASSET='css/app-110.css'
+JS_ASSET='js/app-111.mjs'
+CSS_ASSET='css/app-111.css'
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
  CSS_ASSET,JS_ASSET,'img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
@@ -294,8 +294,8 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
         files[relative]=checked_file(root,relative).read_bytes()
     if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
     js=files[JS_ASSET]
-    if len(js)<10000 or b'PASSWORDS_OTP_JS_110_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
-    if b'PASSWORDS_OTP_CSS_110_VERIFIED' not in files[CSS_ASSET]:raise PackageError('CSS marker missing')
+    if len(js)<10000 or b'PASSWORDS_OTP_JS_111_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
+    if b'PASSWORDS_OTP_CSS_111_VERIFIED' not in files[CSS_ASSET]:raise PackageError('CSS marker missing')
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
     bundle_inputs=validate_bundle_metadata(root,files)

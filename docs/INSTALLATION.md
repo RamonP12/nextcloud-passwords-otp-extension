@@ -1,19 +1,42 @@
 # Installation and version selection
 
-## Current source: 1.1.0 Vue migration candidate
+## Current version: 1.1.1 Nextcloud Vue edition
 
-The current source contains the Vue migration and is **not a published 1.1.0 release**. The published v1.0.0 assets and historical acceptance records remain unchanged. Use the [migration report](NEXTCLOUD_VUE_MIGRATION.md) for current implementation and verification evidence.
+Version 1.1.1 contains the complete Nextcloud Vue migration and the maintainer's final wording changes. Use the [v1.1.1 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1), its matching source tag and the [1.1.1 verification record](VALIDATION_VUE_1.1.1.md). The historical v1.0.0 assets and acceptance records remain unchanged.
 
 | Archive | Required tooling | Intended scope |
 | --- | --- | --- |
+| `passwords_otp-1.1.1.zip` | Scripts from tag **`v1.1.1`**, matching `BUILD.json` | Current unsigned Vue distribution; maintainer-specific localhost installation tools and scoped AIO first-install tooling |
+| Previously built `passwords_otp-1.1.0.zip` | Scripts from its exact source commit | Historical Vue candidate and its recorded local acceptance |
 | Published `passwords_otp-1.0.0.zip` | `aio_install.py` and `release.py` from tag **`v1.0.0`** | Historical first-install procedure documented below |
-| Locally built `passwords_otp-1.1.0.zip` | Scripts from the **same 1.1.0 source commit** recorded in its `BUILD.json` | Candidate verification in a disposable test environment; no released production upgrade |
 
-**Current 1.1.0 scripts reject a 1.0.0 archive.** Never copy scripts from moving `main` when installing the published 1.0.0 ZIP. Conversely, the historical 1.0.0 scripts cannot install the new candidate.
+**Current 1.1.1 scripts reject a 1.0.0 archive.** Never copy scripts from moving `main` when installing an older release ZIP. The installer, package version and build manifest must agree. The localhost upgrader retains old asset mappings so it can verify and back up the existing app before replacement and restore it if a transaction fails; that does not make an old archive a current installer input.
 
-Build the candidate following [Development](DEVELOPMENT.md), including production compilation, local checks, a clean committed source tree and exact package hashes. It has one bundled ES module and one CSS asset; the Nextcloud server does not need Node.js/npm. It introduces no app database schema, but that does not make overwriting an existing deployment a supported upgrade.
+### Obtain and verify the 1.1.1 distribution
 
-The AIO tool remains **first-install only**, with version/hash/scope/backup gates. No production AIO/PostgreSQL in-place upgrade procedure is added by this migration. The integration fixture described in the migration report is separate from a target AIO installation. App Store signing work in PR #9 is also separate; the candidate ZIP is unsigned.
+Download these three files from the [tag-specific release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1):
+
+- `passwords_otp-1.1.1.zip`
+- `passwords_otp-1.1.1.zip.sha256`
+- `BUILD.json`
+
+In the directory containing the downloads, verify the ZIP before installation:
+
+```sh
+sha256sum -c passwords_otp-1.1.1.zip.sha256
+```
+
+The check must print `OK`. Compare the ZIP digest with the release's recorded SHA256 and confirm that `BUILD.json` identifies version 1.1.1 and the source revision behind tag `v1.1.1`. GitHub's automatically generated source archives are source snapshots, not the compiled installable application ZIP.
+
+For a reproducible source build, check out the tag and follow [Development](DEVELOPMENT.md), including local verification, a clean committed checkout and checked packaging. The app contains one bundled ES module (`js/app-111.mjs`) and one stylesheet (`css/app-111.css`); Nextcloud does not need a Node.js/npm service.
+
+### Installation scope
+
+The maintainer-specific localhost tools (`scripts/local.py` and `scripts/deploy.py`) target the existing loopback-only Docker Compose/MariaDB fixture. They verify the current app, save a backup and journal, replace the app, and verify installed files and served assets. They retain the 1.1.0 `.mjs` mapping for verification and rollback. They are not generic deployment scripts. See [Development](DEVELOPMENT.md) for the fixture constraints.
+
+On 2026-11-19 the maintainer confirmed the five manual checks on the locally installed 1.1.0 Vue candidate: independent TOTP comparison, copying, search, persisted entry creation and logout invalidation. Version 1.1.1 changes presentation text and version/asset packaging; it does not change authentication, encryption, OTP calculation or stored entries. The final local regression/package results are recorded separately in [1.1.1 verification](VALIDATION_VUE_1.1.1.md). After updating, a quick check of the new wording and removed disclosure confirms that the new assets were loaded; repeating the five functional checks is not a prerequisite for this release.
+
+The AIO tool remains **first-install only**, with version/hash/scope/backup gates. The documented v1.0.0 procedure below must use its historical tagged scripts. A 1.1.1 AIO first install requires its own matching archive, source, checksum and environment acceptance. No production AIO/PostgreSQL in-place upgrade procedure is supplied. App Store signing work in PR #9 is separate; the GitHub ZIP is unsigned and retains `production_approved=false`.
 
 ## Published v1.0.0: historical installation procedure
 
@@ -75,7 +98,7 @@ Transfer the verified ZIP and these **two matching scripts** to a private direct
 
 ## Historical reproducibility: build from the pinned v1.0.0 tag
 
-**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.0 Vue migration. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
+**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.1 Vue edition. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
 
 ```sh
 git clone --depth 1 --branch v1.0.0 \

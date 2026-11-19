@@ -1,6 +1,6 @@
 # Architecture overview
 
-`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The current **1.1.0 candidate** replaces the imperative presentation layer with Vue 3 and Nextcloud Vue components. It introduces **no separate OTP database or data-schema migration**.
+`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The current **1.1.1 Vue edition** replaces the imperative presentation layer with Vue 3 and Nextcloud Vue components. It introduces **no separate OTP database or data-schema migration**.
 
 ## Request and data flow
 
@@ -55,11 +55,11 @@ Vue batches DOM updates. `clearSensitiveDom()` therefore synchronously erases di
 
 ## Build and release boundaries
 
-Vite compiles the Single File Components to exactly **`js/app-110.mjs`** and **`css/app-110.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
+Vite compiles the Single File Components to exactly **`js/app-111.mjs`** and **`css/app-111.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
 
 The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs a deterministic ZIP containing `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
 
-This source candidate includes the missing `appinfo/info.xml` bugs URL identified in PR #5. It does not merge or release the separate v1.0.1 branch. PR #9's App Store signing work remains independent; this migration does not produce a signed App Store release or change the published v1.0.0 assets.
+This source includes the missing `appinfo/info.xml` bugs URL identified in PR #5. It does not merge or release the separate v1.0.1 branch. PR #9's App Store signing work remains independent; this migration does not produce a signed App Store release or change the published v1.0.0 assets.
 
 See [Third-party notices](../THIRD_PARTY_NOTICES.md), [Development](DEVELOPMENT.md) and the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
 

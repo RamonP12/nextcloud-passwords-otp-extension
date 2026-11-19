@@ -81,17 +81,12 @@ const reload = () => window.location.reload();
                         @click="controller.openCreate">
                         {{ state.createOpening ? 'Sitzung wird geprüft …' : 'Neues OTP Passwort hinzufügen' }}
                     </NcButton>
-                    <p id="passwords-otp-ap12-help" class="passwords-otp-secondary">Hier kann ein neuer OTP Eintrag zu deinen Passwörtern hinzugefügt werden. Er wird in der Passwords App gespeichert und kann über diese App auch verwaltet (gelöscht, verändert) und mit anderen Nextcloud Benutzern geteilt werden.</p>
+                    <p id="passwords-otp-ap12-help" class="passwords-otp-secondary">Hier kann ein neuer OTP Eintrag zu deinen Passwörtern hinzugefügt werden. Er wird in der Passwords App zusammen mit deinen anderen Passwörtern gespeichert und kann über die Passwords App auch verwaltet (gelöscht, verändert) und mit anderen Nextcloud Benutzern geteilt werden.</p>
                 </div>
                 <OtpAccountList v-if="state.mode === 'ready'" :view="state.otp" :query="state.query" :feedback="state.feedback" :scrub-revision="scrubRevision"
                     @filter="controller.filter" @copy="controller.copy" />
                 <NcButton v-if="state.canReload" id="passwords-otp-ap1-reload" variant="primary"
                     @click="reload">Seite neu laden</NcButton>
-                <details class="passwords-otp-help">
-                    <summary>Sicherheit und Bedienung</summary>
-                    <p>TOTP-Codes werden lokal berechnet. Vor jedem neuen 30-Sekunden-Zeitfenster und bei Rückkehr zum Tab prüft die App die ursprüngliche Nextcloud-Anmeldung. Bereits angezeigte Codes können bis zur nächsten verpflichtenden Prüfung sichtbar bleiben.</p>
-                    <p>Nach einem vollständigen App-Wechsel ist gegebenenfalls erneut der Master-Schlüssel erforderlich. Neue Einträge werden nur nach ausdrücklicher Bestätigung erstellt. Bestehende Einträge werden über diese Oberfläche nicht geändert oder gelöscht. Kopierte Codes können in der Zwischenablagehistorie verbleiben.</p>
-                </details>
             </div>
         </NcAppContent>
         <OtpCreateDialog v-if="state.createOpen" ref="createDialog" :busy="state.createBusy" :error="state.createError"

@@ -1,8 +1,8 @@
 # Development and local verification
 
-Current source version **1.1.0** is the Vue migration candidate. It is not a published release. Reproduce the historical public **v1.0.0** only from its pinned tag and matching tooling; the current source and installer reject a 1.0.0 archive.
+Current source version **1.1.1** is the Nextcloud Vue edition. The prior 1.1.0 candidate was locally accepted and superseded by the final wording/version changes. Reproduce the historical public **v1.0.0** only from its pinned tag and matching tooling; the current source and installer reject a 1.0.0 archive.
 
-Work on short feature branches and review changes through pull requests. Preserve the authentication, OTP-window and single-create regression tests. The [migration report](NEXTCLOUD_VUE_MIGRATION.md) records the implementation; [candidate validation](VALIDATION_VUE_1.1.0.md) records current verification evidence; [VALIDATION.md](VALIDATION.md) remains the historical v1.0.0 record.
+Work on short feature branches and review changes through pull requests. Preserve the authentication, OTP-window and single-create regression tests. The [migration report](NEXTCLOUD_VUE_MIGRATION.md) records the implementation; [1.1.1 verification](VALIDATION_VUE_1.1.1.md) distinguishes the final checks from the [historical 1.1.0 candidate results](VALIDATION_VUE_1.1.0.md); [VALIDATION.md](VALIDATION.md) remains the historical v1.0.0 record.
 
 ## Tooling
 
@@ -26,7 +26,7 @@ npm run test:php
 git ls-files -z -- '*.php' | xargs -0 -n1 php -l
 npm audit --audit-level=low
 npm run build
-node --check js/app-110.mjs
+node --check js/app-111.mjs
 ```
 
 The browser suite needs the **fresh production build** from the preceding step. A separate Python environment can be prepared as follows:
@@ -65,8 +65,8 @@ Use synthetic users and OTP seeds. Do not run production installation scripts to
 
 `npm run build` compiles Vue Single File Components using pinned Vite and the official `@vitejs/plugin-vue` plugin. The explicit configuration avoids the shared configuration's unused Node/crypto polyfill dependencies. It produces exactly:
 
-- `js/app-110.mjs`
-- `css/app-110.css`
+- `js/app-111.mjs`
+- `css/app-111.css`
 - `.build/bundle-modules.json`, a local provenance record for the contributing npm modules and output hashes, production mode, complete source input hashes and allowed build module paths.
 
 The two assets are generated and ignored by Git. Do not edit them manually or include test fixtures in the production entry point. A repeated production build must produce identical JS and CSS bytes; `scripts/local.py --build` performs this comparison in its full source gate.
@@ -81,7 +81,7 @@ Verify the archive from its output directory, because the checksum file names th
 
 ```sh
 cd .build/package
-sha256sum -c passwords_otp-1.1.0.zip.sha256
+sha256sum -c passwords_otp-1.1.1.zip.sha256
 ```
 
 The package generator refuses an existing output directory, a dirty checkout, stale asset/module evidence, source/config/lock changes since compilation, changed or missing dependency notices, unsafe paths or an unexpected runtime file. The source commit and clean checkout are rechecked after packaging, before writing output. It records the exact **`source_commit`** and every payload hash in `BUILD.json`, with **`production_approved=false`**. Two package constructions must be identical; that packaging comparison is separate from compiling the frontend twice.
@@ -98,12 +98,12 @@ Do not dispatch the workflow during this migration. Its definition is prepared f
 
 - `scripts/local.py --build` runs locked installation, JS/client tests, audit, Python tests, two production builds and checked packaging for an exact clean commit. Run PHP and browser checks separately as shown above; the build receipt is not a full live-server acceptance.
 - `scripts/local.py --preflight`, `--install` and `--verify` target the previously configured **localhost-only MariaDB/PHP 8.5 fixture**. Its historical container names and volume layout are local assumptions. It must not be pointed at an unrelated fixture or changed simply to bypass a mismatch.
-- `scripts/deploy.py` is a legacy **localhost test** upgrade/rollback tool. Its supported file/asset mappings include the Vue candidate, but it is not a supported production AIO upgrader.
-- `scripts/aio_install.py` supports an explicitly scoped **first install only** and rejects an existing `passwords_otp` app. Current scripts accept only the current 1.1.0 package version. The commands for the published 1.0.0 archive require the 1.0.0 tagged scripts; see [AIO instructions](AIO_MANUAL_INSTALL.md).
-- The migration's disposable Nextcloud fixture and its observed results are described separately in the [migration report](NEXTCLOUD_VUE_MIGRATION.md). Do not transfer historical v1.0.0 test totals or database compatibility claims to this candidate.
+- `scripts/deploy.py` is a legacy **localhost test** upgrade/rollback tool. Its supported file/asset mappings include both the 1.1.0 candidate and 1.1.1, but it is not a supported production AIO upgrader.
+- `scripts/aio_install.py` supports an explicitly scoped **first install only** and rejects an existing `passwords_otp` app. Current scripts accept only the current 1.1.1 package version. The commands for the published 1.0.0 archive require the 1.0.0 tagged scripts; see [AIO instructions](AIO_MANUAL_INSTALL.md).
+- The migration's disposable Nextcloud fixture and its observed results are described separately in the [migration report](NEXTCLOUD_VUE_MIGRATION.md). Do not transfer historical v1.0.0 test totals or database compatibility claims to the current release.
 
 ## Release coordination
 
 Update app metadata, package/lock versions, output names, build markers, tests and inventory together. Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
 
-The missing `<bugs>` metadata identified in PR #5 is incorporated narrowly into the 1.1.0 source; the separate 1.0.1 branch and published v1.0.0 remain untouched. PR #9's App Store packaging/signing work remains separate. A real certificate, signing verification, publication decisions and an accepted AIO deployment/upgrade path are not supplied by the Vue conversion.
+The missing `<bugs>` metadata identified in PR #5 was incorporated narrowly during the 1.1.0 migration and remains in 1.1.1; the separate 1.0.1 branch and published v1.0.0 remain untouched. PR #9's App Store packaging/signing work remains separate. A real certificate, signing verification, publication decisions and an accepted AIO deployment/upgrade path are not supplied by the Vue conversion.

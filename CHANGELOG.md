@@ -2,6 +2,17 @@
 
 All notable changes to the publicly maintained project are documented here. The first public source baseline is **1.0.0**; internal development candidates are not published as supported releases.
 
+## [1.1.1] – Nextcloud Vue edition (2026-11-19)
+
+- Include the complete Vue migration developed and verified as the internal 1.1.0 candidate below. Version 1.1.0 was not published as a separate GitHub release.
+- Clarify that a newly created OTP entry is stored together with the user's other passwords in the Passwords app, which also provides editing, deletion and sharing.
+- Remove the bottom **Sicherheit und Bedienung** disclosure from the interface. Session verification, secret clearing, clipboard guards and the documented security boundaries are unchanged.
+- Align application metadata, package/lock versions, build markers, generated `app-111` assets, package validation and installer mappings with 1.1.1. Preserve the prior 1.1.0 mapping for local verification and rollback.
+- Record the maintainer's successful five-point localhost acceptance of the 1.1.0 Vue candidate separately from the final 1.1.1 regression and package checks. See [1.1.1 verification](docs/VALIDATION_VUE_1.1.1.md).
+- Keep the dependency versions and authentication/TOTP/CSE implementation unchanged. No database or stored-record migration is required.
+
+Distribution remains an unsigned, version-matched GitHub ZIP. GitHub Actions was not used; local acceptance does not establish a production AIO/PostgreSQL upgrade path or Nextcloud App Store approval.
+
 ## [1.1.0] – Vue migration candidate (unreleased)
 
 - Migrate the complete app presentation to Vue 3.5.45 and Nextcloud Vue 9.14.1: application content, vault authentication, search/list, status cards and new-entry dialog.

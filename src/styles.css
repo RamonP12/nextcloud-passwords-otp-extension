@@ -1,4 +1,4 @@
-/*! PASSWORDS_OTP_CSS_110_VERIFIED */
+/*! PASSWORDS_OTP_CSS_111_VERIFIED */
 #passwords-otp-app { height: 100%; }
 .passwords-otp-panel {
     box-sizing: border-box;
@@ -31,9 +31,6 @@
     accent-color: var(--color-primary-element);
 }
 .passwords-otp-feedback { min-height: 1.5em; margin-block: 12px; }
-.passwords-otp-help { margin-block-start: 24px; }
-.passwords-otp-help summary { cursor: pointer; min-height: var(--default-clickable-area, 44px); align-content: center; }
-.passwords-otp-help p { margin-block: 12px; }
 .passwords-otp-dialog .dialog__content { overflow-wrap: anywhere; }
 .passwords-otp-dialog .dialog__actions { flex-wrap: wrap; }
 /* Security erasure never waits for a library modal leave/fade transition. */

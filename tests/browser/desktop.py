@@ -28,12 +28,12 @@ def shell(theme='light', direction='ltr'):
     css = (ROOT/'tests/browser/shell.css').read_text()
     return f'''<!doctype html><html lang="de" dir="{direction}" data-theme="{theme}"><head data-requesttoken="SYNTHETIC-CSRF">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OTP fixture</title>
-<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-110.css"></head>
+<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-111.css"></head>
 <body><header id="header">Nextcloud fixture</header><div id="skip-actions"></div><div id="content">
 <input type="hidden" id="initial-state-passwords_otp-ap1" value="{encoded(state)}">
 <input type="hidden" id="initial-state-core-capabilities" value="{encoded({'theming': {'name': 'Nextcloud fixture'}})}">
 <input type="hidden" id="initial-state-core-apps" value="{encoded([{'id': 'passwords_otp', 'name': 'Passwort OTP Code Generator'}])}">
-{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-110.mjs"></script></body></html>'''
+{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-111.mjs"></script></body></html>'''
 
 
 def record(identifier='seed', title='Fixture account'):
@@ -96,7 +96,7 @@ Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
             route.fulfill(body=self.html, content_type='text/html', headers={
                 'Content-Security-Policy': "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; base-uri 'none'"})
             return
-        for name, mime in [('js/app-110.mjs', 'text/javascript'), ('css/app-110.css', 'text/css')]:
+        for name, mime in [('js/app-111.mjs', 'text/javascript'), ('css/app-111.css', 'text/css')]:
             if path == PREFIX + '/apps/passwords_otp/' + name:
                 route.fulfill(body=(ROOT/name).read_bytes(), content_type=mime)
                 return
@@ -219,7 +219,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     results = []
     asset_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-                    for name in ['js/app-110.mjs', 'css/app-110.css']}
+                    for name in ['js/app-111.mjs', 'css/app-111.css']}
     executable = os.environ.get('CHROME_BIN') or shutil.which('chromium-headless-shell') or shutil.which('chromium') or shutil.which('google-chrome')
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True) if args.browser == 'firefox' else p.chromium.launch(executable_path=executable, headless=True, args=['--no-sandbox'])
@@ -230,7 +230,7 @@ def main():
         f = Fixture(browser)
         page = f.page
         expect(page.get_by_role('heading', level=1)).to_have_text('Passwort OTP Code Generator')
-        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_110_VERIFIED'
+        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_111_VERIFIED'
         code = page.locator('.passwords-otp-ap3__code').inner_text()
         page.get_by_role('button', name='Code kopieren für Fixture account').click()
         expect(page.locator('#passwords-otp-ap3-feedback')).to_have_text('OTP-Code kopiert.')

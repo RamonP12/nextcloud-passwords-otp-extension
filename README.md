@@ -1,17 +1,17 @@
 # Passwort OTP Code Generator – unofficial companion for Nextcloud Passwords
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
-[![Published release: v1.0.0](https://img.shields.io/badge/published_release-v1.0.0-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0)
+[![Release: v1.1.1](https://img.shields.io/badge/release-v1.1.1-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1)
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Current source: 1.1.0 Vue migration candidate — not a published release.** The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. Distribution is manual; this project is not in the Nextcloud App Store.
+**Current source: 1.1.1 — Nextcloud Vue edition.** Version 1.1.1 contains the complete Vue migration and the final wording changes accepted by the maintainer. Obtain the version-matched ZIP, checksum and build manifest from the [v1.1.1 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1). The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. Distribution is manual and unsigned; this project is not in the Nextcloud App Store.
 
 ## Vue migration
 
 The current source uses **Vue 3.5.45** and **Nextcloud Vue 9.14.1** for the application layout, forms, dialogs, buttons and status messages. The existing Passwords authentication, encryption, OTP parsing, WebCrypto calculation and create-once API policy remain separate from the Vue presentation layer.
 
-The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [migration implementation and verification report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the evidence and remaining release boundaries. **GitHub Actions is unavailable because the quota is exhausted; push and pull-request triggers are removed.** A manual workflow definition is retained for possible later use, and no hosted CI success is claimed.
+The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [1.1.1 verification and local acceptance record](docs/VALIDATION_VUE_1.1.1.md), [migration implementation report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical 1.1.0 candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the exact scope of each result. **GitHub Actions is unavailable because the quota is exhausted; push and pull-request triggers are removed.** A manual workflow definition is retained for possible later use, and no hosted CI success is claimed.
 
 ## Features
 
@@ -31,7 +31,8 @@ The app's text remains **German**. Multilingual app content ([#6](https://github
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
 | Passwords integration target | Passwords 2026.11.20; internal upstream classes and API behavior require version-specific checks |
-| Current 1.1.0 candidate | Local verification and exact test scope are documented in the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) |
+| Version 1.1.1 | Final wording/version changes, local regression checks and version-bound package evidence are documented in the [1.1.1 record](docs/VALIDATION_VUE_1.1.1.md) |
+| Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
 | Published v1.0.0 | Exact ZIP passed the recorded 2026-11-11 localhost/Nextcloud/MariaDB acceptance: 10/10 blocks, 49/49 checks |
 | Production AIO/PostgreSQL | No general production approval or tested in-place upgrade procedure |
 
@@ -39,7 +40,7 @@ The earlier v1.0.0 results are historical evidence, not test results for the Vue
 
 ## Installation
 
-Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Current 1.1.0 scripts reject the published 1.0.0 package; download the `v1.0.0` tagged scripts when working with that release.
+Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Current 1.1.1 scripts accept the matching 1.1.1 package; use the `v1.1.1` tagged scripts for that release. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
 
 The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. Neither the Vue migration nor its lack of a database-schema change supplies a production AIO upgrade path.
 

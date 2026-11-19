@@ -2,11 +2,11 @@
 
 ## Version boundary for the Vue migration
 
-Current source version **1.1.0** is an unsigned migration candidate, **not a published release**. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.0.zip`. They do not accept the historical 1.0.0 ZIP.
+Current source version **1.1.1** is the unsigned Nextcloud Vue edition. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.1.zip`. They do not accept the historical 1.0.0 ZIP.
 
 The complete commands below intentionally document the **published v1.0.0 archive with the `v1.0.0` tagged scripts**. Do not execute those commands with scripts copied from current source. The version in the archive, its `BUILD.json`, the script constants, output filenames and independently verified checksum must all correspond.
 
-A later candidate first-install test in a disposable AIO/PostgreSQL environment must use the 1.1.0 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current implementation and live-test evidence is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
+A first-install test of 1.1.1 in a disposable AIO/PostgreSQL environment must use the 1.1.1 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current release evidence and the separately confirmed localhost acceptance are recorded in [1.1.1 verification](VALIDATION_VUE_1.1.1.md); the original implementation is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
 
 **No production upgrade path is introduced.** Both installer versions refuse an existing `passwords_otp` deployment, including 0.7.3 or the public 1.0.0 release. Local Vue tests and the absence of an app database migration are not an AIO upgrade procedure. App Store certificate/signing work in PR #9 remains independent.
 

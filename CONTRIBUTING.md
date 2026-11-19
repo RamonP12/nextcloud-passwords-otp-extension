@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.0** is the Vue migration candidate; **1.0.0** is the published historical release. Do not alter its tag, release assets or recorded checksums.
+Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.1** is the Nextcloud Vue edition; **1.0.0** is the published historical release. Do not alter existing release tags, assets or recorded checksums.
 
 ## Before contributing
 
@@ -28,7 +28,7 @@ See [Development](docs/DEVELOPMENT.md) for the isolated Playwright environment, 
 
 **GitHub Actions quota is exhausted and execution is disabled.** The workflow has only a future manual `workflow_dispatch` trigger; pushes and PRs do not request Actions runs. Do not dispatch it or claim a hosted passing status during this migration. Report local checks with their exact scope and source version.
 
-Real Nextcloud integration is separate from synthetic unit/browser tests. See the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the current fixture and evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
+Real Nextcloud integration is separate from synthetic unit/browser tests. See [1.1.1 verification](docs/VALIDATION_VUE_1.1.1.md), the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical candidate validation](docs/VALIDATION_VUE_1.1.0.md) for each fixture and its evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
 
 ## Pull requests
 

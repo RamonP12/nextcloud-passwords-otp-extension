@@ -8,12 +8,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const read = name => readFileSync(path.join(ROOT, name), 'utf8');
 const exists = name => existsSync(path.join(ROOT, name));
 
-test('current candidate metadata and published release are distinguished in public docs', () => {
+test('current release metadata and historical acceptance are distinguished in public docs', () => {
     const readme = read('README.md'), info = read('appinfo/info.xml');
     const version = JSON.parse(read('package.json')).version;
-    assert.equal(version, '1.1.0');
+    assert.equal(version, '1.1.1');
     assert.ok(readme.includes(`Current source: ${version}`));
-    assert.match(readme, /not a published release/);
+    assert.ok(readme.includes('docs/VALIDATION_VUE_1.1.1.md'));
     assert.match(readme, /published \*\*v1\.0\.0\*\*/);
     for (const marker of ['docs/INSTALLATION.md', 'docs/COMPATIBILITY.md', 'docs/NEXTCLOUD_VUE_MIGRATION.md', 'THIRD_PARTY_NOTICES.md', '.github/SECURITY.md']) {
         assert.ok(readme.includes(marker), marker);
@@ -21,7 +21,7 @@ test('current candidate metadata and published release are distinguished in publ
     assert.ok(info.includes(`<version>${version}</version>`));
     assert.ok(read('scripts/release.py').includes(`VERSION='${version}'`));
     assert.ok(exists('LICENSE'));
-    assert.match(read('CHANGELOG.md'), /\[1\.1\.0\].*unreleased/);
+    assert.match(read('CHANGELOG.md'), /\[1\.1\.1\].*2026-11-19/);
 });
 
 test('published AIO commands retain SHA, group and matching-version boundaries', () => {
@@ -31,7 +31,7 @@ test('published AIO commands retain SHA, group and matching-version boundaries',
     }
     assert.match(install, /first.time|first.install|first install/i);
     assert.match(summary, /including 0\.7\.3/);
-    assert.match(summary, /1\.1\.0 scripts reject a 1\.0\.0 archive/);
+    assert.match(summary, /1\.1\.1 scripts reject a 1\.0\.0 archive/);
     assert.match(install, /Do not execute those commands with scripts copied from current source/);
     assert.match(install, /No production upgrade path is introduced/);
 });

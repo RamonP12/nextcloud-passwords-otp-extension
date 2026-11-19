@@ -1,6 +1,6 @@
 # User guide
 
-The app appears as **Passwort OTP Code Generator** in Nextcloud navigation for users granted access by their administrator. Current source 1.1.0 uses Nextcloud Vue controls; the published 1.0.0 release retains its historical interface.
+The app appears as **Passwort OTP Code Generator** in Nextcloud navigation for users granted access by their administrator. Version 1.1.1 uses Nextcloud Vue controls; the historical 1.0.0 release retains its original interface.
 
 ## View and copy codes
 
@@ -20,7 +20,7 @@ Choose **Neues OTP Passwort hinzufügen**. The app checks access before opening 
 
 Creation uses **SHA-1, six digits and a 30-second period**. Check these settings against the service before saving. New secrets must meet the application's minimum-length validation.
 
-Choose **OTP speichern** to confirm. Pressing Enter in an input field does not create an entry; keyboard activation of the save button still works. **Abbrechen** or Escape closes an idle dialog and clears the secret fields. While a save is in progress, closing and repeated submission are disabled. On completion the new record is stored in the original Passwords app, where it can be edited, deleted or shared.
+Choose **OTP speichern** to confirm. Pressing Enter in an input field does not create an entry; keyboard activation of the save button still works. **Abbrechen** or Escape closes an idle dialog and clears the secret fields. While a save is in progress, closing and repeated submission are disabled. On completion the new record is stored together with your other passwords in the original Passwords app. Use the Passwords app to edit, delete or share it with other Nextcloud users.
 
 If the interface reports an uncertain save result, verify the original Passwords records before attempting another create operation. The app blocks a blind retry because the first request might already have been stored.
 
