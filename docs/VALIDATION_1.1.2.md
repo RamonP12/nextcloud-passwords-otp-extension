@@ -46,6 +46,13 @@ See [additional checks](validation/1.1.2/additional-checks.json),
 [browser cases](validation/1.1.2/browser-firefox.json) and
 [bundle provenance](validation/1.1.2/bundle-modules.json).
 
+The local and release ZIP packages have different whole-archive SHA256 digests,
+although a later operator comparison found **all 18 runtime files and the
+BUILD.json manifest identical**. The cause is undetermined; the repeatability
+claims above apply to reruns within the recorded build environment, not
+cross-environment compressed-byte identity. Details and exact digests are in
+[the post-release localhost report](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md).
+
 The final version-bound results and reviewed source hashes are recorded in
 `docs/validation/1.1.2/`. The GitHub Release's `BUILD.json` binds its archives to
 the exact published source commit; final archive checksums are attached to that
@@ -74,15 +81,26 @@ dispatched. The retained workflow has only an explicit manual trigger.
   HTTPS shell/API. It is not live-server routing or authenticated Passwords
   acceptance.
 - Metadata is checked against Nextcloud 35's official XSD. Repeated compiled
-  builds and both archive formats must be byte-identical for the same commit.
+  builds and both archive formats were byte-identical in the recorded build environment. Cross-environment archive byte identity is not established.
 
 ## Installed-server and publication boundaries
 
 The maintainer accepted five functional checks on candidate 1.1.0 in the existing
 Nextcloud 35.0.2.2 / Passwords 2026.11.20 / PHP 8.5 / MariaDB localhost fixture.
 Those checks are recorded in [1.1.1 verification](VALIDATION_VUE_1.1.1.md).
-No 1.1.2 installation or dependency lifecycle acceptance on that laptop is
-claimed here. The focused remaining checks are in
+**Post-release update:** The maintainer subsequently upgraded the existing localhost
+fixture from OTP 1.1.0 to **1.1.2** using the version-matched installer. The
+backup, installation, HTTP assets and final verification passed. Disabling
+Passwords synchronously disabled OTP; attempted OTP enablement was denied with
+exit code 1; restoring Passwords did not automatically enable OTP; manual OTP
+activation succeeded. Existing accounts, changing TOTP codes and creation of a
+test entry were also confirmed. These observations are documented separately
+in [1.1.2 localhost acceptance](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md). The
+maintainer's **live** lifecycle acceptance tests were not part of the original
+release build; automated PHP/core-component lifecycle tests were. The new
+live observations do not retroactively alter the signed/unsigned release
+evidence. Fresh installation, removal with retained data, eventless loss,
+group isolation and other versions remain untested on this fixture; see
 [Dependency lifecycle](DEPENDENCY_LIFECYCLE.md).
 
 The release is a **manual, unsigned GitHub distribution**. Its tar.gz has the
