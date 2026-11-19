@@ -55,4 +55,30 @@ The Apps view initially showed a solid shield after repeated page reloads. The i
 
 This records one manual production replacement and its operator acceptance. A production rollback, a fresh install using the AIO installer against the full container stack, and signed App Store installation remain open. The AIO installer continues to reject existing OTP installations. See [AIO first-install tooling](AIO_MANUAL_INSTALL.md).
 
+## Production AIO core upgrade and OTP reactivation
+
+On 2026-11-19 the operator reported upgrading the same installation to AIO **15.1.1**. The AIO log recorded the Nextcloud core upgrade from **35.0.2.2 to 35.0.3.2** and a subsequent failed activation of `passwords_otp` before AIO activated `passwords`. This sequence matches the OTP activation guard for an inactive dependency. The exact exception from the first activation attempt was unavailable.
+
+After AIO completed, the operator successfully ran `occ app:enable passwords_otp` and confirmed that existing OTP entries displayed, codes rotated and copying worked. OCC reported Nextcloud **35.0.3**, `maintenance=false`, `needsDbUpgrade=false`, Passwords **2026.11.20** and OTP **1.1.3**, both with `enabled=yes`. This verifies one production core upgrade with manual OTP recovery. See [AIO 15.1.1 app restoration](https://github.com/nextcloud/all-in-one/blob/v15.1.1/Containers/nextcloud/entrypoint.sh#L521-L550) and [OTP activation enforcement](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.3/lib/Listener/PasswordsLifecycleListener.php).
+
+### Post-upgrade check and recovery
+
+Record the OTP app's `enabled` value before an AIO core upgrade. After AIO has finished, check core status and both app versions and activation scopes on the AIO host.
+
+```sh
+otp_occ() {
+  sudo docker exec --user www-data nextcloud-aio-nextcloud \
+    php /var/www/html/occ "$@"
+}
+
+otp_occ status --output=json
+for app in passwords passwords_otp; do
+  printf '\n%s\n' "$app"
+  otp_occ config:app:get "$app" installed_version
+  otp_occ config:app:get "$app" enabled
+done
+```
+
+If OTP was active before the upgrade and is now disabled, verify that maintenance and database upgrade are complete and that Passwords **2026.11.20** is installed and active for the intended users. For a prior all-user scope (`yes`), run `otp_occ app:enable passwords_otp`. For a prior group scope, pass the original group IDs using `--groups` on the enable command. Verify the resulting scope and check an existing OTP entry, code rotation and clipboard copy in the browser. Investigate a remaining activation error with the full OCC error and the [dependency requirements](DEPENDENCY_LIFECYCLE.md). See [Nextcloud OCC app commands](https://docs.nextcloud.com/server/stable/admin_manual/occ_apps.html#apps-commands).
+
 See [installation and version selection](INSTALLATION.md), the [release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) and the [PR verification record](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/15).
