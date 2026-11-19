@@ -10,11 +10,13 @@ use OCP\Server;
 use Throwable;
 /** Internal upstream helper, deliberately isolated; no privileged fallback or direct SQL. */
 final class PasswordsAuthAdapter {
-    public function __construct(private IAppManager $appManager, private IUserSession $userSession) {}
+    public function __construct(private IAppManager $appManager, private IUserSession $userSession,
+        private PasswordsDependency $dependency) {}
     public function currentValidUid(): ?string {
         try {
             $user = $this->userSession->getUser();
-            if ($user === null || !$this->appManager->isEnabledForUser('passwords', $user)) return null;
+            if ($user === null || $this->dependency->enforce() !== null
+                    || !$this->appManager->isEnabledForUser('passwords', $user)) return null;
             $environment = Server::get(EnvironmentService::class);
             if (!($environment instanceof EnvironmentService) || $environment->isImpersonating()
                     || $environment->getUserId() !== $user->getUID()) return null;
@@ -25,6 +27,8 @@ final class PasswordsAuthAdapter {
         try {
             $user = $this->userSession->getUser();
             if ($user === null) return ['status' => 'unavailable', 'reason' => 'login-required'];
+            $reason = $this->dependency->enforce();
+            if ($reason !== null) return ['status' => 'unavailable', 'reason' => $reason];
             if (!$this->appManager->isEnabledForUser('passwords', $user)) {
                 return ['status' => 'unavailable', 'reason' => 'passwords-disabled'];
             }

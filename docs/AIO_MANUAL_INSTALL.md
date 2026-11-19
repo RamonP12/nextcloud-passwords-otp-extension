@@ -2,13 +2,13 @@
 
 ## Version boundary for the Vue migration
 
-Current source version **1.1.1** is the unsigned Nextcloud Vue edition. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.1.zip`. They do not accept the historical 1.0.0 ZIP.
+Current source version **1.1.2** is the unsigned Nextcloud Vue edition with an enforced Passwords prerequisite. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.2.zip`. A matching tar.gz is supplied for manual distribution; the transactional Python installer still consumes the ZIP. They do not accept the historical 1.0.0 ZIP.
 
 The complete commands below intentionally document the **published v1.0.0 archive with the `v1.0.0` tagged scripts**. Do not execute those commands with scripts copied from current source. The version in the archive, its `BUILD.json`, the script constants, output filenames and independently verified checksum must all correspond.
 
-A first-install test of 1.1.1 in a disposable AIO/PostgreSQL environment must use the 1.1.1 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current release evidence and the separately confirmed localhost acceptance are recorded in [1.1.1 verification](VALIDATION_VUE_1.1.1.md); the original implementation is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
+A first-install test of 1.1.2 in a disposable AIO/PostgreSQL environment must use the 1.1.2 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current release evidence and remaining lifecycle acceptance are recorded in [1.1.2 verification](VALIDATION_1.1.2.md); the original implementation is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
 
-**No production upgrade path is introduced.** Both installer versions refuse an existing `passwords_otp` deployment, including 0.7.3 or the public 1.0.0 release. Local Vue tests and the absence of an app database migration are not an AIO upgrade procedure. App Store certificate/signing work in PR #9 remains independent.
+**No production upgrade path is introduced.** Both installer versions refuse an existing `passwords_otp` deployment, including 0.7.3 or the public 1.0.0 release. The new prerequisite migration adds no OTP tables, but its bookkeeping and scheduled job still require a verified rollback boundary. Local Vue tests are not an AIO upgrade procedure. [App Store packaging](APPSTORE_PACKAGING.md) describes the prepared signing path; actual trusted signing and Store publication remain outstanding. Passwords must be exactly 2026.11.20, installed and enabled, with matching installed/on-disk versions.
 
 ## Published v1.0.0 procedure
 

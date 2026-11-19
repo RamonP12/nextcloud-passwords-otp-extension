@@ -3,7 +3,7 @@ from unittest.mock import patch
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[2]/'scripts'))
 import local
 COMMIT='a'*40
-BUILD={'status':'PASS','source_commit':COMMIT,'version':'1.1.1','archive_sha256':'b'*64,'production':False}
+BUILD={'status':'PASS','source_commit':COMMIT,'version':'1.1.2','archive_sha256':'b'*64,'production':False}
 class FakeBackend:
  def __init__(self):
   self.before={'version':'0.6.1','files':{'appinfo/info.xml':'a'},'passwords':'2026.11.20','nextcloud':'35.0.2','container_id':'local-test'}
@@ -21,8 +21,9 @@ class LocalGateTests(unittest.TestCase):
    with self.subTest(attr=attr):
     b=FakeBackend();setattr(b,attr,value)
     with self.assertRaises(local.GateError):local.inspect_fixture(b)
-  b=FakeBackend();b.before['passwords']='2026.10.0'
-  with self.assertRaises(local.GateError):local.inspect_fixture(b)
+  for version in ['2026.10.0','2026.11.21','2026.12.0']:
+   b=FakeBackend();b.before['passwords']=version
+   with self.subTest(passwords=version),self.assertRaises(local.GateError):local.inspect_fixture(b)
  def context(self,base):
   root=pathlib.Path(base);dir=root/'.build'/COMMIT;dir.mkdir(parents=True)
   python=root/'.build'/'desktop-venv'/'bin'/'python';python.parent.mkdir(parents=True);python.write_text('fixture')

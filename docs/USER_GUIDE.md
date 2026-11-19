@@ -1,6 +1,12 @@
 # User guide
 
-The app appears as **Passwort OTP Code Generator** in Nextcloud navigation for users granted access by their administrator. Version 1.1.1 uses Nextcloud Vue controls; the historical 1.0.0 release retains its original interface.
+The app appears as **Passwort OTP Code Generator** in Nextcloud navigation for users granted access by their administrator. Version 1.1.2 uses Nextcloud Vue controls; the historical 1.0.0 release retains its original interface.
+
+## Required Passwords app
+
+The administrator must install and enable Passwords **2026.11.20** before enabling OTP. Users need access to both apps. A Passwords group restriction can deny an individual user without disabling OTP for other authorized users. If Passwords is disabled, removed or changed to an unsupported version, OTP denies further operations and disables itself through the documented lifecycle checks. After restoring the prerequisite, the administrator must enable OTP explicitly; it does not reactivate itself.
+
+The interface cannot revoke a code already copied to another application. Normal session/window checks remain active. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for detection timing and administrator recovery.
 
 ## View and copy codes
 

@@ -9,7 +9,12 @@ namespace OCP {
  class Server {public static array $services=[];public static function get($name){return self::$services[$name]??throw new \RuntimeException('PRIVATE');}}
  class Util {public static array $scripts=[];public static array $styles=[];public static function addScript($a,$b){self::$scripts[]=[$a,$b];}public static function addStyle($a,$b){self::$styles[]=[$a,$b];}}
 }
-namespace OCP\App {interface IAppManager {public function isEnabledForUser($id,$user);}}
+namespace Psr\Log {interface LoggerInterface {public function warning($message,array $context=[]);public function error($message,array $context=[]);}}
+namespace OCP\App {interface IAppManager {
+ public function isEnabledForUser($id,$user);public function getAppInstalledVersions();
+ public function getAppPath($id,$ignoreCache=false);public function getAppInfoByPath($path);
+ public function isEnabledForAnyone($id);public function disableApp($id);
+}}
 namespace OCP\AppFramework {class Controller {public function __construct($app,protected $request){}} class App {public function __construct(...$x){}}}
 namespace OCP\AppFramework\Bootstrap {interface IBootstrap{} interface IRegistrationContext{} interface IBootContext{}}
 namespace OCP\AppFramework\Http\Attribute {
@@ -26,9 +31,11 @@ namespace OCA\Passwords\Services {class EnvironmentService {public string $uid='
 namespace OCA\Passwords\Helper\Token {class ApiTokenHelper {public int $calls=0;public mixed $callback=null;public array $value=['PRIVATE-TOKEN','synthetic'];public function getWebUiToken(){++$this->calls;if($this->callback)($this->callback)();return $this->value;}}}
 namespace {
  require __DIR__.'/../../lib/AppInfo/Application.php';
+ require __DIR__.'/../../lib/Service/PasswordsDependency.php';
  require __DIR__.'/../../lib/Service/PasswordsAuthAdapter.php';
  require __DIR__.'/../../lib/Controller/PageController.php';
  use OCA\PasswordsOtp\Service\PasswordsAuthAdapter;
+ use OCA\PasswordsOtp\Service\PasswordsDependency;
  use OCA\PasswordsOtp\Controller\PageController;
  use OCA\Passwords\Services\EnvironmentService;
  use OCA\Passwords\Helper\Token\ApiTokenHelper;
@@ -39,12 +46,23 @@ namespace {
   $request=new class implements \OCP\IRequest {public string $protocol='https';public string $header='';public function getServerProtocol(){return $this->protocol;}public function getHeader($name){return $this->header;}};
   $session=new class implements \OCP\ISession {public string $id='synthetic-session';public function getId(){return $this->id;}};
   $users=new class implements \OCP\IUserSession {public bool $enabled=true;public function getUser(){return $this->enabled?new class {public function getUID(){return 'synthetic';}}:null;}};
-  $apps=new class implements \OCP\App\IAppManager {public bool $enabled=true;public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}};
+  $apps=new class implements \OCP\App\IAppManager {
+   public bool $enabled=true;public bool $globalEnabled=true;public bool $otpEnabled=true;
+   public string $installed='2026.11.20';public string $disk='2026.11.20';public int $disableCalls=0;
+   public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}
+   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.2'];}
+   public function getAppPath($id,$ignoreCache=false){return dirname(__DIR__,2);}
+   public function getAppInfoByPath($path){return ['id'=>'passwords','version'=>$this->disk];}
+   public function isEnabledForAnyone($id){return $id==='passwords'?$this->globalEnabled:$this->otpEnabled;}
+   public function disableApp($id){if($id!=='passwords_otp')throw new \RuntimeException('wrong app disabled');$this->otpEnabled=false;++$this->disableCalls;}
+  };
+  $logger=new class implements \Psr\Log\LoggerInterface {public function warning($message,array $context=[]){}public function error($message,array $context=[]){}};
   $initial=new class implements \OCP\AppFramework\Services\IInitialState {public array $state=[];public function provideInitialState($key,$value){$this->state=$value;}};
   $urls=new class implements \OCP\IURLGenerator {public bool $fail=false;public function linkToRoute($name){if($this->fail)throw new \RuntimeException('PRIVATE');return '/synthetic/'.$name;}};
   $environment=new EnvironmentService();$helper=new ApiTokenHelper();
   Server::$services=[EnvironmentService::class=>$environment,ApiTokenHelper::class=>$helper];
-  $adapter=new PasswordsAuthAdapter($apps,$users);
+  $dependency=new PasswordsDependency($apps,$logger);
+  $adapter=new PasswordsAuthAdapter($apps,$users,$dependency);
   $controller=new PageController($request,$initial,$urls,$adapter,$session);
   return compact('request','session','users','apps','initial','urls','environment','helper','adapter','controller');
  }
@@ -92,6 +110,24 @@ namespace {
  check($f['helper']->calls===0,'HTTP never acquires token');
  $f=fixture();$f['session']->id='';check($f['controller']->sessionStatus()->status===403,'empty session refused');
  $f=fixture();$f['urls']->fail=true;$f['controller']->index();check($f['initial']->state['status']==='unavailable','route exception sanitized');
+ $f=fixture();$f['apps']->enabled=false;
+ check($f['adapter']->currentValidUid()===null,'user outside Passwords group cannot authenticate');
+ check($f['adapter']->acquire()['status']==='unavailable'&&$f['helper']->calls===0,'user outside group receives no token');
+ check($f['apps']->otpEnabled&&$f['apps']->disableCalls===0,'user denial never disables OTP for other users');
+ foreach(['global-disabled','missing-registration','unsupported','pending-update'] as $case){
+  $f=fixture();
+  if($case==='global-disabled')$f['apps']->globalEnabled=false;
+  elseif($case==='missing-registration')$f['apps']->installed='';
+  elseif($case==='unsupported'){$f['apps']->installed='2026.12.1';$f['apps']->disk='2026.12.1';}
+  else $f['apps']->disk='2026.12.1';
+  check($f['adapter']->currentValidUid()===null,'global dependency rejects session '.$case);
+  check($f['adapter']->acquire()['status']==='unavailable'&&$f['helper']->calls===0,'global dependency never resolves token '.$case);
+  check(!$f['apps']->otpEnabled&&$f['apps']->disableCalls===1,'global dependency disables only OTP once '.$case);
+ }
+ $f=fixture();$f['controller']->index();$f['request']->header=$f['initial']->state['sessionFingerprint'];
+ $f['helper']->callback=function()use($f){$f['apps']->globalEnabled=false;};
+ $res=$f['controller']->bootstrap();
+ check($res->status===403&&!str_contains(json_encode($res->data),'PRIVATE-TOKEN'),'dependency lost during token acquisition never returned');
  $method=new \ReflectionMethod(PageController::class,'bootstrap');
  $attributes=array_map(fn($a)=>$a->getName(),$method->getAttributes());
  check(in_array(\OCP\AppFramework\Http\Attribute\UseSession::class,$attributes,true),'bootstrap session required');

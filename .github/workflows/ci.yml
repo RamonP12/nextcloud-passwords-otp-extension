@@ -26,9 +26,10 @@ jobs:
         run: python3 scripts/local.py --build
       - name: PHP 8.5 syntax and controller contracts
         run: |
-          docker run --rm --network none --read-only -v "$PWD:/src:ro" -w /src php:8.5-cli sh -ec '
+          docker run --rm --network none --read-only --tmpfs /tmp:rw,nosuid,nodev,noexec,size=16m -v "$PWD:/src:ro" -w /src php:8.5-cli sh -ec '
             find appinfo lib templates tests/php -name "*.php" -print0 | xargs -0 -n1 php -l >/dev/null
             php tests/php/security.php
+            php tests/php/dependencies.php
           '
   desktop:
     name: Production Vue bundle in Chromium (synthetic HTTPS API)

@@ -1,42 +1,101 @@
 # Installation and version selection
 
-## Current version: 1.1.1 Nextcloud Vue edition
+## Current version: 1.1.2 Nextcloud Vue edition
 
-Version 1.1.1 contains the complete Nextcloud Vue migration and the maintainer's final wording changes. Use the [v1.1.1 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1), its matching source tag and the [1.1.1 verification record](VALIDATION_VUE_1.1.1.md). The historical v1.0.0 assets and acceptance records remain unchanged.
+Version 1.1.2 requires Passwords **2026.11.20**, installed and enabled, and adds
+an installable TAR archive to the Vue edition. Use the [v1.1.2 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2),
+its matching source tag and the [1.1.2 verification record](VALIDATION_1.1.2.md).
+Historical tags, assets and acceptance records remain unchanged.
 
 | Archive | Required tooling | Intended scope |
 | --- | --- | --- |
-| `passwords_otp-1.1.1.zip` | Scripts from tag **`v1.1.1`**, matching `BUILD.json` | Current unsigned Vue distribution; maintainer-specific localhost installation tools and scoped AIO first-install tooling |
+| `passwords_otp-1.1.2.tar.gz` | Matching release checksum and `BUILD.json`; a tested manual deployment procedure | Current compiled single-root Nextcloud distribution, unsigned |
+| `passwords_otp-1.1.2.zip` | Scripts from tag **`v1.1.2`**, matching `BUILD.json` | Current transactional localhost installer and scoped AIO first-install tooling |
+| Published `passwords_otp-1.1.1.zip` | Scripts from tag **`v1.1.1`** | Historical Vue release; no new dependency lifecycle enforcement |
 | Previously built `passwords_otp-1.1.0.zip` | Scripts from its exact source commit | Historical Vue candidate and its recorded local acceptance |
 | Published `passwords_otp-1.0.0.zip` | `aio_install.py` and `release.py` from tag **`v1.0.0`** | Historical first-install procedure documented below |
 
-**Current 1.1.1 scripts reject a 1.0.0 archive.** Never copy scripts from moving `main` when installing an older release ZIP. The installer, package version and build manifest must agree. The localhost upgrader retains old asset mappings so it can verify and back up the existing app before replacement and restore it if a transaction fails; that does not make an old archive a current installer input.
+**Current 1.1.2 scripts reject a 1.0.0 archive.** Never copy scripts from moving
+`main` when installing an older release. The installer, archive version and build
+manifest must agree. Older asset mappings exist only to verify and back up an
+existing app and restore it on a failed local transaction; they do not make an
+old archive a valid current installer input.
 
-### Obtain and verify the 1.1.1 distribution
+### Required Passwords dependency
 
-Download these three files from the [tag-specific release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.1):
+The original Passwords app is a mandatory prerequisite. Its installed version
+and on-disk metadata must both be **2026.11.20** and it must be enabled globally or for configured groups. Users also need individual access to both apps. An administrator
+can enable OTP for all test users; this does not override Passwords group access.
 
-- `passwords_otp-1.1.1.zip`
-- `passwords_otp-1.1.1.zip.sha256`
+- A fresh OTP registration fails when the prerequisite is absent, disabled or
+  incompatible. Nextcloud may already have downloaded/extracted the OTP files
+  before the application migration can check the prerequisite.
+- An invalid activation is reversed. Disabling Passwords normally disables OTP.
+- Removal without the normal disable event, including manual file deletion,
+  is detected on later boot/runtime checks or the scheduled fallback. The
+  five-minute job interval depends on an operational Nextcloud cron runner.
+- Restoring Passwords does not re-enable OTP automatically. The administrator
+  reviews the prerequisite and enables OTP explicitly.
+
+Read [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the exact event behavior,
+recovery and timing limits. The migration checks prerequisites and adds no OTP
+data tables, but Nextcloud migration/job bookkeeping is real state and must be
+included in rollback verification.
+
+### Obtain and verify the 1.1.2 distribution
+
+Download the assets from the [tag-specific release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2):
+
+- `passwords_otp-1.1.2.tar.gz` and `passwords_otp-1.1.2.tar.gz.sha256`
+- `passwords_otp-1.1.2.zip` and `passwords_otp-1.1.2.zip.sha256` if using the Python installer
 - `BUILD.json`
 
-In the directory containing the downloads, verify the ZIP before installation:
+In the download directory, verify the applicable archives:
 
-```sh
-sha256sum -c passwords_otp-1.1.1.zip.sha256
+```fish
+sha256sum -c passwords_otp-1.1.2.tar.gz.sha256
+sha256sum -c passwords_otp-1.1.2.zip.sha256
 ```
 
-The check must print `OK`. Compare the ZIP digest with the release's recorded SHA256 and confirm that `BUILD.json` identifies version 1.1.1 and the source revision behind tag `v1.1.1`. GitHub's automatically generated source archives are source snapshots, not the compiled installable application ZIP.
+Each downloaded archive's check must print `OK`. Compare the digest with the
+release's recorded SHA256 and confirm that `BUILD.json` identifies 1.1.2 and the
+source revision behind `v1.1.2`. Both archives contain the same runtime payload
+inside one `passwords_otp/` directory. GitHub's automatic **Source code** archives
+are source snapshots and do not contain the compiled application.
 
-For a reproducible source build, check out the tag and follow [Development](DEVELOPMENT.md), including local verification, a clean committed checkout and checked packaging. The app contains one bundled ES module (`js/app-111.mjs`) and one stylesheet (`css/app-111.css`); Nextcloud does not need a Node.js/npm service.
+A SHA256 checksum is not a Nextcloud signature. These ordinary GitHub artifacts
+are unsigned and retain `production_approved=false`. A correctly formatted TAR
+alone is insufficient for an App Store release; see [App Store packaging and
+signing](APPSTORE_PACKAGING.md).
 
-### Installation scope
+For a reproducible source build, check out the tag and follow [Development](DEVELOPMENT.md),
+including a clean committed checkout and checked packaging. The app contains
+`js/app-112.mjs` and `css/app-112.css`; Nextcloud does not need Node.js/npm at
+runtime.
 
-The maintainer-specific localhost tools (`scripts/local.py` and `scripts/deploy.py`) target the existing loopback-only Docker Compose/MariaDB fixture. They verify the current app, save a backup and journal, replace the app, and verify installed files and served assets. They retain the 1.1.0 `.mjs` mapping for verification and rollback. They are not generic deployment scripts. See [Development](DEVELOPMENT.md) for the fixture constraints.
+### Installation and acceptance scope
 
-On 2026-11-19 the maintainer confirmed the five manual checks on the locally installed 1.1.0 Vue candidate: independent TOTP comparison, copying, search, persisted entry creation and logout invalidation. Version 1.1.1 changes presentation text and version/asset packaging; it does not change authentication, encryption, OTP calculation or stored entries. The final local regression/package results are recorded separately in [1.1.1 verification](VALIDATION_VUE_1.1.1.md). After updating, a quick check of the new wording and removed disclosure confirms that the new assets were loaded; repeating the five functional checks is not a prerequisite for this release.
+The maintainer-specific localhost tools (`scripts/local.py`, `scripts/deploy.py`)
+target the existing loopback-only Docker Compose/MariaDB fixture. They verify
+the current app, save a backup/journal, replace the app and verify installed
+files and served assets. They retain prior Vue asset mappings for verification
+and rollback and account for the new dependency bookkeeping. They are not
+generic deployment scripts. See [Development](DEVELOPMENT.md) for fixture
+constraints and [1.1.2 verification](VALIDATION_1.1.2.md) for actual evidence.
 
-The AIO tool remains **first-install only**, with version/hash/scope/backup gates. The documented v1.0.0 procedure below must use its historical tagged scripts. A 1.1.1 AIO first install requires its own matching archive, source, checksum and environment acceptance. No production AIO/PostgreSQL in-place upgrade procedure is supplied. App Store signing work in PR #9 is separate; the GitHub ZIP is unsigned and retains `production_approved=false`.
+On 2026-11-19 the maintainer confirmed five manual checks on the 1.1.0 Vue
+candidate: independent TOTP comparison, copying, search, persistent entry
+creation and logout invalidation. Those checks remain historical frontend
+acceptance. **1.1.2 changes server-side lifecycle behavior and needs additional
+disposable localhost tests** for missing/disabled/incompatible Passwords,
+activation, disable/remove handling, group separation and recovery. Do not
+infer those results from unit fixtures or the five previous checks.
+
+The AIO tool remains **first-install only**, with version/hash/scope/backup
+gates. It refuses an existing OTP app, including 0.7.3. A 1.1.2 AIO first install
+needs its matching source/archive, checksum and separate environment acceptance.
+No production AIO/PostgreSQL in-place upgrade procedure is supplied. The
+historical commands below apply only to the v1.0.0 tagged tools and archive.
 
 ## Published v1.0.0: historical installation procedure
 
@@ -98,7 +157,7 @@ Transfer the verified ZIP and these **two matching scripts** to a private direct
 
 ## Historical reproducibility: build from the pinned v1.0.0 tag
 
-**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.1 Vue edition. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
+**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.2 Vue edition with additional dependency lifecycle checks. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
 
 ```sh
 git clone --depth 1 --branch v1.0.0 \

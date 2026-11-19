@@ -100,6 +100,8 @@ class AioBackend:
         return {key: m.get(key) for key in ('Type', 'Name', 'Source', 'Destination', 'RW')}
 
     def check_base(self, expected_nc: str, expected_passwords: str) -> dict:
+        if expected_passwords != '2026.11.20':
+            raise AioError('OTP 1.1.2 requires Passwords 2026.11.20; another version needs a compatibility review')
         local_docker()
         info = json.loads(self.docker('inspect', CONTAINER))[0]
         if info.get('Name') != '/' + CONTAINER or info.get('State', {}).get('Running') is not True:

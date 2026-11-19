@@ -4,7 +4,8 @@
 
 | Version | Status |
 | --- | --- |
-| 1.1.1 | Current Nextcloud Vue edition; unsigned, version-specific GitHub distribution with documented local evidence |
+| 1.1.2 | Current Vue edition with enforced Passwords dependency; unsigned TAR/ZIP, version-specific component evidence and explicit remaining lifecycle acceptance |
+| 1.1.1 | Historical Vue release; superseded, tag and assets unchanged |
 | 1.1.0 source candidate | Superseded internal Vue candidate; not published as a separate release |
 | 1.0.0 | Published unofficial release; historical, restricted compatibility evidence; tag/assets unchanged |
 | Earlier internal candidates | Unsupported; never distributed as public releases |
@@ -21,10 +22,10 @@ Include the affected version and source commit, impact and reproduction steps us
 
 The app relies on the original Nextcloud Passwords WebUI bearer token. That token has more privileges than the OTP viewer's UI; browser-side request allowlists cannot create a server-enforced least-privilege credential. This architectural limitation remains openly tracked in [issue #1](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/1).
 
-The Vue migration preserves this limitation and does not create a server-enforced least-privilege token. Current evidence is recorded in [1.1.1 verification](../docs/VALIDATION_VUE_1.1.1.md), with the [historical 1.1.0 candidate results](../docs/VALIDATION_VUE_1.1.0.md) kept separate. Historical v1.0.0 test totals are not current-source results.
+The Vue migration preserves this limitation and does not create a server-enforced least-privilege token. Current evidence is recorded in [1.1.2 verification](../docs/VALIDATION_1.1.2.md), with [historical 1.1.1 verification](../docs/VALIDATION_VUE_1.1.1.md) and with the [historical 1.1.0 candidate results](../docs/VALIDATION_VUE_1.1.0.md) kept separate. Historical v1.0.0 test totals are not current-source results.
 
-The app also depends on internal Passwords integration interfaces and cannot guarantee immediate remote token revocation when a browser tab closes. See the [technical security review](../docs/SECURITY_REVIEW.md).
+The app also depends on internal Passwords integration interfaces and cannot guarantee immediate remote token revocation when a browser tab closes. The exact Passwords version prerequisite and automatic disabling reduce lifecycle risk but do not establish public API stability or least privilege. The [dependency lifecycle](../docs/DEPENDENCY_LIFECYCLE.md) distinguishes global dependency loss from per-user group denial and documents fallback detection timing. See the [technical security review](../docs/SECURITY_REVIEW.md).
 
-Current distribution remains unsigned and version-specific. The first-install AIO tool does not upgrade existing OTP installations, and independent App Store signing work is not a release approval. GitHub Actions is unavailable; a workflow definition is not evidence of hosted verification.
+Current distribution remains unsigned and version-specific. The first-install AIO tool does not upgrade existing OTP installations, and the prepared App Store signing workflow is not a release approval. No Nextcloud-issued signing key/certificate pair was provided for 1.1.2. GitHub Actions is unavailable; a workflow definition is not evidence of hosted verification.
 
 The maintainer will assess and coordinate reports where possible. There is no guaranteed response time, security certification, or general production approval.

@@ -45,10 +45,14 @@ def build(commit):
  if first!=second:raise GateError('Browser double build is not byte-identical')
  execute([sys.executable,'scripts/release.py',str(directory/'package')])
  archive=directory/'package'/f'passwords_otp-{VERSION}.zip';sha=digest(archive.read_bytes())
- _,manifest=validate_package(archive.read_bytes(),sha)
+ files,manifest=validate_package(archive.read_bytes(),sha)
+ from appstore_package import verify_tar
+ tar=directory/'package'/f'passwords_otp-{VERSION}.tar.gz'
+ verify_tar(tar.read_bytes(),files)
  if manifest['source_commit']!=commit or source_commit()!=commit:raise GateError('Source changed during build')
  receipt(directory/'build-pass.json',{'status':'PASS','source_commit':commit,
-   'archive_sha256':sha,'version':VERSION,'production':False})
+   'archive_sha256':sha,'tar_sha256':digest(tar.read_bytes()),'nextcloud_signed':False,
+   'version':VERSION,'production':False})
  print('BUILD_PASS:',archive,flush=True)
 
 def load_build(commit):
@@ -68,7 +72,7 @@ def inspect_fixture(backend):
  db=backend.occ('config:system:get','dbtype')
  if not php.startswith('8.5.'):raise GateError('Expected the existing PHP 8.5 fixture, got '+php)
  if db!='mysql':raise GateError('Expected the existing MariaDB-backed fixture (Nextcloud dbtype=mysql), got '+db)
- if not str(before['passwords']).startswith('2026.11.'):
+ if before['passwords']!='2026.11.20':
   raise GateError('Original Passwords version changed: inspect compatibility before continuing')
  backend.verify(before['version'],before['files'],before)
  return before,php,db
@@ -86,8 +90,9 @@ def preflight(commit):
  # The php:8.5-cli image was already present in the operator's last run;
  # --pull never prevents accidental hotel-network downloads.
  execute(['docker','run','--pull','never','--rm','--network','none','--read-only',
+  '--tmpfs','/tmp:rw,nosuid,nodev,noexec,size=16m',
   '-v',str(ROOT)+':/src:ro','-w','/src','php:8.5-cli',
-  'sh','-ec','find appinfo lib templates tests/php -name "*.php" -print0 | xargs -0 -n1 php -l >/dev/null; php tests/php/security.php'])
+  'sh','-ec','find appinfo lib templates tests/php -name "*.php" -print0 | xargs -0 -n1 php -l >/dev/null; php tests/php/security.php; php tests/php/dependencies.php'])
  venv=ROOT/'.build/desktop-venv/bin/python'
  if not venv.is_file():raise GateError('Existing offline Playwright venv missing; do not download images automatically')
  chrome=os.environ.get('CHROME_BIN') or shutil.which('google-chrome') or shutil.which('chromium') or shutil.which('brave') or shutil.which('brave-browser')
