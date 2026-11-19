@@ -643,7 +643,7 @@ test('Synchronous DOM erasure is restricted to the app and dialog portal', () =>
     function root(id) {
         const selectors = {
             'input[data-otp-secret]': [{value: 'SYNTHETIC-SECRET'}],
-            '.passwords-otp-ap3__code': [{textContent: '001234'}],
+            '.passwords-otp-ap3__code': [{textContent: '001234', disabled: false}],
             '.passwords-otp-ap3__copy': [{disabled: false}],
             '.passwords-otp-ap3__progress': [{value: 29}],
             '[data-otp-protected]': [{hidden: false}],
@@ -656,6 +656,7 @@ test('Synchronous DOM erasure is restricted to the app and dialog portal', () =>
     for (const current of [app, dialog]) {
         assert.equal(current.selectors['input[data-otp-secret]'][0].value, '');
         assert.equal(current.selectors['.passwords-otp-ap3__code'][0].textContent, '—');
+        assert.equal(current.selectors['.passwords-otp-ap3__code'][0].disabled, true);
         assert.equal(current.selectors['.passwords-otp-ap3__copy'][0].disabled, true);
         assert.equal(current.selectors['.passwords-otp-ap3__progress'][0].value, 0);
         assert.equal(current.selectors['[data-otp-protected]'][0].hidden, true);
@@ -664,5 +665,6 @@ test('Synchronous DOM erasure is restricted to the app and dialog portal', () =>
     assert.equal(dialog.hidden, true);
     assert.equal(unrelated.selectors['input[data-otp-secret]'][0].value, 'SYNTHETIC-SECRET');
     assert.equal(unrelated.selectors['.passwords-otp-ap3__code'][0].textContent, '001234');
+    assert.equal(unrelated.selectors['.passwords-otp-ap3__code'][0].disabled, false);
     assert.doesNotThrow(() => clearSensitiveDom({getElementById: () => null}, {inputs: true, codes: true, lock: true}));
 });

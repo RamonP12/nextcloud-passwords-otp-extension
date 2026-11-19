@@ -157,6 +157,7 @@ class RealFixture:
 
     def assert_code_and_copy(self, row):
         button = row.locator('.passwords-otp-ap3__copy')
+        displayed = row.locator('.passwords-otp-ap3__code')
         button.scroll_into_view_if_needed()
         expect(button).to_be_enabled(timeout=45000)
         # Copy deliberately rejects the final 2.5 seconds and validation-window
@@ -179,7 +180,7 @@ class RealFixture:
         for _ in range(3):
             sample = row.evaluate('''(element) => {
                 const progress = element.querySelector('.passwords-otp-ap3__progress');
-                return {now: Date.now(), code: element.querySelector('output').textContent,
+                return {now: Date.now(), code: element.querySelector('.passwords-otp-ap3__code').textContent,
                     progress_max: progress.max, progress_value: progress.value,
                     countdown: element.querySelector('.passwords-otp-account__time span').textContent};
             }''')
@@ -190,11 +191,12 @@ class RealFixture:
         assert sample['progress_max'] == 30, 'Native progress maximum must match the RFC fixture period'
         countdown = re.fullmatch(r'Noch (\d+) s gültig', sample['countdown'])
         assert countdown and math.ceil(sample['progress_value']) == int(countdown[1]), 'Native progress value and textual countdown disagree'
-        button.click()
-        expect(self.page.locator('#passwords-otp-ap3-feedback')).to_contain_text('kopiert')
-        if self.browser_name == 'chromium':
-            copied = self.page.evaluate('navigator.clipboard.readText()')
-            assert copied in {totp(sample['now']), totp(self.page.evaluate('Date.now()'))}
+        for control in (button, displayed):
+            control.click()
+            expect(self.page.locator('#passwords-otp-ap3-feedback')).to_contain_text('kopiert')
+            if self.browser_name == 'chromium':
+                copied = self.page.evaluate('navigator.clipboard.readText()')
+                assert copied in {totp(sample['now']), totp(self.page.evaluate('Date.now()'))}
 
     def keyboard_and_filter(self, row):
         self.page.locator('#passwords-otp-ap2-search').fill('nonexistent-acceptance-account')
@@ -249,14 +251,14 @@ def headers_and_boundaries(fixture, response):
     assert headers.get('referrer-policy') == 'no-referrer'
     csp = headers.get('content-security-policy', '')
     assert "'wasm-unsafe-eval'" in csp and "'unsafe-eval'" not in csp
-    assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_112_VERIFIED'
+    assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_113_VERIFIED'
     assert page.locator('#initial-state-passwords_otp-ap1').count() == 0
-    module = page.locator('script[src*="/passwords_otp/js/app-112.mjs"]')
+    module = page.locator('script[src*="/passwords_otp/js/app-113.mjs"]')
     assert module.get_attribute('type') == 'module'
     asset = page.request.get(urljoin(fixture.base + '/', module.get_attribute('src')))
     assert asset.status == 200
     assert asset.headers['content-type'].split(';')[0] in {'text/javascript', 'application/javascript'}
-    assert hashlib.sha256(asset.body()).hexdigest() == hashlib.sha256((ROOT / 'js/app-112.mjs').read_bytes()).hexdigest()
+    assert hashlib.sha256(asset.body()).hexdigest() == hashlib.sha256((ROOT / 'js/app-113.mjs').read_bytes()).hexdigest()
     csrf = page.locator('head').get_attribute('data-requesttoken')
     session = page.request.get(fixture.base + '/index.php/apps/passwords_otp/session-status')
     assert session.status == 200 and session.json()['authenticated'] is True
@@ -389,7 +391,7 @@ def main():
                   'Rate limits, ambiguous write failures and BFCache events are covered by the separate synthetic browser/lifecycle suite.',
                   'This disposable fixture does not establish AIO, PostgreSQL, proxy-specific or production acceptance.'],
               'sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                         for name in ['js/app-112.mjs', 'css/app-112.css']}}
+                         for name in ['js/app-113.mjs', 'css/app-113.css']}}
     if args.browser == 'firefox':
         report['limitations'].append('Firefox validates real user-triggered clipboard.writeText success; clipboard contents are independently read in Chromium only.')
     try:

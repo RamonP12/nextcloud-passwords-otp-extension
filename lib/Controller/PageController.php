@@ -35,8 +35,8 @@ final class PageController extends Controller {
         }
         $this->initialState->provideInitialState('ap1', $state);
         // Nextcloud 35 resolves .mjs before .js and emits type="module".
-        Util::addScript(Application::APP_ID, 'app-112');
-        Util::addStyle(Application::APP_ID, 'app-112');
+        Util::addScript(Application::APP_ID, 'app-113');
+        Util::addStyle(Application::APP_ID, 'app-113');
         $response = new TemplateResponse(Application::APP_ID, 'main');
         // Required by the unmodified upstream libsodium/PWDv1r1 implementation.
         $response->getContentSecurityPolicy()->allowEvalWasm(true);

@@ -18,7 +18,7 @@ if (root) {
     // target and language; no credentials are stored in the portal itself.
     const dialogHost = document.getElementById('passwords-otp-dialog-host');
     if (dialogHost && document.body) document.body.append(dialogHost);
-    root.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_112_VERIFIED');
+    root.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_113_VERIFIED');
     const boundary = createUiFailureBoundary(() =>
         clearSensitiveDom(document, {inputs: true, codes: true, lock: true}));
     const app = createApp(App, {config, onControllerReady: boundary.register});

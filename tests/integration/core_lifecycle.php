@@ -150,7 +150,7 @@ namespace Harness {
  final class Client implements \OCP\Http\Client\IClientService {} final class Temp implements \OCP\ITempManager {}
  final class AppManager extends \OC\App\AppManager {
   public array $present=['passwords'=>true,'passwords_otp'=>true];
-  public array $versions=['passwords'=>'2026.11.20','passwords_otp'=>'1.1.2'];
+  public array $versions=['passwords'=>'2026.11.20','passwords_otp'=>'1.1.3'];
   public function __construct(public Config $state,public Users $users,public Dispatcher $events,Log $log) {parent::__construct($users,$state,new Groups(),new Cache(),$events,$log,new \OCP\ServerVersion(),new \OC\Config\ConfigManager(),new \OC\App\DependencyAnalyzer());}
   public function getAppPath(string $appId,bool $ignoreCache=false):string {if(!($this->present[$appId]??false))throw new \OCP\App\AppPathNotFoundException('Absent test app');return $appId==='passwords_otp'?ROOT:ROOT.'/.build/synthetic-passwords';}
   public function getAppInfo(string $appId,bool $path=false,$lang=null):?array {
@@ -223,7 +223,7 @@ namespace Harness {
   check($f['manager']->present['passwords_otp'],'downloaded files may remain after rejection');
   casePass('fresh-schema-only-install-rejected-'.$reason);
  }
- $f=fixture();install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.2','valid install records version');check(count($f['db']->migrations['passwords_otp'])===1,'valid migration recorded');$f['manager']->enableApp('passwords_otp');check($f['manager']->isEnabledForAnyone('passwords_otp'),'valid install enabled');casePass('valid-fresh-install-and-enable');
+ $f=fixture();install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.3','valid install records version');check(count($f['db']->migrations['passwords_otp'])===1,'valid migration recorded');$f['manager']->enableApp('passwords_otp');check($f['manager']->isEnabledForAnyone('passwords_otp'),'valid install enabled');casePass('valid-fresh-install-and-enable');
 
  foreach(['all-users','group'] as $scope){
   $f=fixture(true);$f['store']->values['passwords']['enabled']='no';$f['store']->values['passwords_otp']['enabled']='no';
@@ -242,21 +242,21 @@ namespace Harness {
  }
  $f=fixture(true);$f['manager']->present['passwords']=false;(new \OCA\PasswordsOtp\AppInfo\Application())->boot(new Boot());check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'manual deletion caught at boot');casePass('manual-deletion-next-boot-fails-closed');
 
- $f=fixture(true);$f['store']->values['passwords']['enabled']='no';install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.2','upgrade completes with absent dependency');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'upgrade leaves OTP disabled');casePass('existing-111-upgrade-disables-without-blocking-core-upgrade');
+ $f=fixture(true);$f['store']->values['passwords']['enabled']='no';install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.3','upgrade completes with absent dependency');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'upgrade leaves OTP disabled');casePass('existing-111-upgrade-disables-without-blocking-core-upgrade');
 
  foreach([false,true] as $valid){
   $f=fixture(true);if(!$valid)$f['store']->values['passwords']['enabled']='no';
   check($f['manager']->upgradeApp('passwords_otp'),'core upgrade returns success');
-  check($f['store']->values['passwords_otp']['installed_version']==='1.1.2','core upgrade records version');
+  check($f['store']->values['passwords_otp']['installed_version']==='1.1.3','core upgrade records version');
   check($f['manager']->isEnabledForAnyone('passwords_otp')===$valid,'core upgrade preserves valid/enforces invalid state');
   check(in_array(\OCA\PasswordsOtp\BackgroundJob\CheckPasswordsDependency::class,$f['jobs']->jobs,true)===$valid,'upgrade retains job only for valid enabled app');
-  casePass($valid?'core-upgradeapp-valid-111-to-112':'core-upgradeapp-invalid-dependency-disables');
+  casePass($valid?'core-upgradeapp-valid-111-to-113':'core-upgradeapp-invalid-dependency-disables');
  }
  $f=fixture(true);$f['manager']->versions['passwords']='2026.12.1';check($f['manager']->upgradeApp('passwords'),'Passwords upgrade completes');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'incompatible Passwords AppUpdateEvent disables OTP');casePass('core-passwords-upgrade-event-disables-incompatible-otp');
  $f=fixture(true);$f['manager']->disableApp('passwords');$f['manager']->enableApp('passwords');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'restored Passwords does not automatically enable OTP');casePass('restoring-passwords-does-not-auto-enable-otp');
  $f=fixture(true);$f['manager']->present['passwords']=false;$job=new \OCA\PasswordsOtp\BackgroundJob\CheckPasswordsDependency(new Time(),$f['dependency']);check($job->getInterval()===300,'five-minute job interval');$job->start($f['jobs']);check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'real TimedJob fallback disables OTP');casePass('real-timedjob-removal-fallback');
  $f=fixture(true,false);$f['store']->values['passwords_otp']['enabled']='no';$f['store']->values['passwords']['enabled']='no';$f['manager']->enableApp('passwords_otp');check($f['manager']->isEnabledForAnyone('passwords_otp'),'direct public enable without registered listener has no veto');(new \OCA\PasswordsOtp\AppInfo\Application())->boot(new Boot());check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'next app boot rejects unsupported direct activation');casePass('negative-control-direct-enable-without-registration-needs-runtime-guard');
- $f=fixture();install($f);unset($f['store']->values['passwords_otp']['installed_version']);$f['manager']->present['passwords']=false;install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.2','retained migration history skips fresh schema guard during disabled reinstall');throws(fn()=>$f['manager']->enableApp('passwords_otp'),'retained-history reinstall activation');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'retained-history reinstall still cannot remain activated');casePass('negative-control-retained-migration-history-allows-disabled-registration');
+ $f=fixture();install($f);unset($f['store']->values['passwords_otp']['installed_version']);$f['manager']->present['passwords']=false;install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.3','retained migration history skips fresh schema guard during disabled reinstall');throws(fn()=>$f['manager']->enableApp('passwords_otp'),'retained-history reinstall activation');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'retained-history reinstall still cannot remain activated');casePass('negative-control-retained-migration-history-allows-disabled-registration');
 
  $f=fixture(false,false);$f['store']->values['passwords']['enabled']='no';$cmd=new \OC\Core\Command\App\Enable($f['manager'],new Groups(),$f['installer']);$code=invokeCommand($cmd,new Input(['app-id'=>['passwords_otp']]),$f['output']);check($code===1,'CLI enable returns error without prerequisite');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'CLI enable stays disabled');casePass('real-occ-enable-command-fresh-invalid-install');
  $f=fixture(false,false);$cmd=new \OC\Core\Command\App\Enable($f['manager'],new Groups(),$f['installer']);$code=invokeCommand($cmd,new Input(['app-id'=>['passwords_otp']]),$f['output']);check($code===0&&$f['manager']->isEnabledForAnyone('passwords_otp'),'CLI enable installs and registers listeners');$f['manager']->disableApp('passwords');check(!$f['manager']->isEnabledForAnyone('passwords_otp'),'lazy-registration attaches disable listener');casePass('real-occ-enable-command-lazy-registration');

@@ -11,7 +11,7 @@ const ownCode = () => sources('src').map(read).join('\n');
 
 test('Version, generated asset references and exactly pinned direct dependencies agree', () => {
     const pkg = JSON.parse(read('package.json')), lock = JSON.parse(read('package-lock.json'));
-    assert.equal(pkg.version, '1.1.2');
+    assert.equal(pkg.version, '1.1.3');
     assert.equal(lock.version, pkg.version); assert.equal(lock.packages[''].version, pkg.version);
     assert.deepEqual(pkg.dependencies, lock.packages[''].dependencies);
     assert.deepEqual(pkg.devDependencies, lock.packages[''].devDependencies);
@@ -19,9 +19,9 @@ test('Version, generated asset references and exactly pinned direct dependencies
     assert.equal(read('appinfo/info.xml').match(/<version>([^<]+)<\/version>/)?.[1], pkg.version);
     assert.equal(read('templates/main.php').match(/data-template-build="([^"]+)"/)?.[1], pkg.version);
     assert.equal(read('scripts/release.py').match(/^VERSION='([^']+)'/m)?.[1], pkg.version);
-    assert.match(read('src/main.js'), /PASSWORDS_OTP_JS_112_VERIFIED/);
-    assert.match(read('src/styles.css'), /PASSWORDS_OTP_CSS_112_VERIFIED/);
-    assert.equal((read('lib/Controller/PageController.php').match(/'app-112'/g) || []).length, 2);
+    assert.match(read('src/main.js'), /PASSWORDS_OTP_JS_113_VERIFIED/);
+    assert.match(read('src/styles.css'), /PASSWORDS_OTP_CSS_113_VERIFIED/);
+    assert.equal((read('lib/Controller/PageController.php').match(/'app-113'/g) || []).length, 2);
 });
 
 test('Runtime is precompiled Vue3 with Nextcloud9 components and explicit production devtools disabled', () => {
@@ -38,8 +38,8 @@ test('Runtime is precompiled Vue3 with Nextcloud9 components and explicit produc
 });
 
 test('Single JS/CSS runtime inventory excludes fixtures and old imperative entry', () => {
-    assert.match(read('vite.config.js'), /entryFileNames: 'js\/app-112\.mjs'/);
-    assert.match(read('vite.config.js'), /return 'css\/app-112\.css'/);
+    assert.match(read('vite.config.js'), /entryFileNames: 'js\/app-113\.mjs'/);
+    assert.match(read('vite.config.js'), /return 'css\/app-113\.css'/);
     assert.match(read('vite.config.js'), /inlineDynamicImports: true/);
     assert.match(read('vite.config.js'), /cssCodeSplit: false/);
     assert.equal(existsSync(new URL('src/ap1/index.js', root)), false);
@@ -76,13 +76,21 @@ test('Retired HOTP implementation, metrics and manual lock stay absent', () => {
 
 test('Requested German copy is retained and subtree language is explicit', () => {
     const app = read('src/App.vue');
-    assert.ok(app.includes('<h1>Passwort OTP Code Generator</h1>'));
     assert.ok(app.includes('OTP-Codes aus deinen eigenen gespeicherten OTP-Passwörtern sowie aus den mit dir geteilten OTP-Passwörtern'));
     assert.ok(app.includes('Hier kann ein neuer OTP Eintrag zu deinen Passwörtern hinzugefügt werden.'));
     assert.ok(app.includes('Neues OTP Passwort hinzufügen'));
     assert.match(read('templates/main.php'), /lang="de"/);
     assert.match(read('src/components/OtpCreateDialog.vue'), /lang="de"/);
     assert.doesNotMatch(app, /NextCloud|Desktop-Testversion/);
+});
+
+test('App metadata, navigation and heading use the same brand and stable app ID', () => {
+    const metadata = read('appinfo/info.xml');
+    const heading = 'Passwords OTP Generator';
+    assert.deepEqual(Array.from(metadata.matchAll(/<name>([^<]+)<\/name>/g), match => match[1]), [heading, heading]);
+    assert.ok(read('src/App.vue').includes(`<h1>${heading}</h1>`));
+    assert.match(metadata, /<id>passwords_otp<\/id>/);
+    assert.match(metadata, /<route>passwords_otp\.page\.index<\/route><icon>app\.svg<\/icon>/);
 });
 
 test('HTML bootstrap remains non-secret and module assets remain generated', () => {

@@ -65,7 +65,7 @@ const reload = () => window.location.reload();
         <NcAppContent>
             <div class="passwords-otp-panel">
                 <header class="passwords-otp-header">
-                    <h1>Passwort OTP Code Generator</h1>
+                    <h1>Passwords OTP Generator</h1>
                     <p class="passwords-otp-secondary">OTP-Codes aus deinen eigenen gespeicherten OTP-Passwörtern sowie aus den mit dir geteilten OTP-Passwörtern</p>
                 </header>
                 <div id="passwords-otp-ap1-status" :role="state.statusType === 'error' ? 'alert' : 'status'"

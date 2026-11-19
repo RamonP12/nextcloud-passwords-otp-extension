@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.2** is the Nextcloud Vue edition with enforced Passwords prerequisites and TAR packaging; **1.0.0** is the published historical release. Do not alter existing release tags, assets or recorded checksums.
+Contributions target an unofficial Nextcloud Passwords companion. Current source targets **1.1.3**. **1.1.2** is the latest published Vue edition with enforced Passwords prerequisites and TAR packaging; **1.0.0** is the published historical release. Do not alter existing release tags, assets or recorded checksums.
 
 ## Before contributing
 

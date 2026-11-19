@@ -25,8 +25,8 @@ class PackageTests(unittest.TestCase):
             '<info><id>passwords_otp</id><version>' + release.VERSION + '</version></info>')
         (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
         (root / release.JS_ASSET).write_text(
-            '/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_112_VERIFIED\n' + 'x' * 10001)
-        (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_112_VERIFIED')
+            '/* synthetic packaging fixture; NOT an application */\nPASSWORDS_OTP_JS_113_VERIFIED\n' + 'x' * 10001)
+        (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_113_VERIFIED')
         packages = {
             '': {'version': release.VERSION, 'dependencies': {'passwords-client': '1.0.0-beta.6117', 'widget': '1.0.0'}},
             'node_modules/passwords-client': {'version': '1.0.0-beta.6117', 'license': 'ISC',

@@ -50,7 +50,7 @@ namespace {
    public bool $enabled=true;public bool $globalEnabled=true;public bool $otpEnabled=true;
    public string $installed='2026.11.20';public string $disk='2026.11.20';public int $disableCalls=0;
    public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}
-   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.2'];}
+   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.3'];}
    public function getAppPath($id,$ignoreCache=false){return dirname(__DIR__,2);}
    public function getAppInfoByPath($path){return ['id'=>'passwords','version'=>$this->disk];}
    public function isEnabledForAnyone($id){return $id==='passwords'?$this->globalEnabled:$this->otpEnabled;}

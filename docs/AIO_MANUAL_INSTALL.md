@@ -2,7 +2,7 @@
 
 ## Version boundary for the Vue migration
 
-Current source version **1.1.2** is the unsigned Nextcloud Vue edition with an enforced Passwords prerequisite. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.2.zip`. A matching tar.gz is supplied for manual distribution; the transactional Python installer still consumes the ZIP. They do not accept the historical 1.0.0 ZIP.
+Current source version **1.1.3** is unreleased. Use matching tagged `aio_install.py` and `release.py` scripts to install the published **1.1.2** package. A matching tar.gz is supplied for manual distribution; the transactional Python installer still consumes the ZIP. They do not accept the historical 1.0.0 ZIP.
 
 The complete commands below intentionally document the **published v1.0.0 archive with the `v1.0.0` tagged scripts**. Do not execute those commands with scripts copied from current source. The version in the archive, its `BUILD.json`, the script constants, output filenames and independently verified checksum must all correspond.
 

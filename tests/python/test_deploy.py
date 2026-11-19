@@ -96,12 +96,14 @@ class DeployTests(unittest.TestCase):
   self.assertEqual(deploy.asset_for_version('1.1.0'),'app-110')
   self.assertEqual(deploy.asset_for_version('1.1.1'),'app-111')
   self.assertEqual(deploy.asset_for_version('1.1.2'),'app-112')
+  self.assertEqual(deploy.asset_for_version('1.1.3'),'app-113')
   with self.assertRaises(deploy.DeploymentError):deploy.asset_for_version('0.7.99')
  def test_rollback_accepts_only_exact_reviewed_dependency_hooks(self):
   root=pathlib.Path(__file__).resolve().parents[2]
   hooks=deploy.SCHEMA_FREE_HOOKS['1.1.2']
   for name,sha in hooks.items():self.assertEqual(deploy.digest((root/name).read_bytes()),sha)
   deploy.require_schema_free('1.1.2',hooks|{'appinfo/info.xml':'fixture'})
+  deploy.require_schema_free('1.1.3',hooks|{'appinfo/info.xml':'fixture'})
   deploy.require_schema_free('1.1.1',{'appinfo/info.xml':'fixture'})
   for version,files in [('1.1.1',hooks),('1.1.2',{}),('1.1.2',hooks|{'appinfo/database.xml':'x'}),
                        ('1.1.2',hooks|{'lib/Migration/Unknown.php':'x'}),
@@ -109,7 +111,7 @@ class DeployTests(unittest.TestCase):
    with self.subTest(version=version,files=files),self.assertRaises(deploy.DeploymentError):
     deploy.require_schema_free(version,files)
  def test_http_verification_checks_esm_candidate_and_classic_rollback_assets(self):
-  for version,asset,extension in [('1.1.2','app-112','mjs'),('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
+  for version,asset,extension in [('1.1.3','app-113','mjs'),('1.1.2','app-112','mjs'),('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
    with self.subTest(version=version):
     backend=deploy.DockerBackend();requested=[]
     bodies={'css/'+asset+'.css':b'CSS fixture','js/'+asset+'.'+extension:b'JS fixture'}
