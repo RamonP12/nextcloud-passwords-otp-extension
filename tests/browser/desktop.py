@@ -28,12 +28,12 @@ def shell(theme='light', direction='ltr'):
     css = (ROOT/'tests/browser/shell.css').read_text()
     return f'''<!doctype html><html lang="de" dir="{direction}" data-theme="{theme}"><head data-requesttoken="SYNTHETIC-CSRF">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OTP fixture</title>
-<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-112.css"></head>
+<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-113.css"></head>
 <body><header id="header">Nextcloud fixture</header><div id="skip-actions"></div><div id="content">
 <input type="hidden" id="initial-state-passwords_otp-ap1" value="{encoded(state)}">
 <input type="hidden" id="initial-state-core-capabilities" value="{encoded({'theming': {'name': 'Nextcloud fixture'}})}">
-<input type="hidden" id="initial-state-core-apps" value="{encoded([{'id': 'passwords_otp', 'name': 'Passwort OTP Code Generator'}])}">
-{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-112.mjs"></script></body></html>'''
+<input type="hidden" id="initial-state-core-apps" value="{encoded([{'id': 'passwords_otp', 'name': 'Passwords OTP Generator'}])}">
+{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-113.mjs"></script></body></html>'''
 
 
 def record(identifier='seed', title='Fixture account'):
@@ -45,7 +45,7 @@ def record(identifier='seed', title='Fixture account'):
 
 
 class Fixture:
-    def __init__(self, browser, *, theme='light', width=1280, height=900, direction='ltr', auth=False, records=None):
+    def __init__(self, browser, *, theme='light', width=1280, height=900, direction='ltr', auth=False, records=None, clock=TIME):
         self.context = browser.new_context(viewport={'width': width, 'height': height},
                                           color_scheme='dark' if theme == 'dark' else 'light', locale='de-CH')
         self.active = True
@@ -65,7 +65,7 @@ class Fixture:
         self.page.add_init_script(f'''
 window.OC = {{config: {{version: '35.0.2.2'}}, filePath: (app, dir, file) => '{PREFIX}/apps/' + app + '/' + file}};
 window._oc_webroot = '{PREFIX}'; window._oc_user = 'fixture'; window._oc_isadmin = false;
-window.__otpTestTime = {TIME}; Date.now = () => window.__otpTestTime;
+window.__otpTestTime = {clock}; Date.now = () => window.__otpTestTime;
 window.__copied = []; window.__clipboardFailure = false;
 Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
     if (window.__clipboardFailure) return Promise.reject(new Error('synthetic permission denial'));
@@ -96,7 +96,7 @@ Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
             route.fulfill(body=self.html, content_type='text/html', headers={
                 'Content-Security-Policy': "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; base-uri 'none'"})
             return
-        for name, mime in [('js/app-112.mjs', 'text/javascript'), ('css/app-112.css', 'text/css')]:
+        for name, mime in [('js/app-113.mjs', 'text/javascript'), ('css/app-113.css', 'text/css')]:
             if path == PREFIX + '/apps/passwords_otp/' + name:
                 route.fulfill(body=(ROOT/name).read_bytes(), content_type=mime)
                 return
@@ -219,7 +219,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     results = []
     asset_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-                    for name in ['js/app-112.mjs', 'css/app-112.css']}
+                    for name in ['js/app-113.mjs', 'css/app-113.css']}
     executable = os.environ.get('CHROME_BIN') or shutil.which('chromium-headless-shell') or shutil.which('chromium') or shutil.which('google-chrome')
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True) if args.browser == 'firefox' else p.chromium.launch(executable_path=executable, headless=True, args=['--no-sandbox'])
@@ -229,8 +229,8 @@ def main():
         # Actual precompiled release modules, real browser crypto and real upstream client.
         f = Fixture(browser)
         page = f.page
-        expect(page.get_by_role('heading', level=1)).to_have_text('Passwort OTP Code Generator')
-        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_112_VERIFIED'
+        expect(page.get_by_role('heading', level=1)).to_have_text('Passwords OTP Generator')
+        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_113_VERIFIED'
         code = page.locator('.passwords-otp-ap3__code').inner_text()
         page.get_by_role('button', name='Code kopieren für Fixture account').click()
         expect(page.locator('#passwords-otp-ap3-feedback')).to_have_text('OTP-Code kopiert.')
@@ -272,6 +272,34 @@ def main():
         expect(page.locator('#passwords-otp-ap2-list li:visible')).to_have_count(0)
         page.locator('#passwords-otp-ap2-search').fill('')
         f.close(); passed('copy-errors-create-validation-focus-filter')
+        f = Fixture(browser, clock=1735689841000)
+        page = f.page
+        direct = page.get_by_role('button', name='Angezeigten OTP-Code für Fixture account kopieren')
+        separate = page.get_by_role('button', name='Code kopieren für Fixture account')
+        expect(direct).to_have_text('028742')
+        direct.click()
+        expect(page.locator('#passwords-otp-ap3-feedback')).to_have_text('OTP-Code kopiert.')
+        page.locator('#passwords-otp-ap2-search').press('Tab')
+        expect(direct).to_be_focused()
+        assert direct.evaluate("(el) => el.matches(':focus-visible') && getComputedStyle(el).outlineStyle === 'solid'")
+        page.keyboard.press('Enter')
+        page.keyboard.press('Space')
+        separate.click()
+        assert page.evaluate('__copied') == ['028742'] * 4
+        for control in (direct, separate):
+            control.evaluate('(el) => el.click()')
+        assert page.evaluate('__copied') == ['028742'] * 4
+        page.evaluate('__clipboardFailure = true')
+        direct.click()
+        expect(page.locator('#passwords-otp-ap3-feedback')).to_contain_text('Kopieren nicht möglich')
+        page.evaluate('__clipboardFailure = false; __otpTestTime += 27000')
+        expect(direct).to_be_disabled()
+        expect(separate).to_be_disabled()
+        for control in (direct, separate):
+            box = control.bounding_box()
+            page.mouse.click(box['x'] + box['width'] / 2, box['y'] + box['height'] / 2)
+        assert page.evaluate('__copied') == ['028742'] * 4
+        f.close(); passed('direct-and-separate-copy-keyboard-trusted-leading-zero-expiry')
         for mode in ['expired-open', 'expired-submit', 'rate403', 'rate429', 'uncertain', 'focus-revocation', 'pagehide-bfcache']:
             f = Fixture(browser)
             page = f.page
@@ -352,6 +380,26 @@ def main():
                 f.close(); passed(f'layout-{theme}-{width}x{height}')
         f = Fixture(browser, direction='rtl', width=640)
         no_overflow(f.page); f.open(); no_overflow(f.page); f.close(); passed('rtl-reflow')
+        f = Fixture(browser)
+        icon_url = 'data:image/svg+xml;base64,' + base64.b64encode((ROOT/'img/app.svg').read_bytes()).decode()
+        alpha = f.page.evaluate('''async (url) => {
+            const image = new Image();
+            image.src = url;
+            await image.decode();
+            return [16, 24, 32].map(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = size;
+                const context = canvas.getContext('2d');
+                context.drawImage(image, 0, 0, size, size);
+                const alphaAt = (x, y) => context.getImageData(
+                    Math.floor(x * size / 32), Math.floor(y * size / 32), 1, 1).data[3];
+                return {shield: alphaAt(9, 11), bow: alphaAt(21, 14.5),
+                    shaft: alphaAt(13, 19.5), outside: alphaAt(1, 1)};
+            });
+        }''', icon_url)
+        assert all(pixels['shield'] > 240 and pixels['bow'] < 64
+                   and pixels['shaft'] < 60 and pixels['outside'] == 0 for pixels in alpha), alpha
+        f.close(); passed('shield-key-negative-space-16-24-32-pixels')
         from lifecycle import run_cases
         results.extend(run_cases(browser))
         browser.close()

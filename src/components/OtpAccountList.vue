@@ -15,6 +15,10 @@ const vCode = {mounted: repairCode, updated: repairCode};
 const vDisabled = {mounted: repairDisabled, updated: repairDisabled};
 const vProgress = {mounted: repairProgress, updated: repairProgress};
 const visibleCount = computed(() => props.view.rows.filter(row => !row.hidden).length);
+const copyDisabled = row => row.copyDisabled || row.hidden;
+function copyCode(event, row) {
+    if (event.isTrusted && !copyDisabled(row)) emit('copy', row.account.id);
+}
 function details(account) {
     const subtitle = [account.issuer, account.accountName, account.username]
         .filter((value, index, values) => value && values.indexOf(value) === index).join(' · ');
@@ -41,16 +45,19 @@ function details(account) {
                     <span class="passwords-otp-secondary">{{ details(row.account) }}</span>
                 </div>
                 <div class="passwords-otp-account__code">
-                    <output v-code="{code: row.code, revision: scrubRevision}" class="passwords-otp-ap3__code" aria-live="off"
-                        :aria-label="'Einmalcode für ' + row.account.title" />
+                    <button type="button" class="passwords-otp-ap3__code"
+                        v-code="{code: row.code, revision: scrubRevision}"
+                        v-disabled="{disabled: copyDisabled(row), revision: scrubRevision}"
+                        :disabled="copyDisabled(row)" :aria-label="'Angezeigten OTP-Code für ' + row.account.title + ' kopieren'"
+                        @click="copyCode($event, row)" />
                     <div class="passwords-otp-account__time" aria-live="off">
                         <span>{{ row.code ? `Noch ${Math.ceil(row.remainingMs / 1000)} s gültig` : 'Wird geprüft …' }}</span>
                         <progress v-progress="{value: row.remainingMs / 1000, revision: scrubRevision}" class="passwords-otp-ap3__progress" :max="row.account.period"
                             :value="row.remainingMs / 1000" :aria-label="'Restgültigkeit für ' + row.account.title"
                             :aria-valuetext="row.code ? `${Math.ceil(row.remainingMs / 1000)} Sekunden` : 'Wird geprüft'" />
                     </div>
-                    <NcButton v-disabled="{disabled: row.copyDisabled || row.hidden, revision: scrubRevision}" class="passwords-otp-ap3__copy" :disabled="row.copyDisabled || row.hidden"
-                        :aria-label="'Code kopieren für ' + row.account.title" @click="emit('copy', row.account.id)">
+                    <NcButton v-disabled="{disabled: copyDisabled(row), revision: scrubRevision}" class="passwords-otp-ap3__copy" :disabled="copyDisabled(row)"
+                        :aria-label="'Code kopieren für ' + row.account.title" @click="copyCode($event, row)">
                         Code kopieren
                     </NcButton>
                 </div>

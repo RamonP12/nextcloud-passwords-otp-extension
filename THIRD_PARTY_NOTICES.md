@@ -1,6 +1,6 @@
 # Third-party components and licensing
 
-This project's own source is **AGPL-3.0-or-later**. Third-party components retain their original licenses. The **1.1.2 Nextcloud Vue edition** uses the exact versions and tarball integrity values in `package-lock.json`; it does not change the published v1.0.0 distribution.
+This project's own source is **AGPL-3.0-or-later**. Third-party components retain their original licenses. The **Nextcloud Vue edition** uses the exact versions and tarball integrity values in `package-lock.json`; it does not change the published v1.0.0 distribution.
 
 | Component | Locked version | Declared license | Use |
 | --- | --- | --- | --- |

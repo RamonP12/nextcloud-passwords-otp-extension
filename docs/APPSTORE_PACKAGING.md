@@ -2,7 +2,7 @@
 
 ## Status of 1.1.2
 
-Version 1.1.2 builds an installable `passwords_otp-1.1.2.tar.gz` in addition to
+For the published packages below, use the matching `v1.1.2` source and tooling. That version builds an installable `passwords_otp-1.1.2.tar.gz` in addition to
 the ZIP used by the existing transactional localhost installer. Both ordinary
 artifacts contain the same verified runtime files, production JS/CSS, licence
 notices and `BUILD.json`, under exactly one `passwords_otp/` directory.

@@ -1,6 +1,8 @@
 # Installation and version selection
 
-## Current version: 1.1.2 Nextcloud Vue edition
+## Latest published version: 1.1.2 Nextcloud Vue edition
+
+Source on `main` targets the unreleased 1.1.3 candidate. Use the matching 1.1.2 tag and scripts for the published package below.
 
 Version 1.1.2 requires Passwords **2026.11.20**, installed and enabled, and adds
 an installable TAR archive to the Vue edition. Use the [v1.1.2 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2),
@@ -15,7 +17,7 @@ Historical tags, assets and acceptance records remain unchanged.
 | Previously built `passwords_otp-1.1.0.zip` | Scripts from its exact source commit | Historical Vue candidate and its recorded local acceptance |
 | Published `passwords_otp-1.0.0.zip` | `aio_install.py` and `release.py` from tag **`v1.0.0`** | Historical first-install procedure documented below |
 
-**Current 1.1.2 scripts reject a 1.0.0 archive.** Never copy scripts from moving
+**Current 1.1.3 scripts reject a 1.0.0 archive.** Never copy scripts from moving
 `main` when installing an older release. The installer, archive version and build
 manifest must agree. Older asset mappings exist only to verify and back up an
 existing app and restore it on a failed local transaction; they do not make an

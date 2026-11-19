@@ -11,7 +11,7 @@ const exists = name => existsSync(path.join(ROOT, name));
 test('current release metadata and historical acceptance are distinguished in public docs', () => {
     const readme = read('README.md'), info = read('appinfo/info.xml');
     const version = JSON.parse(read('package.json')).version;
-    assert.equal(version, '1.1.2');
+    assert.equal(version, '1.1.3');
     assert.ok(readme.includes(`Current source: ${version}`));
     assert.ok(readme.includes('docs/VALIDATION_1.1.2.md'));
     assert.match(readme, /published \*\*v1\.0\.0\*\*/);
@@ -31,7 +31,7 @@ test('published AIO commands retain SHA, group and matching-version boundaries',
     }
     assert.match(install, /first.time|first.install|first install/i);
     assert.match(summary, /including 0\.7\.3/);
-    assert.match(summary, /1\.1\.2 scripts reject a 1\.0\.0 archive/);
+    assert.match(summary, /1\.1\.3 scripts reject a 1\.0\.0 archive/);
     assert.match(install, /Do not execute those commands with scripts copied from current source/);
     assert.match(install, /No production upgrade path is introduced/);
 });

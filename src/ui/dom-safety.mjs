@@ -9,7 +9,10 @@ export function clearSensitiveDom(doc, {inputs = false, codes = false, lock = fa
             for (const input of root.querySelectorAll('input[data-otp-secret]')) input.value = '';
         }
         if (codes) {
-            for (const output of root.querySelectorAll('.passwords-otp-ap3__code')) output.textContent = '—';
+            for (const button of root.querySelectorAll('.passwords-otp-ap3__code')) {
+                button.textContent = '—';
+                button.disabled = true;
+            }
             for (const button of root.querySelectorAll('.passwords-otp-ap3__copy')) button.disabled = true;
             for (const progress of root.querySelectorAll('.passwords-otp-ap3__progress')) progress.value = 0;
         }

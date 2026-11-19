@@ -1,6 +1,8 @@
 # Compatibility and supported scope
 
-## Current source: 1.1.2 Nextcloud Vue edition
+## Current source and published baseline
+
+Source on `main` targets 1.1.3 (unreleased). It adds the display name, shield icon and direct clipboard action on top of the published baseline below.
 
 Version 1.1.2 enforces the Passwords dependency and adds an installable TAR alongside the installer ZIP. The [1.1.2 verification record](VALIDATION_1.1.2.md) distinguishes current tests from historical Vue acceptance. The [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) documents installation registration, activation, automatic disabling and the limits of event/cron timing. Historical 1.0.0 and 1.1.0 results are not new lifecycle acceptance.
 
@@ -35,8 +37,8 @@ On **2026-11-11**, the exact public v1.0.0 ZIP passed first app installation int
 
 The app reads valid personal/shared **TOTP** fields and creates new Passwords entries. Existing entries are edited and shared through the original Passwords app. HOTP is not supported.
 
-The AIO installer refuses existing OTP deployments. Current source tooling accepts **1.1.2** packages; the published **1.0.0** archive requires tooling checked out from `v1.0.0`. See [Installation](INSTALLATION.md).
+The AIO installer refuses existing OTP deployments. Current source tooling accepts **1.1.3** packages. For published versions, use the exact tagged tooling. See [Installation](INSTALLATION.md).
 
 Version 1.1.2 prepares a correctly structured TAR and a guarded signing workflow but provides no signed App Store release or automatic update channel. See [App Store packaging](APPSTORE_PACKAGING.md). Declaring and enforcing a Passwords dependency does not make private Passwords integration classes public Nextcloud APIs.
 
-App text remains German. Language negotiation/catalogues and direct clicking of the displayed code remain issues #6 and #7. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.
+App text remains German. Language negotiation and catalogues remain tracked in issue #6. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.
