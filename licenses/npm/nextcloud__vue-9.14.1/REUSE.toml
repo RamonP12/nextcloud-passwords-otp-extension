@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+version = 1
+SPDX-PackageName = "Nextcloud Vue components library"
+SPDX-PackageSupplier = "Nextcloud GmbH <https://nextcloud.com/impressum/>"
+SPDX-PackageDownloadLocation = "https://github.com/nextcloud-libraries/nextcloud-vue"
+
+[[annotations]]
+path = ["package.json", "package-lock.json", ".github/pull_request_template.md", ".github/workflows/*.patch", ".devcontainer/devcontainer-lock.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = [
+	"tests/unit/functions/usernameToColor/__snapshots__/usernameToColor.spec.ts.snap",
+	"tests/component/snapshots/**"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "l10n/**.pot"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020-2024 Nextcloud translators"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["tsconfig.json", "tsconfig.webpack.json", "src/tsconfig.json", "tests/tsconfig.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2022-2024 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "CC0-1.0"
+

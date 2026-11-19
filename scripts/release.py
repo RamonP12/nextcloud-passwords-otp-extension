@@ -3,12 +3,16 @@
 from __future__ import annotations
 import argparse, hashlib, io, json, os, pathlib, re, stat, subprocess, zipfile
 import xml.etree.ElementTree as ET
-VERSION='1.0.0'
+VERSION='1.1.0'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+JS_ASSET='js/app-110.mjs'
+CSS_ASSET='css/app-110.css'
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php','templates/main.php',
- 'css/app-100.css','js/app-100.js','img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
-OPTIONAL=('js/app-100.js.LEGAL.txt',)
+ CSS_ASSET,JS_ASSET,'img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
+OPTIONAL=()
+LICENSE_INVENTORY='scripts/runtime-licenses.json'
+BUNDLE_METADATA='.build/bundle-modules.json'
 MAX_ARCHIVE=20*1024*1024
 MAX_UNPACKED=30*1024*1024
 STAMP=(2026,1,1,0,0,0)
@@ -36,16 +40,6 @@ def archive_bytes(files:dict[str,bytes])->bytes:
 def safe_relative(path:str)->bool:
     return bool(path) and '\\' not in path and '\x00' not in path and not path.startswith('/') and all(part not in ('','..','.') for part in path.split('/'))
 
-RUNTIME_DEPENDENCIES={
-    'eventemitter3':('3.1.2','MIT'),
-    'libsodium-sumo':('0.8.4','ISC'),
-    'libsodium-wrappers-sumo':('0.8.4','ISC'),
-    'passwords-client':('1.0.0-beta.6117','ISC'),
-    'process':('0.11.10','MIT'),
-    'querystringify':('2.2.0','MIT'),
-    'requires-port':('1.0.0','MIT'),
-    'url-parse':('1.5.10','MIT'),
-}
 # The pinned passwords-client package has no LICENSE file. Its metadata declares
 # ISC and author Marius Wieschollek. This attribution is reconstructed and is
 # NOT presented as an original upstream license file.
@@ -64,75 +58,229 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 '''
 
-def third_party_license_bundle(root:pathlib.Path)->bytes:
-    """Bundle original notices from the exact locked runtime packages.
+def dependency_name(path:str)->str:
+    """The name after the final node_modules segment, including an npm scope."""
+    return path.rsplit('node_modules/',1)[-1]
 
-    This runs only during package creation, never AIO validation/extraction,
-    which must remain usable without a Node.js/npm installation.
+
+def runtime_packages(lock:dict)->dict[str,dict]:
+    """Resolve the production graph using npm's nearest-node_modules lookup.
+
+    Include required peers and distinguish nested versions by lockfile path.
+    Optional peers are not followed: browser bundle-module verification below
+    prevents an unreviewed optional peer from entering emitted assets. A dev flag is not used as a security boundary:
+    a production dependency must still be inventoried if npm labels it dev.
+    """
+    packages=lock.get('packages',{})
+    if lock.get('lockfileVersion')!=3 or packages.get('',{}).get('version')!=VERSION:
+        raise PackageError('Unexpected lockfile format/version')
+    def resolve(parent,name):
+        if not isinstance(name,str) or not re.fullmatch(r'(?:@[a-zA-Z0-9_.-]+/)?[a-zA-Z0-9_.-]+',name):
+            raise PackageError('Unsafe dependency name')
+        base=parent
+        while True:
+            candidate=(base+'/' if base else '')+'node_modules/'+name
+            if candidate in packages:return candidate
+            if not base:break
+            base=base.rsplit('/node_modules/',1)[0] if '/node_modules/' in base else ''
+        raise PackageError('Missing locked runtime dependency: '+name)
+    found={}
+    pending=[('',packages[''])]
+    while pending:
+        parent,entry=pending.pop()
+        ordinary=dict(entry.get('dependencies',{}))
+        optional=entry.get('optionalDependencies',{})
+        peers=entry.get('peerDependencies',{})
+        peer_meta=entry.get('peerDependenciesMeta',{})
+        for name in sorted(set(ordinary)|set(optional)|set(peers)):
+            # Optional build integrations must not pull Vite/native binaries
+            # into the browser notice set. Actual bundle inputs are also gated.
+            optional_peer=name in peers and name not in ordinary and name not in optional \
+                and peer_meta.get(name,{}).get('optional') is True
+            if optional_peer:continue
+            path=resolve(parent,name)
+            if path in found:continue
+            record=packages[path]
+            if not isinstance(record,dict) or record.get('link') is True:
+                raise PackageError('Linked/invalid runtime dependency: '+path)
+            found[path]=record
+            pending.append((path,record))
+    return dict(sorted(found.items()))
+
+
+def checked_file(root:pathlib.Path,relative:str)->pathlib.Path:
+    if not safe_relative(relative):raise PackageError('Unsafe dependency file path')
+    path=root/relative
+    if not path.resolve().is_relative_to(root.resolve()):
+        raise PackageError('Dependency file escapes source root: '+relative)
+    current=root
+    for part in pathlib.PurePosixPath(relative).parts:
+        current=current/part
+        if current.is_symlink():raise PackageError('Symlink dependency file is forbidden: '+relative)
+    if not path.is_file():raise PackageError('Missing dependency file: '+relative)
+    return path
+
+
+def third_party_license_bundle(root:pathlib.Path)->bytes:
+    """Collect exact, reviewed original notices for the runtime closure.
+
+    The checked-in inventory pins metadata, tarball integrity and notice hashes.
+    It deliberately includes all transitive production packages, even when a
+    module is eliminated by tree shaking. Dev-only build tools are not shipped.
+    Validation/extraction of an already built ZIP requires no npm installation.
     """
     try:
-        lock=json.loads((root/'package-lock.json').read_text(encoding='utf-8'))
-        packages=lock['packages']
-        if lock['lockfileVersion']!=3 or packages['']['version']!=VERSION:
-            raise PackageError('Unexpected lockfile format/version')
-        found=set()
-        pending=list(packages[''].get('dependencies',{}))
-        while pending:
-            name=pending.pop()
-            if name in found:continue
-            if name not in RUNTIME_DEPENDENCIES:
-                raise PackageError('Unreviewed runtime dependency: '+str(name))
-            entry=packages.get('node_modules/'+name)
-            if not isinstance(entry,dict):raise PackageError('Missing locked runtime dependency: '+name)
-            version,license_id=RUNTIME_DEPENDENCIES[name]
-            if entry.get('version')!=version or entry.get('license')!=license_id:
-                raise PackageError('Changed runtime dependency license/version: '+name)
-            found.add(name)
-            pending.extend(entry.get('dependencies',{}))
-            pending.extend(entry.get('optionalDependencies',{}))
-        if found!=RUNTIME_DEPENDENCIES.keys():
-            raise PackageError('Runtime dependency set differs from license inventory')
+        lock=json.loads(checked_file(root,'package-lock.json').read_text(encoding='utf-8'))
+        found=runtime_packages(lock)
+        inventory=json.loads(checked_file(root,LICENSE_INVENTORY).read_text(encoding='utf-8'))
+        if inventory.get('schema')!=1 or inventory.get('app_version')!=VERSION:
+            raise PackageError('Unexpected runtime license inventory schema/version')
+        reviewed=inventory.get('packages',{})
+        if not isinstance(reviewed,dict):raise PackageError('Invalid runtime license inventory')
+        if found.keys()!=reviewed.keys():
+            raise PackageError('Unreviewed runtime dependency set differs from license inventory')
         sections=[
             'Third-party license notices for passwords_otp '+VERSION,
-            'These are runtime package notices; esbuild is a build tool and is not bundled.',
-            'The pinned passwords-client package has no LICENSE file in the inspected installation.',
-            'Its ISC notice below is reconstructed from the declared license and author metadata.',
+            'Conservative production dependency graph, including required peers and nested versions.',
+            'Build-only tools (Vite, esbuild and their development dependencies) are not shipped.',
+            'The pinned passwords-client ISC notice is reconstructed; all other notices are original package or pinned upstream files.',
             '',
         ]
-        for name in sorted(found):
-            version,license_id=RUNTIME_DEPENDENCIES[name]
-            directory=root/'node_modules'/name
-            metadata_file=directory/'package.json'
-            if directory.is_symlink() or not directory.is_dir() or metadata_file.is_symlink() or not metadata_file.is_file():
-                raise PackageError('Untrusted/missing installed dependency: '+name)
-            metadata=json.loads(metadata_file.read_text(encoding='utf-8'))
+        for path,entry in found.items():
+            record=reviewed[path]
+            if not isinstance(record,dict):raise PackageError('Invalid runtime license record: '+path)
+            name=dependency_name(path)
+            version,license_id=entry.get('version'),entry.get('license')
+            if any(record.get(k)!=v for k,v in {'name':name,'version':version,
+                    'license':license_id,'integrity':entry.get('integrity')}.items()) \
+                    or not isinstance(entry.get('integrity'),str) or not entry['integrity'].startswith('sha512-'):
+                raise PackageError('Changed runtime dependency license/version/integrity: '+path)
+            metadata=json.loads(checked_file(root,path+'/package.json').read_text(encoding='utf-8'))
             if metadata.get('name')!=name or metadata.get('version')!=version or metadata.get('license')!=license_id:
-                raise PackageError('Installed dependency does not match lockfile: '+name)
-            license_text=None;license_source=None
-            for filename in ('LICENSE','LICENSE.md','LICENSE.txt','LICENCE','LICENCE.md','COPYING','NOTICE'):
-                candidate=directory/filename
-                if candidate.is_symlink():raise PackageError('Symlink license notice is forbidden: '+name)
-                if candidate.is_file():
-                    content=candidate.read_bytes()
-                    if not 100<=len(content)<=131072:raise PackageError('Invalid license size: '+name)
-                    license_text=content.decode('utf-8-sig')
-                    license_source='Original npm package file: '+filename
-                    break
-            if license_text is None:
-                if name!='passwords-client' or version!='1.0.0-beta.6117':
-                    raise PackageError('Missing original license file: '+name)
+                raise PackageError('Installed dependency does not match lockfile: '+path)
+            sections.extend(['-'*72,f'{name}@{version} | {license_id}', 'Lockfile path: '+path,''])
+            notices=record.get('notices')
+            if record.get('notice_policy')=='unbundled-only':
+                if notices!=[] or not record.get('review_note'):
+                    raise PackageError('Invalid unbundled-only license record: '+path)
+                sections.extend(['NOT BUNDLED. '+record['review_note'],
+                    'The package gate rejects any emitted browser module from this package.',''])
+                continue
+            if record.get('notice_policy')=='reconstructed-passwords-client-isc':
+                if name!='passwords-client' or version!='1.0.0-beta.6117' or license_id!='ISC' or notices!=[]:
+                    raise PackageError('Invalid reconstructed license exception')
                 author=metadata.get('author','')
                 if isinstance(author,dict):author=author.get('name','')
                 if not isinstance(author,str) or 'Wieschollek' not in author:
                     raise PackageError('Missing expected upstream author metadata for ISC fallback')
-                license_text=ISC_PASSWORDS_CLIENT_NOTICE
-                license_source='Reconstructed standard ISC notice; not an original upstream LICENSE file'
-            if not re.search(r'copyright',license_text,re.I) or 'Permission' not in license_text or 'THE SOFTWARE IS PROVIDED' not in license_text:
-                raise PackageError('Incomplete third-party license notice: '+name)
-            sections.extend(['-'*72,f'{name}@{version} | {license_id}',license_source,'',license_text.rstrip(),''])
+                sections.extend(['Reconstructed standard ISC notice; not an original upstream LICENSE file',
+                    '',ISC_PASSWORDS_CLIENT_NOTICE.rstrip(),''])
+                continue
+            if not isinstance(notices,list) or not notices:
+                raise PackageError('Missing original license file inventory: '+path)
+            filenames=set()
+            for notice in notices:
+                if not isinstance(notice,dict):raise PackageError('Invalid license notice: '+path)
+                filename=notice.get('file')
+                source_file=notice.get('source_file')
+                if bool(filename)==bool(source_file):raise PackageError('Ambiguous license notice source: '+path)
+                if source_file:
+                    url=notice.get('url','')
+                    if not re.fullmatch(r'https://raw\.githubusercontent\.com/[^/]+/[^/]+/[0-9a-f]{40}/.+',url):
+                        raise PackageError('Original upstream notice lacks immutable source URL: '+path)
+                    if not source_file.startswith('licenses/npm/'):
+                        raise PackageError('Invalid upstream notice source path: '+path)
+                    relative=source_file
+                    source='Original upstream file: '+url
+                else:
+                    relative=path+'/'+filename
+                    source='Original npm package file: '+filename
+                if relative in filenames:raise PackageError('Duplicate license notice: '+path)
+                filenames.add(relative)
+                content=checked_file(root,relative).read_bytes()
+                if not 100<=len(content)<=524288 or digest(content)!=notice.get('sha256'):
+                    raise PackageError('Original license notice changed/incomplete: '+relative)
+                # Hashes pin the exact reviewed text, including Apache/OFL/BSD
+                # and supplemental NOTICE files. No MIT-only phrase heuristic.
+                sections.extend([source,'',content.decode('utf-8-sig').rstrip(),''])
         return ('\n'.join(sections).rstrip()+'\n').encode('utf-8')
     except (OSError,UnicodeError,KeyError,TypeError,json.JSONDecodeError) as error:
         raise PackageError('Cannot assemble third-party licenses: '+str(error)) from error
+
+
+def build_source_inputs(root:pathlib.Path)->dict[str,str]:
+    """Complete frontend input set, independent of the bundler's import graph.
+
+    Hash unused source files too: a new or removed module must invalidate old
+    output just as an edited module does. Docs/tests/PHP are not compiled inputs.
+    """
+    source=root/'src'
+    if source.is_symlink() or not source.is_dir():raise PackageError('Unsafe/missing frontend source directory')
+    paths=['package.json','package-lock.json','vite.config.js']
+    for path in sorted(source.rglob('*')):
+        if path.is_symlink():raise PackageError('Symlink frontend source is forbidden')
+        if path.is_file():paths.append(path.relative_to(root).as_posix())
+        elif not path.is_dir():raise PackageError('Nonregular frontend source is forbidden')
+    if len(paths)==3:raise PackageError('Frontend source tree is empty')
+    return {path:digest(checked_file(root,path).read_bytes()) for path in sorted(paths)}
+
+
+def validate_bundle_metadata(root:pathlib.Path,files:dict[str,bytes])->dict:
+    """Bind build-generated module provenance to both exact emitted assets.
+
+    This closes the optional-peer gap in the conservative package graph: any
+    npm package that actually contributes code must be in the reviewed list.
+    Vite's build plugin emits this file; package assembly never reconstructs it.
+    """
+    try:
+        metadata=json.loads(checked_file(root,BUNDLE_METADATA).read_text(encoding='utf-8'))
+        expected={name:digest(files[name]) for name in (JS_ASSET,CSS_ASSET)}
+        if metadata.get('schema')!=2 or metadata.get('assets')!=expected:
+            raise PackageError('Bundle metadata does not match emitted assets')
+        if metadata.get('mode')!='production' or metadata.get('command')!='build':
+            raise PackageError('Only a production build can be packaged')
+        source_inputs=build_source_inputs(root)
+        if metadata.get('source_inputs')!=source_inputs:
+            raise PackageError('Frontend source/config/lock changed after compilation; rebuild required')
+        modules=metadata.get('modules')
+        build_modules=metadata.get('build_modules')
+        if not isinstance(modules,list) or not modules or not all(isinstance(x,str) for x in modules) \
+                or len(modules)!=len(set(modules)):
+            raise PackageError('Missing/duplicate bundle module inventory')
+        if not isinstance(build_modules,list) or not build_modules \
+                or not all(isinstance(x,str) for x in build_modules) or len(build_modules)!=len(set(build_modules)):
+            raise PackageError('Missing/duplicate complete build module inventory')
+        if sorted(modules)!=sorted(x for x in build_modules if x.startswith('node_modules/')):
+            raise PackageError('Dependency module inventory is incomplete')
+        app_modules=[]
+        for module in build_modules:
+            if not safe_relative(module) or not module.startswith(('src/','node_modules/')):
+                raise PackageError('Unapproved source/fixture in production bundle: '+module)
+            if module.startswith('src/'):
+                if module not in source_inputs:raise PackageError('Application module is outside source inventory')
+                app_modules.append(module)
+            checked_file(root,module)
+        if not app_modules:raise PackageError('Production bundle has no application source')
+        inventory=json.loads(checked_file(root,LICENSE_INVENTORY).read_text(encoding='utf-8'))['packages']
+        used=set()
+        for module in modules:
+            if not isinstance(module,str) or not safe_relative(module) or not module.startswith('node_modules/'):
+                raise PackageError('Unsafe bundle module path')
+            parts=module.split('/')
+            index=max(i for i,part in enumerate(parts) if part=='node_modules')
+            end=index+3 if parts[index+1].startswith('@') else index+2
+            if len(parts)<=end:raise PackageError('Bundle module does not name a file')
+            package='/'.join(parts[:end])
+            if package not in inventory:raise PackageError('Unreviewed package in browser bundle: '+package)
+            if inventory[package].get('notice_policy')=='unbundled-only':
+                raise PackageError('Runtime package lacks reviewed original notice: '+package)
+            checked_file(root,module)
+            used.add(package)
+        return {'module_count':len(modules),'app_module_count':len(app_modules),
+                'source_input_count':len(source_inputs),'source_inputs_sha256':digest(canonical_json(source_inputs)),
+                'packages':sorted(used)}
+    except (OSError,UnicodeError,KeyError,TypeError,IndexError,json.JSONDecodeError) as error:
+        raise PackageError('Cannot verify bundle metadata: '+str(error)) from error
 
 def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
     if not re.fullmatch(r'[0-9a-f]{40}',commit):raise PackageError('Invalid source commit')
@@ -143,16 +291,17 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
             continue
         path=root/relative
         if relative in OPTIONAL and not path.exists():continue
-        if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root.resolve()):raise PackageError('Unsafe/missing runtime input: '+relative)
-        files[relative]=path.read_bytes()
+        files[relative]=checked_file(root,relative).read_bytes()
     if identity(files['appinfo/info.xml'])!=('passwords_otp',VERSION):raise PackageError('Unexpected app identity/version')
-    js=files['js/app-100.js']
-    if len(js)<10000 or b'PASSWORDS_OTP_JS_100_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
-    if b'PASSWORDS_OTP_CSS_100_VERIFIED' not in files['css/app-100.css']:raise PackageError('CSS marker missing')
+    js=files[JS_ASSET]
+    if len(js)<10000 or b'PASSWORDS_OTP_JS_110_VERIFIED' not in js:raise PackageError('Fresh production bundle missing')
+    if b'PASSWORDS_OTP_CSS_110_VERIFIED' not in files[CSS_ASSET]:raise PackageError('CSS marker missing')
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
+    bundle_inputs=validate_bundle_metadata(root,files)
     manifest={'schema':1,'app':'passwords_otp','version':VERSION,'source_commit':commit,'channel':'public-source-baseline',
-        'production_approved':False,'files':{key:digest(value) for key,value in sorted(files.items())}}
+        'production_approved':False,'bundle_inputs':bundle_inputs,
+        'files':{key:digest(value) for key,value in sorted(files.items())}}
     files['BUILD.json']=canonical_json(manifest)
     data=archive_bytes({'passwords_otp/'+key:value for key,value in files.items()})
     validate_package(data,digest(data))
@@ -199,7 +348,10 @@ def main():
     if output.exists():raise PackageError('Output exists; refusing overwrite')
     data,manifest=make_package(ROOT,commit)
     second,_=make_package(ROOT,commit)
-    if data!=second:raise PackageError('Double build not byte-identical')
+    if data!=second:raise PackageError('Double packaging not byte-identical')
+    if subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()!=commit \
+            or subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip():
+        raise PackageError('Source checkout changed during packaging')
     output.mkdir(parents=True,mode=0o700)
     filename=f'passwords_otp-{VERSION}.zip'
     (output/filename).write_bytes(data)

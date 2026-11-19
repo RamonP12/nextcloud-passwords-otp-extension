@@ -1,37 +1,46 @@
 # Contributing
 
-Thank you for considering a contribution to this unofficial Nextcloud Passwords companion.
+Contributions target an unofficial Nextcloud Passwords companion. Current source **1.1.0** is the Vue migration candidate; **1.0.0** is the published historical release. Do not alter its tag, release assets or recorded checksums.
 
 ## Before contributing
 
-- Search existing Issues and Pull Requests to avoid duplicate work.
-- For security issues, follow [.github/SECURITY.md](.github/SECURITY.md); do not disclose them in public Issues.
-- For changes affecting authentication, CSE or Passwords API calls, open an Issue to discuss the trust boundary first.
-- Do not submit real credentials, TOTP secrets, customer data, private server information, or unredacted browser network logs.
+- Search existing issues and pull requests to avoid duplicate work.
+- Follow [.github/SECURITY.md](.github/SECURITY.md) for vulnerabilities; do not disclose them in public issues.
+- Discuss changes to authentication, CSE or Passwords API permissions with the maintainer and preserve the documented trust boundary.
+- Use synthetic data. Do not submit real credentials, OTP seeds, customer records, private server details or unredacted browser/network logs.
 
-## Development
+## Local development
 
-Use Node.js 22+ and Python 3.10+.
+Use **Node.js 22.12+ in the 22.x line or 24.x**, Python 3.10+, and PHP for the security contracts. Browser checks require Chromium/Chrome and Python Playwright. Install the exact npm lockfile:
 
-~~~sh
-npm ci
+```sh
+npm ci --no-audit --no-fund
 npm test
 npm run test:client
-npm run build
 python3 -m unittest discover -s tests/python -v
-~~~
+npm run test:php
+npm audit --audit-level=low
+npm run build
+npm run test:browser
+```
 
-For local and maintainer-only tools, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). Some scripts require a specially prepared, disposable local Nextcloud fixture and desktop Chromium; this configuration is not supplied as a turnkey environment. **Do not run legacy deployment tools against a public or productive instance.** GitHub Actions are currently disabled; do not claim a green hosted CI status.
+See [Development](docs/DEVELOPMENT.md) for the isolated Playwright environment, syntax checks, deterministic build and version-matched packaging. Compile before running the browser suite: it loads the actual production Vue bundle, rather than substituting runtime modules.
+
+**GitHub Actions quota is exhausted and execution is disabled.** The workflow has only a future manual `workflow_dispatch` trigger; pushes and PRs do not request Actions runs. Do not dispatch it or claim a hosted passing status during this migration. Report local checks with their exact scope and source version.
+
+Real Nextcloud integration is separate from synthetic unit/browser tests. See the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the current fixture and evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
 
 ## Pull requests
 
-1. Branch from the latest main and make a focused change.
-2. Keep the original Nextcloud Passwords application and its records unchanged; preserve fail-closed security behavior.
-3. Include regression tests for modifications in authentication, OTP parsing, HTTP permissions or deployment.
-4. Update user-facing docs and [CHANGELOG.md](CHANGELOG.md) where relevant.
-5. Report the precise tests you ran, and distinguish real Nextcloud tests from mocks.
-6. Prefer small PRs; maintainers will review security-sensitive changes before merging.
+1. Branch from the latest appropriate source base and keep the change focused.
+2. Preserve the original Passwords application, the domain authentication/encryption logic and fail-closed behavior. Creating a record must remain a deliberate, guarded user action.
+3. Retain meaningful regression coverage for session timing, stale async results, clipboard validity, form clearing, API permissions and deployment boundaries when those areas change.
+4. Update user-facing documentation and [CHANGELOG.md](CHANGELOG.md).
+5. State which tests actually ran. Distinguish unit fixtures, the compiled synthetic browser suite, real Nextcloud integration and AIO/PostgreSQL acceptance.
+6. Review source and dependencies before packaging from a clean commit. Generated JS/CSS must correspond to the current source/config/lock hashes; rebuild after changing those inputs.
+
+Changing npm dependencies requires reviewing [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the locked runtime/license inventory and actual bundled module inputs. Do not bypass an inventory, source-freshness or vulnerability gate to make a build pass.
 
 ## License and authorship
 
-Contributions are submitted under this project's [AGPL-3.0-or-later](LICENSE) license unless a separate arrangement is agreed. Include notices for newly introduced third-party components.
+Contributions are submitted under this project's [AGPL-3.0-or-later](LICENSE) license unless a separate arrangement is agreed. Preserve original notices and attribution for third-party components.

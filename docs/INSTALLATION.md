@@ -1,4 +1,21 @@
-# Installation – Passwort OTP Code Generator v1.0.0
+# Installation and version selection
+
+## Current source: 1.1.0 Vue migration candidate
+
+The current source contains the Vue migration and is **not a published 1.1.0 release**. The published v1.0.0 assets and historical acceptance records remain unchanged. Use the [migration report](NEXTCLOUD_VUE_MIGRATION.md) for current implementation and verification evidence.
+
+| Archive | Required tooling | Intended scope |
+| --- | --- | --- |
+| Published `passwords_otp-1.0.0.zip` | `aio_install.py` and `release.py` from tag **`v1.0.0`** | Historical first-install procedure documented below |
+| Locally built `passwords_otp-1.1.0.zip` | Scripts from the **same 1.1.0 source commit** recorded in its `BUILD.json` | Candidate verification in a disposable test environment; no released production upgrade |
+
+**Current 1.1.0 scripts reject a 1.0.0 archive.** Never copy scripts from moving `main` when installing the published 1.0.0 ZIP. Conversely, the historical 1.0.0 scripts cannot install the new candidate.
+
+Build the candidate following [Development](DEVELOPMENT.md), including production compilation, local checks, a clean committed source tree and exact package hashes. It has one bundled ES module and one CSS asset; the Nextcloud server does not need Node.js/npm. It introduces no app database schema, but that does not make overwriting an existing deployment a supported upgrade.
+
+The AIO tool remains **first-install only**, with version/hash/scope/backup gates. No production AIO/PostgreSQL in-place upgrade procedure is added by this migration. The integration fixture described in the migration report is separate from a target AIO installation. App Store signing work in PR #9 is also separate; the candidate ZIP is unsigned.
+
+## Published v1.0.0: historical installation procedure
 
 **Distribution:** unsigned, unofficial GitHub source/release ZIP; not in the Nextcloud App Store. This is a manual **first-install** path, not a supported upgrade procedure.
 
@@ -15,7 +32,7 @@
 
 The operator completely removed the internal local 0.7.3 app and installed the verified v1.0.0 ZIP into an already running Nextcloud 35.0.2.2 fixture. The original Passwords 2026.11.20 app remained unchanged and the OTP app was restricted to group `otp-v1-pilot`. The recorded 49 checks cover file integrity, CSE, TOTP reference, sharing, group access and session expiry/logout. This is evidence of **one local integration**, not certification of other environments or a turnkey installer.
 
-## Option A (recommended): use the verified v1.0.0 release ZIP
+## Published archive: use the verified v1.0.0 release ZIP
 
 The [v1.0.0 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0) supplies exactly three files: `passwords_otp-1.0.0.zip`, `passwords_otp-1.0.0.zip.sha256`, and `BUILD.json`. The release was published on 2026-11-11; these three asset names and their SHA256 digests were verified against GitHub's release metadata.
 
@@ -56,9 +73,9 @@ cp ../otp-v1.0.0-source/scripts/release.py .
 
 Transfer the verified ZIP and these **two matching scripts** to a private directory on the AIO host, then follow [AIO installation and rollback](AIO_MANUAL_INSTALL.md). Keep the SHA256 file and `BUILD.json` for your audit record.
 
-## Option B: independently build from the immutable v1.0.0 tag
+## Historical reproducibility: build from the pinned v1.0.0 tag
 
-**Do not clone moving `main` to reproduce v1.0.0.** It contains documentation-only updates after the release commit, and the source commit in `BUILD.json` affects the package checksum.
+**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.0 Vue migration. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
 
 ```sh
 git clone --depth 1 --branch v1.0.0 \

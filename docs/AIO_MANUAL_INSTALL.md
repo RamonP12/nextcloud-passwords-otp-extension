@@ -1,4 +1,16 @@
-# Manual AIO first-install – Passwort OTP Code Generator v1.0.0
+# Manual AIO first-install – version-matched tooling
+
+## Version boundary for the Vue migration
+
+Current source version **1.1.0** is an unsigned migration candidate, **not a published release**. Its `aio_install.py` and `release.py` accept only a matching `passwords_otp-1.1.0.zip`. They do not accept the historical 1.0.0 ZIP.
+
+The complete commands below intentionally document the **published v1.0.0 archive with the `v1.0.0` tagged scripts**. Do not execute those commands with scripts copied from current source. The version in the archive, its `BUILD.json`, the script constants, output filenames and independently verified checksum must all correspond.
+
+A later candidate first-install test in a disposable AIO/PostgreSQL environment must use the 1.1.0 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current implementation and live-test evidence is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
+
+**No production upgrade path is introduced.** Both installer versions refuse an existing `passwords_otp` deployment, including 0.7.3 or the public 1.0.0 release. Local Vue tests and the absence of an app database migration are not an AIO upgrade procedure. App Store certificate/signing work in PR #9 remains independent.
+
+## Published v1.0.0 procedure
 
 **Scope:** a fresh installation of `passwords_otp` on Nextcloud AIO with **Nextcloud 35.0.2**, official **Passwords 2026.11.20**, PostgreSQL, PHP 8.3–8.5, persistent `custom_apps` storage and a valid restricted user group.
 
@@ -10,7 +22,7 @@
 
 Verify a restorable AIO/Borg backup, including PostgreSQL and the application volume, and retain a working restoration procedure.
 
-Use the **immutable [v1.0.0 tag](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.0.0)** (commit `56d6de06e4825c9bd03b4b07dec5825d64228390`) to obtain the two scripts `scripts/aio_install.py` and `scripts/release.py`. Obtain the matching ZIP from the [v1.0.0 release assets](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0). Follow [Installation](INSTALLATION.md) for exact download, hash and same-tag instructions.
+Use the **pinned [v1.0.0 tag](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.0.0)** (commit `56d6de06e4825c9bd03b4b07dec5825d64228390`) to obtain the two scripts `scripts/aio_install.py` and `scripts/release.py`. Obtain the matching ZIP from the [v1.0.0 release assets](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0). Follow [Installation](INSTALLATION.md) for exact download, hash and same-tag instructions.
 
 Transfer **`passwords_otp-1.0.0.zip`, `aio_install.py` and `release.py`** to a private directory on the AIO host and restrict access (`chmod 600` on all three files). Never mix installer scripts from `main` with the `v1.0.0` archive.
 
