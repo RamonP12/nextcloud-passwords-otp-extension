@@ -1,8 +1,8 @@
 # Nextcloud tar.gz distribution and App Store signing
 
-## Status of 1.1.2
+## Status of 1.1.3
 
-For the published packages below, use the matching `v1.1.2` source and tooling. That version builds an installable `passwords_otp-1.1.2.tar.gz` in addition to
+Use the [published v1.1.3 packages](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) and their matching source and tooling. That version builds an installable `passwords_otp-1.1.3.tar.gz` in addition to
 the ZIP used by the existing transactional localhost installer. Both ordinary
 artifacts contain the same verified runtime files, production JS/CSS, licence
 notices and `BUILD.json`, under exactly one `passwords_otp/` directory.
@@ -12,11 +12,11 @@ Its format is suitable for the Nextcloud release flow; this does not make it a
 published or signed App Store release. `production_approved` remains `false`.
 No Nextcloud-issued signing certificate or corresponding private key was
 provided for this release. No App Store registration or publication was performed.
-An existing certificate's presence or absence in external accounts is not inferred.
+The remaining signing and Store acceptance work is tracked in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14).
 
 The GitHub-generated **Source code (tar.gz)** is a source snapshot, not this
 installable artifact. It lacks the compiled assets and uses GitHub's versioned
-directory name. Use the explicitly attached `passwords_otp-1.1.2.tar.gz`.
+directory name. Use the explicitly attached `passwords_otp-1.1.3.tar.gz`.
 
 ## What is verified
 
@@ -26,13 +26,13 @@ payload. `scripts/appstore_package.py` is also usable independently:
 ```fish
 set commit (git rev-parse HEAD)
 set package_dir ".build/$commit/package"
-set zip "$package_dir/passwords_otp-1.1.2.zip"
+set zip "$package_dir/passwords_otp-1.1.3.zip"
 set zip_sha (sha256sum "$zip" | string split ' ' | head -n 1)
 
 # Alternative output path: the normal release build already produces its TAR.
 python3 scripts/appstore_package.py unsigned \
     --zip "$zip" --sha256 "$zip_sha" \
-    --output .build/passwords_otp-1.1.2-manual.tar.gz
+    --output .build/passwords_otp-1.1.3-manual.tar.gz
 ```
 
 The ZIP gate checks the current version's exact runtime allowlist and manifest.
@@ -70,12 +70,12 @@ signing material available securely to its PHP process; do not paste private key
 into commands or chat.
 
 ```fish
-set stage .build/appstore-signing-1.1.2
+set stage .build/appstore-signing-1.1.3
 set app "$stage/passwords_otp"
 set occ /absolute/path/to/nextcloud/occ
 set key ~/.nextcloud/certificates/passwords_otp.key
 set certificate ~/.nextcloud/certificates/passwords_otp.crt
-set signed_tar .build/passwords_otp-1.1.2-signed.tar.gz
+set signed_tar .build/passwords_otp-1.1.3-signed.tar.gz
 
 python3 scripts/appstore_package.py stage \
     --zip "$zip" --sha256 "$zip_sha" --output "$stage"
@@ -116,8 +116,8 @@ earlier Nextcloud check, registered App Store ownership, or the Store's checks.
 Use the same certificate for both signing stages. Never change the signed app
 files or TAR after signing. Rebuild and sign again if any byte changes.
 
-Upload the exact signed TAR to an HTTPS release URL, verify its downloaded
-checksum, and submit that URL and its detached signature to the registered App
+For an approved future distribution, attach the exact signed TAR before publishing its release. The published v1.1.3 assets are immutable. Verify the downloaded
+checksum and submit the HTTPS URL and its detached signature to the registered App
 Store account. Do not substitute the unsigned ordinary artifact or GitHub's
 source snapshot. This repository does not automate publishing or consume
 GitHub Actions minutes.
@@ -125,7 +125,7 @@ GitHub Actions minutes.
 ## Compatibility boundaries and evidence
 
 The public App Store metadata must still satisfy the applicable schema and
-policy. Passwords is a required companion, and 1.1.2 enforces its documented
+policy. Passwords is a required companion, and 1.1.3 enforces its documented
 dependency policy. That enforcement does not turn Passwords-internal PHP
 classes into a supported public API. Upstream API stability and the token
 privilege boundary remain separate review topics.

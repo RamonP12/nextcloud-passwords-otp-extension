@@ -1,18 +1,18 @@
 # Installation and version selection
 
-## Latest published version: 1.1.2 Nextcloud Vue edition
+## Current GitHub release 1.1.3
 
-Source on `main` targets the unreleased 1.1.3 candidate. Use the matching 1.1.2 tag and scripts for the published package below.
-
-Version 1.1.2 requires Passwords **2026.11.20**, installed and enabled, and adds
-an installable TAR archive to the Vue edition. Use the [v1.1.2 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2),
-its matching source tag and the [1.1.2 verification record](VALIDATION_1.1.2.md).
-Historical tags, assets and acceptance records remain unchanged.
+[Version 1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)
+requires Nextcloud 35, PHP 8.3–8.5 and Passwords **2026.11.20**. Use the
+[`v1.1.3` source tag](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.3)
+for the installer and the [1.1.3 verification record](VALIDATION_1.1.3.md) for
+the tested combinations.
 
 | Archive | Required tooling | Intended scope |
 | --- | --- | --- |
-| `passwords_otp-1.1.2.tar.gz` | Matching release checksum and `BUILD.json`; a tested manual deployment procedure | Current compiled single-root Nextcloud distribution, unsigned |
-| `passwords_otp-1.1.2.zip` | Scripts from tag **`v1.1.2`**, matching `BUILD.json` | Current transactional localhost installer and scoped AIO first-install tooling |
+| `passwords_otp-1.1.3.tar.gz` | Matching release checksum, `BUILD.json` and a tested manual deployment procedure | Current compiled single-root Nextcloud distribution, unsigned |
+| `passwords_otp-1.1.3.zip` | Scripts from tag **`v1.1.3`**, matching `BUILD.json` | Current transactional localhost installer and scoped AIO first-install tooling |
+| Published `passwords_otp-1.1.2.zip` or `passwords_otp-1.1.2.tar.gz` | Scripts from tag **`v1.1.2`** and its release checksums | Historical dependency-lifecycle release |
 | Published `passwords_otp-1.1.1.zip` | Scripts from tag **`v1.1.1`** | Historical Vue release; no new dependency lifecycle enforcement |
 | Previously built `passwords_otp-1.1.0.zip` | Scripts from its exact source commit | Historical Vue candidate and its recorded local acceptance |
 | Published `passwords_otp-1.0.0.zip` | `aio_install.py` and `release.py` from tag **`v1.0.0`** | Historical first-install procedure documented below |
@@ -44,24 +44,24 @@ recovery and timing limits. The migration checks prerequisites and adds no OTP
 data tables, but Nextcloud migration/job bookkeeping is real state and must be
 included in rollback verification.
 
-### Obtain and verify the 1.1.2 distribution
+### Obtain and verify the 1.1.3 distribution
 
-Download the assets from the [tag-specific release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2):
+Download the assets from the [tag-specific release page](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3):
 
-- `passwords_otp-1.1.2.tar.gz` and `passwords_otp-1.1.2.tar.gz.sha256`
-- `passwords_otp-1.1.2.zip` and `passwords_otp-1.1.2.zip.sha256` if using the Python installer
+- `passwords_otp-1.1.3.tar.gz` and `passwords_otp-1.1.3.tar.gz.sha256`
+- `passwords_otp-1.1.3.zip` and `passwords_otp-1.1.3.zip.sha256` if using the Python installer
 - `BUILD.json`
 
 In the download directory, verify the applicable archives:
 
 ```fish
-sha256sum -c passwords_otp-1.1.2.tar.gz.sha256
-sha256sum -c passwords_otp-1.1.2.zip.sha256
+sha256sum -c passwords_otp-1.1.3.tar.gz.sha256
+sha256sum -c passwords_otp-1.1.3.zip.sha256
 ```
 
 Each downloaded archive's check must print `OK`. Compare the digest with the
-release's recorded SHA256 and confirm that `BUILD.json` identifies 1.1.2 and the
-source revision behind `v1.1.2`. Both archives contain the same runtime payload
+release's recorded SHA256 and confirm that `BUILD.json` identifies 1.1.3 and the
+source revision behind `v1.1.3`. Both archives contain the same runtime payload
 inside one `passwords_otp/` directory. GitHub's automatic **Source code** archives
 are source snapshots and do not contain the compiled application.
 
@@ -72,36 +72,48 @@ signing](APPSTORE_PACKAGING.md).
 
 For a reproducible source build, check out the tag and follow [Development](DEVELOPMENT.md),
 including a clean committed checkout and checked packaging. The app contains
-`js/app-112.mjs` and `css/app-112.css`; Nextcloud does not need Node.js/npm at
-runtime.
+`js/app-113.mjs` and `css/app-113.css`. Node.js and npm are build-time tools.
 
 ### Installation and acceptance scope
 
-The maintainer-specific localhost tools (`scripts/local.py`, `scripts/deploy.py`)
-target the existing loopback-only Docker Compose/MariaDB fixture. They verify
-the current app, save a backup/journal, replace the app and verify installed
-files and served assets. They retain prior Vue asset mappings for verification
-and rollback and account for the new dependency bookkeeping. They are not
-generic deployment scripts. See [Development](DEVELOPMENT.md) for fixture
-constraints and [1.1.2 verification](VALIDATION_1.1.2.md) for actual evidence.
+The [1.1.3 verification record](VALIDATION_1.1.3.md) documents the maintainer’s
+upgrade from 1.1.2 on the existing Docker Compose/MariaDB fixture and the
+separate SQLite upgrade and rollback. The earlier [1.1.2 localhost acceptance](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md)
+covers the ordinary Passwords disable and re-enable flow. The [lifecycle test plan](DEPENDENCY_LIFECYCLE.md#verification-and-remaining-installed-server-acceptance)
+covers the remaining scenarios.
 
-On 2026-11-19 the maintainer confirmed five manual checks on the 1.1.0 Vue
-candidate: independent TOTP comparison, copying, search, persistent entry
-creation and logout invalidation. Those checks remain historical frontend
-acceptance. **Later that day, OTP 1.1.2 successfully upgraded the same localhost
-fixture**, with backup, package-file verification, versioned assets and normal
-Passwords disable/recovery controls passing. Existing OTP accounts, code changes
-and new test-entry creation were also confirmed. See the
-[1.1.2 localhost acceptance](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md). Fresh
-installation without Passwords, removal with retained data, eventless loss,
-group separation and incompatible Passwords versions still need isolated tests.
-Do not infer those missing results from component fixtures or the earlier five checks.
+#### Upgrade the existing localhost test fixture
 
-The AIO tool remains **first-install only**, with version/hash/scope/backup
-gates. It refuses an existing OTP app, including 0.7.3. A 1.1.2 AIO first install
-needs its matching source/archive, checksum and separate environment acceptance.
-No production AIO/PostgreSQL in-place upgrade procedure is supplied. The
-historical commands below apply only to the v1.0.0 tagged tools and archive.
+From a clean checkout of the `v1.1.3` tag, use the browser, Playwright environment
+and PHP image described in [Development](DEVELOPMENT.md). The build creates a
+local, commit-bound package and receipt. Run the steps in order:
+
+```fish
+python3 scripts/local.py --build
+and python3 scripts/local.py --preflight
+and python3 scripts/local.py --install
+and python3 scripts/local.py --verify
+```
+
+Expect `BUILD_PASS`, `LOCALHOST_PREFLIGHT_PASS`, `INSTALL_PASS: version=1.1.3`
+and `LOCALHOST_VERIFY_PASS`. After install, `HTTP_ASSETS_PASS` should identify
+`app-113`. Record the transaction path printed by `BACKUP_PASS`. Open the app
+in Nextcloud and verify unlock, search, code copying and creation with synthetic
+data. See the [user guide](USER_GUIDE.md) for the two copy controls.
+
+For a completed transaction that needs to be reversed, provide its own backup
+path:
+
+```fish
+python3 scripts/deploy.py --localhost-test-only --rollback '/absolute/path/from/BACKUP_PASS'
+```
+
+#### Install on a separate AIO/PostgreSQL test fixture
+
+The [AIO guide](AIO_MANUAL_INSTALL.md) documents version-matched first-install
+tooling, preflight and rollback. The installer refuses an existing OTP app,
+including 0.7.3. Live AIO/PostgreSQL acceptance and a production in-place upgrade
+procedure are open.
 
 ## Published v1.0.0: historical installation procedure
 
@@ -163,7 +175,7 @@ Transfer the verified ZIP and these **two matching scripts** to a private direct
 
 ## Historical reproducibility: build from the pinned v1.0.0 tag
 
-**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the 1.1.2 Vue edition with additional dependency lifecycle checks. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
+**Do not clone moving `main` to reproduce v1.0.0.** Current source includes the newer Vue edition, prerequisite checks and a different package inventory. The source commit in `BUILD.json` also affects the package checksum, independently of runtime changes.
 
 ```sh
 git clone --depth 1 --branch v1.0.0 \

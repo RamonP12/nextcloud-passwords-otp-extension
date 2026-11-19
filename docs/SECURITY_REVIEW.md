@@ -6,7 +6,7 @@ This is a technical overview, **not** a substitute for the [vulnerability report
 
 passwords_otp is an unofficial companion to the existing Nextcloud Passwords app. It does not modify the Passwords source or hold a separate vault. Page access requires an authenticated Nextcloud session; an authenticated CSRF-protected bootstrap POST obtains the necessary upstream client credential **after** page load, rather than embedding it directly in initial HTML.
 
-The browser necessarily uses the **original Passwords WebUI bearer credential**. Its upstream privileges are broader than reading TOTP codes or creating an entry. A compromised browser, extension or same-origin script may abuse this credential. The JavaScript request allowlist and create-once authorization logic **do not provide server-side privilege reduction**. The limited AIO pilot operator explicitly accepted this remaining risk; it is not eliminated or generally approved.
+In the published [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3), the browser receives the **original Passwords WebUI bearer credential**. Its upstream privileges are broader than reading TOTP codes or creating an entry. A compromised browser, extension or same-origin script may abuse this credential. The JavaScript request allowlist and create-once authorization logic **do not provide server-side privilege reduction**. The limited AIO pilot operator explicitly accepted this remaining risk; it is not eliminated or generally approved.
 
 ## OTP and session controls
 
