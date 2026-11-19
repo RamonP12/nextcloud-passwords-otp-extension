@@ -1,0 +1,31 @@
+{
+  "source_commit": "2e0530a051336966c9c3971b34935d6bc8eb8182",
+  "php_contract_output": "PHP_SECURITY_PASS assertions=51 php=8.4.24 (framework doubles; not real Nextcloud)",
+  "php_syntax": {
+    "status": "PASS",
+    "files": [
+      "appinfo/routes.php",
+      "lib/AppInfo/Application.php",
+      "lib/Controller/PageController.php",
+      "lib/Service/PasswordsAuthAdapter.php",
+      "templates/main.php",
+      "tests/php/security.php"
+    ]
+  },
+  "nextcloud_35_appinfo_xsd": "PASS",
+  "unchanged_security_core": [
+    "src/ap1/bootstrap.mjs",
+    "src/ap1/network.mjs",
+    "src/ap1/session.mjs",
+    "src/ap1/upstream.js",
+    "src/ap2/parser.mjs",
+    "src/ap3/totp.mjs",
+    "src/ap9/session-check.mjs",
+    "src/ap12/api-policy.mjs",
+    "src/ap12/create.mjs",
+    "lib/AppInfo/Application.php",
+    "lib/Service/PasswordsAuthAdapter.php",
+    "appinfo/routes.php"
+  ],
+  "hosted_actions_requested": false
+}

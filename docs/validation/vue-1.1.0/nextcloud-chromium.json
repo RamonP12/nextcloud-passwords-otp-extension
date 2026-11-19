@@ -1,0 +1,767 @@
+{
+  "scope": "Unmodified real Nextcloud and Passwords server; actual release Vue bundle, client, crypto, session, API and browser clipboard",
+  "started_utc": "2026-11-19T07:04:40Z",
+  "nextcloud": "35.0.2.2",
+  "passwords": "2026.11.20",
+  "database": "SQLite / PHP 8.4.24 development server + local TLS proxy",
+  "browser_engine": "chromium",
+  "native_browser_zoom_tested": false,
+  "results": [
+    {
+      "name": "real-template-mjs-mime-csp-cache-csrf-session-binding",
+      "status": "PASS"
+    },
+    {
+      "name": "real-shared-readonly-record-totp-copy",
+      "status": "PASS"
+    },
+    {
+      "name": "real-own-create-once-rfc-totp-native-copy-filter-immediate-keyboard",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-list-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-list-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-list-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-list-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "axe-light-list",
+      "status": "PASS",
+      "passes": 22,
+      "incomplete": [],
+      "manual_review": [],
+      "violations": []
+    },
+    {
+      "name": "reflow-light-dialog-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-dialog-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-dialog-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-light-dialog-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "axe-light-dialog",
+      "status": "PASS",
+      "passes": 23,
+      "incomplete": [
+        "color-contrast"
+      ],
+      "manual_review": [
+        {
+          "id": "color-contrast",
+          "classification": "background-covered-by-active-modal",
+          "nodes": [
+            {
+              "target": [
+                ".passwords-otp-header > h1"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-header > p"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".notecard > div[data-v-6be9fa31=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-open > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-help"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap2-search"
+              ],
+              "summary": "Fix any of the following:\n  Element has no value; test color contrast with a value entered"
+            },
+            {
+              "target": [
+                "label[for=\"passwords-otp-ap2-search\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "violations": []
+    },
+    {
+      "name": "reflow-dark-list-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-list-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-list-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-list-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "axe-dark-list",
+      "status": "PASS",
+      "passes": 22,
+      "incomplete": [],
+      "manual_review": [],
+      "violations": []
+    },
+    {
+      "name": "reflow-dark-dialog-1440x900",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-dialog-1024x768",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-dialog-640x450",
+      "status": "PASS"
+    },
+    {
+      "name": "reflow-dark-dialog-320x720",
+      "status": "PASS"
+    },
+    {
+      "name": "axe-dark-dialog",
+      "status": "PASS",
+      "passes": 23,
+      "incomplete": [
+        "color-contrast"
+      ],
+      "manual_review": [
+        {
+          "id": "color-contrast",
+          "classification": "background-covered-by-active-modal",
+          "nodes": [
+            {
+              "target": [
+                ".passwords-otp-header > h1"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-header > p"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".notecard > div[data-v-6be9fa31=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-open > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-help"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap2-search"
+              ],
+              "summary": "Fix any of the following:\n  Element has no value; test color contrast with a value entered"
+            },
+            {
+              "target": [
+                "label[for=\"passwords-otp-ap2-search\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "violations": []
+    },
+    {
+      "name": "real-user-theme-ocs-and-visual-matrix",
+      "status": "PASS"
+    },
+    {
+      "name": "axe-real-administrator-brand-list",
+      "status": "PASS",
+      "passes": 22,
+      "incomplete": [],
+      "manual_review": [],
+      "violations": []
+    },
+    {
+      "name": "axe-real-administrator-brand-dialog",
+      "status": "PASS",
+      "passes": 23,
+      "incomplete": [
+        "color-contrast"
+      ],
+      "manual_review": [
+        {
+          "id": "color-contrast",
+          "classification": "background-covered-by-active-modal",
+          "nodes": [
+            {
+              "target": [
+                ".passwords-otp-header > h1"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-header > p"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".notecard > div[data-v-6be9fa31=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-open > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap12-help"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "#passwords-otp-ap2-search"
+              ],
+              "summary": "Fix any of the following:\n  Element has no value; test color contrast with a value entered"
+            },
+            {
+              "target": [
+                "label[for=\"passwords-otp-ap2-search\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(1) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(2) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(3) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(4) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > strong"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__metadata > .passwords-otp-secondary"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > output"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-account__time[aria-live=\"off\"] > span"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".passwords-otp-account:nth-child(5) > .passwords-otp-account__code > .passwords-otp-ap3__copy.button-vue--secondary[type=\"button\"] > .button-vue__wrapper[data-v-47ce59a3=\"\"] > .button-vue__text[data-v-47ce59a3=\"\"]"
+              ],
+              "summary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "violations": []
+    },
+    {
+      "name": "real-cookie-session-expiry-removes-protected-ui",
+      "status": "PASS"
+    },
+    {
+      "name": "real-non-group-user-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "real-cse-wrong-master-retry-encrypted-create-decrypt-totp-copy-expiry",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Axe checks app and dialog scope; it is not a manual screen-reader audit.",
+    "Viewport reflow does not establish native browser zoom or OS text scaling.",
+    "Passwords-level live 2FA requires an upstream-enabled provider challenge; no upstream feature flags are overridden.",
+    "Rate limits, ambiguous write failures and BFCache events are covered by the separate synthetic browser/lifecycle suite.",
+    "This disposable fixture does not establish AIO, PostgreSQL, proxy-specific or production acceptance."
+  ],
+  "sha256": {
+    "js/app-110.mjs": "ffae372e62c8d6284974bc01cae36fb7135cad5692cb3dfb9308231c427d07e7",
+    "css/app-110.css": "9aff12f7d35d5777f3f6082242894107e7bfc923f0e31bd7d25fcbcbf42b729f"
+  },
+  "browser_version": "150.0.7871.181",
+  "status": "PASS"
+}

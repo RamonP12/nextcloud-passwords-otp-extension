@@ -1,0 +1,49 @@
+{
+  "scope": "Unmodified real Nextcloud and Passwords server; actual release Vue bundle, client, crypto, session, API and browser clipboard",
+  "started_utc": "2026-11-19T07:03:29Z",
+  "nextcloud": "35.0.2.2",
+  "passwords": "2026.11.20",
+  "database": "SQLite / PHP 8.4.24 development server + local TLS proxy",
+  "browser_engine": "firefox",
+  "native_browser_zoom_tested": false,
+  "results": [
+    {
+      "name": "real-template-mjs-mime-csp-cache-csrf-session-binding",
+      "status": "PASS"
+    },
+    {
+      "name": "real-shared-readonly-record-totp-copy",
+      "status": "PASS"
+    },
+    {
+      "name": "real-own-create-once-rfc-totp-native-copy-filter-immediate-keyboard",
+      "status": "PASS"
+    },
+    {
+      "name": "real-cookie-session-expiry-removes-protected-ui",
+      "status": "PASS"
+    },
+    {
+      "name": "real-non-group-user-denied",
+      "status": "PASS"
+    },
+    {
+      "name": "real-cse-wrong-master-retry-encrypted-create-decrypt-totp-copy-expiry",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Axe checks app and dialog scope; it is not a manual screen-reader audit.",
+    "Viewport reflow does not establish native browser zoom or OS text scaling.",
+    "Passwords-level live 2FA requires an upstream-enabled provider challenge; no upstream feature flags are overridden.",
+    "Rate limits, ambiguous write failures and BFCache events are covered by the separate synthetic browser/lifecycle suite.",
+    "This disposable fixture does not establish AIO, PostgreSQL, proxy-specific or production acceptance.",
+    "Firefox validates real user-triggered clipboard.writeText success; clipboard contents are independently read in Chromium only."
+  ],
+  "sha256": {
+    "js/app-110.mjs": "ffae372e62c8d6284974bc01cae36fb7135cad5692cb3dfb9308231c427d07e7",
+    "css/app-110.css": "9aff12f7d35d5777f3f6082242894107e7bfc923f0e31bd7d25fcbcbf42b729f"
+  },
+  "browser_version": "153.0",
+  "status": "PASS"
+}
