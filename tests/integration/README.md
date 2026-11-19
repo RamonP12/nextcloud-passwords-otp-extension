@@ -165,6 +165,15 @@ read by this runner. Browser viewport sizes establish reflow at those sizes;
 they do not establish native browser zoom or OS font scaling. No device-scale or
 CSS transform is presented as a native zoom test.
 
+An intermediate real Firefox run observed the presenter's safe refusal
+`Der Code wird geprüft. Neuen Code verwenden.` between the harness's enabled/
+valid-code sample and its click. The presenter intentionally refuses the final
+2.5 seconds and changes of validation window. The copy check therefore scrolls
+first and waits for a naturally valid, enabled code with more than five seconds
+remaining before sampling and clicking. This addresses harness action timing;
+the OTP, native progress and clipboard assertions remain intact, and neither the
+product's expiry protection nor the real clock is changed.
+
 ## Fixture used for the migration assessment
 
 The migration was exercised with the actual Nextcloud **35.0.2.2** code (release

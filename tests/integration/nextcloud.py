@@ -157,7 +157,19 @@ class RealFixture:
 
     def assert_code_and_copy(self, row):
         button = row.locator('.passwords-otp-ap3__copy')
+        button.scroll_into_view_if_needed()
         expect(button).to_be_enabled(timeout=45000)
+        # Copy deliberately rejects the final 2.5 seconds and validation-window
+        # changes. Use the next naturally valid window, leaving room for browser
+        # actionability/scroll latency; never freeze or replace the real clock.
+        row_handle = row.element_handle()
+        try:
+            self.page.wait_for_function('''element => {
+                const progress = element.querySelector('.passwords-otp-ap3__progress');
+                return progress.value > 5 && !element.querySelector('.passwords-otp-ap3__copy').disabled;
+            }''', arg=row_handle, timeout=45000)
+        finally:
+            row_handle.dispose()
         progress = row.locator('.passwords-otp-ap3__progress').bounding_box()
         assert progress and progress['height'] >= 4 and progress['width'] >= 64, 'Countdown progress bar must be visibly rendered'
         # Capture actual time, code and native progress semantics atomically.
