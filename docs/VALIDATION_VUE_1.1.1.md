@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-19. **Version:** 1.1.1. This record distinguishes the original 1.1.0 migration results, the maintainer's localhost acceptance, and verification of the final 1.1.1 source/package. Results from different source versions and environments are not combined into a single test total.
 
-**Release preparation status:** the application checks below have completed; the clean-source package gate is recorded separately before publication. The intended distribution is an unsigned GitHub ZIP with `production_approved=false`, not an App Store release or general production/AIO approval.
+**Verification status:** the local checks and clean-source package gate below passed on implementation commit `4c54928cfc8344907c7ab59066ace02d6783c3c4`. Subsequent evidence-only changes retain the tested runtime inputs; release packaging is repeated against the actual merged/tagged source. The intended distribution is an unsigned GitHub ZIP with `production_approved=false`, not an App Store release or general production/AIO approval.
 
 ## Changes since the accepted Vue candidate
 
@@ -65,8 +65,8 @@ These results apply to the 1.1.1 source and compiled asset hashes recorded below
 | Compiled production-bundle browser regressions and final rendered wording | **Firefox 153.0: 30/30 passed**, Playwright 1.62.0; final light-theme screenshot visually reviewed |
 | Chromium 156.0.8078.79 rerun | **Environment-blocked before app launch**: local socket creation returned `Operation not permitted`; no Chromium 1.1.1 pass is claimed |
 | Locked dependency audit | `npm audit --audit-level=low`: **0 reported vulnerabilities** |
-| Two production builds / deterministic ZIP construction | Pending |
-| Clean source identity, runtime inventory, notices and package hashes | Pending |
+| Two production builds / deterministic ZIP construction | **Passed**: two byte-identical frontend builds and two byte-identical ZIP constructions |
+| Clean source identity, runtime inventory, notices and package hashes | **Passed**: exact clean commit, complete source/module binding, reviewed license inventory, validated ZIP/manifest |
 
 ### Final source and artifact identity
 
@@ -78,9 +78,15 @@ The final release archive must be built from the merged commit behind `v1.1.1`. 
 | `js/app-111.mjs` SHA256 | `9bf219a6bc47b6e6868f7dd0c0e2ef0a70d59cfb60fcf36f5ffeeaf50cb71072` |
 | `css/app-111.css` SHA256 | `75f9e35b68d2288378f5eca22cad25f971bb4842df31bd38a15d9bea62c7d3f3` |
 | `passwords_otp-1.1.1.zip` SHA256 | Published in `passwords_otp-1.1.1.zip.sha256` and the release notes after final-commit packaging |
-| Packaged `BUILD.json` and generated notices | Pending verification |
+| Packaged `BUILD.json` and generated notices | Validated by the strict package gate; complete runtime file hashes and source/module/license inventory retained |
 
 The source commit is embedded in `BUILD.json`; a different commit changes the archive identity even when runtime bytes are unchanged. Final release assets must match the source identified by the release tag.
+
+### Version-bound local evidence
+
+- [Clean implementation build receipt](validation/vue-1.1.1/build-pass.json): source `4c54928cfc8344907c7ab59066ace02d6783c3c4`, verification ZIP SHA256 `9e655da68cd1c69cfa04452f091cc9ec68c2e07df0532f38f1eaee4938111cf9`. This is the pre-evidence verification package, not the final tagged ZIP.
+- [Additional checks](validation/vue-1.1.1/additional-checks.json): PHP file hashes, schema source/hash, tool versions and result boundaries.
+- [Build module/source provenance](validation/vue-1.1.1/bundle-modules.json): exact frontend inputs and emitted artifact hashes.
 
 ### Current browser evidence
 
