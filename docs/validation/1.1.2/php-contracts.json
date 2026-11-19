@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "scope": "standalone PHP contracts and syntax; not a live Nextcloud server",
+  "php": "8.4.27",
+  "syntax_files": 13,
+  "suites": [
+    "PHP_SECURITY_PASS assertions=67 php=8.4.27 (framework doubles; not real Nextcloud)",
+    "PHP_DEPENDENCY_PASS assertions=110 php=8.4.27 (framework doubles; not live Nextcloud)"
+  ],
+  "files": {
+    "appinfo/routes.php": "8dbdaabe6543a0d160c88db4a7e5cd214caaa608f2237be9583fb095d30dd09e",
+    "lib/AppInfo/Application.php": "a9fe3d09d255070d39a658d24382b6963b3ad5f83557e823e7bb52216eed75ba",
+    "lib/BackgroundJob/CheckPasswordsDependency.php": "f14723d00800a8c2afdd8577b7dc36fc9a6e2d59602876298c196ce6d1f71d85",
+    "lib/Controller/PageController.php": "1aa20a5251246a24d9d0b5a56c223f77d90f08f3ac92b115e9f6645a06f1a9ff",
+    "lib/Listener/PasswordsLifecycleListener.php": "035f149c61723d29bee9636d41f7496ad3f68a792ddd062759165dc38f944fda",
+    "lib/Migration/RemoveDependencyJob.php": "a100b3b6349e544a8f1e3bf3d57eabb2d20e6475ebfb9e9dc9dfb9508baf3195",
+    "lib/Migration/Version010102Date20261119000000.php": "1ed35fc1d453f60e5a731144cfbcc16ccb9a8330af99786de8021ffbb40c4282",
+    "lib/Service/PasswordsAuthAdapter.php": "fcd06c98cbae8a78a7e686dd7807acf99ebaa60ac64bd0cec4ad607147f14848",
+    "lib/Service/PasswordsDependency.php": "8baf694a92569042f9e992bd881e718b66e7ca2ad748bda7f61a75e84a31adff",
+    "templates/main.php": "66b2a65165be963bc35627e1ec10598ea203cfeaca1c4e276bcbfd8f602dbe3e",
+    "tests/integration/core_lifecycle.php": "367ed2b3daaf46e0a44626b53a47f06f436d5716eee58842090b947796a7234e",
+    "tests/php/dependencies.php": "6c7a6ab54bad8ee54b3150c16049be11e422d3c6aa8f31c6f476992e933a8c62",
+    "tests/php/security.php": "03012d048c8feee97402d498812103a45eb9ace16de725b5ecba250a14120d4e"
+  }
+}

@@ -6,6 +6,46 @@ TOTP calculation, encrypted vault handling and create-only product scope remain
 unchanged. This record covers the new source and does not reuse old test totals
 as proof of the changed backend behavior.
 
+## Results on 2026-11-19
+
+The clean implementation commit **`36c78d2721432644651f3deae8de3708ea0191ac`**
+passed the complete local build gate. The independent PHP/lifecycle review also
+passed. The following evidence is tied to the exact tested source/asset hashes:
+
+| Check | Result | Evidence boundary |
+| --- | --- | --- |
+| JavaScript regression | **237/237 passed** | Unit and source-contract tests |
+| Actual pinned Passwords client/libsodium | **17/17 passed** | Synthetic API responses |
+| Python release/install/rollback/TAR/signing | **102/102 passed** | Includes 19 TAR/cryptographic/adversarial cases; no production certificate |
+| PHP security and dependency checks | **67 + 110 assertions passed** | PHP 8.4.27, standalone contract doubles |
+| PHP syntax | **13/13 files passed** | Runtime, contract suites and core harness |
+| Nextcloud 35.0.2 core components | **24/24 cases passed** | 34 verified upstream source files; DI/database/registration services replaced |
+| Compiled Firefox browser suite | **30/30 cases passed** | Actual Vue assets in a synthetic shell/API; matching clean-build asset hashes |
+| Nextcloud 35 metadata XSD | **Passed** | Official pinned schema, including job/repair element ordering |
+| npm audit at build time | **0 reported vulnerabilities** | Exact locked dependency graph; not a security certification |
+| Two frontend builds | **Byte-identical** | JS and CSS |
+| Repeated ZIP and TAR packaging | **Byte-identical** | Same commit, exact same runtime files; one TAR root |
+
+The clean build used Node.js 24.22.3, npm 11.9.0 and Python 3.12.14;
+browser tooling was Playwright 1.62.0. Chromium was not rerun: the previous
+attempt in this workspace was blocked by a socket permission error before app
+startup. No current Chromium pass is asserted. The previously reported real
+localhost checks remain separate from the Firefox synthetic suite.
+
+The source comparison confirms that frontend modules other than the two version
+marker files are unchanged from 1.1.1. No npm dependency version was changed.
+The release gate also verifies the source/module inventory and original bundled
+licence notices. Existing Vite warnings about the app-root output directory and
+large single bundle remain; the output allowlist, source-freshness gate and
+deterministic build checks pass.
+
+See [additional checks](validation/1.1.2/additional-checks.json),
+[build receipt](validation/1.1.2/build-pass.json),
+[PHP checks](validation/1.1.2/php-contracts.json),
+[core component cases](validation/1.1.2/nextcloud-core-components.json),
+[browser cases](validation/1.1.2/browser-firefox.json) and
+[bundle provenance](validation/1.1.2/bundle-modules.json).
+
 The final version-bound results and reviewed source hashes are recorded in
 `docs/validation/1.1.2/`. The GitHub Release's `BUILD.json` binds its archives to
 the exact published source commit; final archive checksums are attached to that
