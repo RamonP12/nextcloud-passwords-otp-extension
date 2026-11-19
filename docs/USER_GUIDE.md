@@ -1,6 +1,6 @@
 # User guide
 
-In 1.1.3 the app appears as **Passwords OTP Generator** in Nextcloud navigation and on the administrator’s Apps page. The icon is a shield with a diagonal key cut-out. Published version 1.1.2 appears as **Passwort OTP Code Generator**.
+The app in [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) appears as **Passwords OTP Generator** in Nextcloud navigation and on the administrator’s Apps page. The icon is a shield with a diagonal key cut-out. Published version 1.1.2 appears as **Passwort OTP Code Generator**.
 
 ## Required Passwords app
 

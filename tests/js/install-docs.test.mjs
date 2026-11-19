@@ -13,7 +13,9 @@ test('current release metadata and historical acceptance are distinguished in pu
     const version = JSON.parse(read('package.json')).version;
     assert.equal(version, '1.1.3');
     assert.ok(readme.includes(`Current source: ${version}`));
-    assert.ok(readme.includes('docs/VALIDATION_1.1.2.md'));
+    assert.ok(readme.includes('docs/VALIDATION_' + version + '.md'));
+    assert.ok(readme.includes('/releases/tag/v' + version + ')'));
+    assert.doesNotMatch(readme, /\*\*Current source: 1\.1\.3 \(unreleased\)/);
     assert.match(readme, /published \*\*v1\.0\.0\*\*/);
     for (const marker of ['docs/INSTALLATION.md', 'docs/COMPATIBILITY.md', 'docs/NEXTCLOUD_VUE_MIGRATION.md', 'THIRD_PARTY_NOTICES.md', '.github/SECURITY.md']) {
         assert.ok(readme.includes(marker), marker);
@@ -21,18 +23,19 @@ test('current release metadata and historical acceptance are distinguished in pu
     assert.ok(info.includes(`<version>${version}</version>`));
     assert.ok(read('scripts/release.py').includes(`VERSION='${version}'`));
     assert.ok(exists('LICENSE'));
+    assert.match(read('CHANGELOG.md'), /\[1\.1\.3\].*2026-11-19/);
     assert.match(read('CHANGELOG.md'), /\[1\.1\.2\].*2026-11-19/);
 });
 
 test('published AIO commands retain SHA, group and matching-version boundaries', () => {
     const install = read('docs/AIO_MANUAL_INSTALL.md'), summary = read('docs/INSTALLATION.md');
-    for (const marker of ['passwords_otp-1.0.0.zip', 'SHA256_FROM_THIS_PACKAGE', "--group 'otp-pilot'", '--preflight', '--install', '--verify', '--rollback', '--accept-browser-token-risk']) {
+    for (const marker of ['passwords_otp-1.1.3.zip', 'passwords_otp-1.0.0.zip', "--group 'otp-pilot'", '--preflight', '--install', '--verify', '--rollback', '--accept-browser-token-risk']) {
         assert.ok(install.includes(marker), marker);
     }
     assert.match(install, /first.time|first.install|first install/i);
     assert.match(summary, /including 0\.7\.3/);
     assert.match(summary, /1\.1\.3 scripts reject a 1\.0\.0 archive/);
-    assert.match(install, /Do not execute those commands with scripts copied from current source/);
+    assert.match(install, /Use the corresponding source tag for\s+earlier archives/);
     assert.match(install, /No production upgrade path is introduced/);
 });
 
@@ -65,7 +68,7 @@ test('GitHub Actions has only an explicit future manual trigger while quota is u
 });
 
 test('public docs do not expose the operator pilot server identity', () => {
-    const docs = ['README.md', 'docs/INSTALLATION.md', 'docs/AIO_MANUAL_INSTALL.md', 'docs/ARCHITECTURE.md', 'docs/COMPATIBILITY.md', 'docs/USER_GUIDE.md', 'docs/DEVELOPMENT.md', 'docs/VALIDATION.md', 'docs/SECURITY_REVIEW.md'];
+    const docs = ['README.md', 'docs/INSTALLATION.md', 'docs/AIO_MANUAL_INSTALL.md', 'docs/ARCHITECTURE.md', 'docs/COMPATIBILITY.md', 'docs/USER_GUIDE.md', 'docs/DEVELOPMENT.md', 'docs/VALIDATION.md', 'docs/VALIDATION_1.1.3.md', 'docs/SECURITY_REVIEW.md'];
     for (const name of docs) {
         assert.doesNotMatch(read(name), /ncservervivaffeld|vivakirche-frauenfeld|ChurchTools-\d+|10\.10\.30\.3/i, name);
     }

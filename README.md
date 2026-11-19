@@ -1,19 +1,19 @@
 # Passwords OTP Generator – unofficial companion for Nextcloud Passwords
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
-[![Release: v1.1.2](https://img.shields.io/badge/release-v1.1.2-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2)
+[![Release: v1.1.3](https://img.shields.io/badge/release-v1.1.3-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Current source: 1.1.3 (unreleased).** The [latest published package](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2) is v1.1.2. Passwords **2026.11.20** must be installed and enabled. New installation registration is rejected when that prerequisite is absent; incompatible activation is reversed, and loss of the dependency disables OTP. Per-user group denial does not disable OTP for other users. See the [dependency lifecycle and its timing limits](docs/DEPENDENCY_LIFECYCLE.md).
+**Current source: 1.1.3.** The [latest published package](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) is v1.1.3. Passwords **2026.11.20** must be installed and enabled. New installation registration is rejected when that prerequisite is absent. Incompatible activation is reversed, and loss of the dependency disables OTP. Per-user group denial does not disable OTP for other users. See the [dependency lifecycle and its timing limits](docs/DEPENDENCY_LIFECYCLE.md).
 
-Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.2 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.2). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. Distribution is manual and unsigned; this project is not in the Nextcloud App Store. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
+Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.3 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
 
 ## Vue migration
 
 The current source uses **Vue 3.5.45** and **Nextcloud Vue 9.14.1** for the application layout, forms, dialogs, buttons and status messages. The existing Passwords authentication, encryption, OTP parsing, WebCrypto calculation and create-once API policy remain separate from the Vue presentation layer.
 
-The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [1.1.2 verification record](docs/VALIDATION_1.1.2.md), [historical 1.1.1 verification and local acceptance record](docs/VALIDATION_VUE_1.1.1.md), [migration implementation report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical 1.1.0 candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the exact scope of each result. **GitHub Actions is unavailable because the quota is exhausted; push and pull-request triggers are removed.** A manual workflow definition is retained for possible later use, and no hosted CI success is claimed.
+The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [1.1.3 release and verification record](docs/VALIDATION_1.1.3.md), the [1.1.2 verification record](docs/VALIDATION_1.1.2.md), [historical 1.1.1 verification and local acceptance record](docs/VALIDATION_VUE_1.1.1.md), [migration implementation report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical 1.1.0 candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the exact scope of each result. **GitHub Actions is unavailable because the quota is exhausted. The workflow has only a manual trigger.** A manual workflow definition is retained for possible later use, and no hosted CI success is claimed.
 
 ## Features
 
@@ -33,6 +33,7 @@ The app's text remains **German**. Multilingual app content is tracked in [#6](h
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
 | Passwords integration target | Passwords 2026.11.20; exact version required; dependency enforcement does not turn internal upstream classes into public APIs |
+| Version 1.1.3 | [Published release, localhost MariaDB upgrade and separate SQLite upgrade/rollback](docs/VALIDATION_1.1.3.md) |
 | Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
 | Published v1.0.0 | Exact ZIP passed the recorded 2026-11-11 localhost/Nextcloud/MariaDB acceptance: 10/10 blocks, 49/49 checks |
@@ -42,9 +43,9 @@ The earlier v1.0.0 results are historical evidence, not test results for the Vue
 
 ## Installation
 
-Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Use the `v1.1.2` tagged scripts for the published 1.1.2 package. The scripts on `main` build and accept 1.1.3 candidates. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
+Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Use the [`v1.1.3` tagged scripts](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.3) for the published 1.1.3 package. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
 
-The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables; it does not supply a production AIO upgrade path. The five accepted 1.1.0 functional checks alone did not cover the new 1.1.2 lifecycle. The maintainer has since accepted the 1.1.2 localhost upgrade, ordinary Passwords disable/enable safeguards and basic OTP operation. [The local acceptance report](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) details what passed and what remains untested.
+The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables. A production AIO upgrade path is still open. The maintainer verified the 1.1.2 → 1.1.3 localhost upgrade and core OTP flows. [The 1.1.3 verification record](docs/VALIDATION_1.1.3.md) describes the evidence. [The 1.1.2 acceptance record](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) covers the earlier dependency lifecycle checks.
 
 The Nextcloud server needs the compiled application assets and PHP files; **Node.js and npm are build-time tools**, not production server requirements.
 

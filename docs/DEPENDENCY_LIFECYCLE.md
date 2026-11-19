@@ -1,7 +1,7 @@
-# Passwords prerequisite and lifecycle (1.1.2)
+# Passwords prerequisite and lifecycle
 
 `passwords_otp` is a companion to `passwords`, not an independent vault. Version
-1.1.2 requires **Passwords 2026.11.20**, installed, enabled globally or for configured groups,
+1.1.3 requires **Passwords 2026.11.20**, installed, enabled globally or for configured groups,
 and with matching installed/on-disk versions. Each OTP user must additionally
 have access to Passwords. Other Passwords versions require a new compatibility
 review and an explicit change to the supported-version list.
@@ -18,7 +18,7 @@ token's privileges, or establish App Store approval. Those boundaries remain in
 | --- | --- |
 | Fresh installation, Passwords absent/disabled/unreviewed | The public migration callback rejects first registration before `installed_version` is written. No OTP table or schema change is made. |
 | Activation through the standard Nextcloud app UI or `occ app:enable` | The registered `AppEnableEvent` listener checks the prerequisite, undoes Nextcloud's enablement write on failure, and reports an error. The CLI shows the prerequisite detail; the app-management UI may show a generic failure. The background check is restored after a valid activation. |
-| Passwords globally disabled | `AppDisableEvent` causes OTP to disable itself in the same synchronous event flow. No other app is modified. |
+| Passwords globally disabled | `AppDisableEvent` causes OTP to disable itself in the same synchronous event flow. The cascade changes only the OTP app state. |
 | Passwords normally removed | The normal remove command disables Passwords first, which invokes the same cascade. |
 | Passwords removed with `--keep-data`, manually deleted, or an event is missed | Boot, authenticated OTP requests, and the scheduled dependency check detect the missing prerequisite. Requests fail closed; the check attempts persistent self-disable. |
 | Passwords update changes its version, or installed/filesystem versions differ | OTP refuses access and disables itself. Updating Passwords does not implicitly approve a new integration version. |
@@ -74,7 +74,7 @@ There are unavoidable distinctions:
 
 ## Upgrade and local rollback
 
-The release adds a framework migration record and an own scheduled job. It adds
+Version 1.1.2 introduced a framework migration record and an own scheduled job. It adds
 **no OTP data tables** and changes no Passwords schema or stored record.
 The localhost deployment tool permits only the two exact reviewed hashes for
 the dependency migration and job cleanup in 1.1.2; unknown or modified migration
@@ -87,6 +87,10 @@ SQL deletion or shared-schema rollback. This restricted localhost process does
 not establish a production AIO upgrade/downgrade procedure.
 
 ## Verification and remaining installed-server acceptance
+
+[1.1.3 verification](VALIDATION_1.1.3.md) records the 1.1.2 → 1.1.3 upgrade
+on MariaDB and the independent SQLite upgrade and rollback. It also records
+24 cases against pinned Nextcloud core with service doubles.
 
 The [1.1.2 verification record](VALIDATION_1.1.2.md) distinguishes standalone PHP
 contracts, tests executing unmodified Nextcloud 35 core classes with isolated

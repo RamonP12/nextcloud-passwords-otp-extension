@@ -44,15 +44,15 @@ under `.build/`; no real app directory is removed.
 | Case | Expected outcome |
 | --- | --- |
 | Fresh installation with no previous migration record; Passwords missing, unregistered, disabled, incompatible or awaiting update | Schema-only migration rejects registration before OTP `installed_version`, migration completion and background jobs are written. Downloaded app files may remain. |
-| Valid fresh installation | Registers 1.1.2 and permits activation. |
+| Valid fresh installation | Registers 1.1.3 and permits activation. |
 | Reactivation for all users or a group with invalid dependency | The real core writes the enabled state before dispatching the event; the listener reverses it, clears availability and reports an error. |
 | Passwords disabled | Real `AppDisableEvent` handling persistently disables OTP. |
 | Passwords limited to a group | A user outside the group is denied Passwords access; OTP remains globally available for authorised users. |
 | Normal CLI removal | Core disables Passwords before removing it, causing immediate OTP deactivation. |
 | CLI removal with `--keep-data` | Core skips the disable event; OTP is disabled on its next boot or scheduled dependency check. |
 | Manual removal of Passwords files | Next boot or scheduled dependency check detects the missing files. |
-| 1.1.1 → 1.1.2 upgrade, valid dependency | The real core upgrade completes and retains the enabled state and background job. |
-| 1.1.1 → 1.1.2 upgrade, invalid dependency | The upgrade completes while OTP is disabled; it does not stop the Nextcloud upgrade. |
+| 1.1.1 → 1.1.3 upgrade, valid dependency | The real core upgrade completes and retains the enabled state and background job. |
+| 1.1.1 → 1.1.3 upgrade, invalid dependency | The Nextcloud upgrade completes with OTP disabled. |
 | Passwords upgraded to an unvalidated version | The real core update event disables OTP. |
 | Passwords restored later | OTP remains disabled until the administrator activates it. |
 | Background check | The actual `TimedJob::start` path invokes dependency enforcement; the configured interval is 300 seconds. |
@@ -73,8 +73,7 @@ Three negative controls make the practical limits explicit:
 ## Live localhost acceptance still distinct
 
 The core-component result must not be described as a new live acceptance on
-the maintainer's laptop. For that environment, verify the following with synthetic
-accounts after installing the 1.1.2 package:
+the maintainer’s laptop. See the [1.1.3 verification record](../../docs/VALIDATION_1.1.3.md) for live results. Use the following synthetic-account checks for a fresh assignment to a disposable fixture:
 
 1. Normal opening, OTP generation and creation with Passwords 2026.11.20.
 2. Disabling Passwords disables OTP; restoring Passwords alone leaves OTP

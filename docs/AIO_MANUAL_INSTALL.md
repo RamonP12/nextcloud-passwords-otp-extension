@@ -1,42 +1,44 @@
-# Manual AIO first-install – version-matched tooling
+# Manual AIO first-install tooling
 
-## Version boundary for the Vue migration
+## Scope for v1.1.3
 
-Current source version **1.1.3** is unreleased. Use matching tagged `aio_install.py` and `release.py` scripts to install the published **1.1.2** package. A matching tar.gz is supplied for manual distribution; the transactional Python installer still consumes the ZIP. They do not accept the historical 1.0.0 ZIP.
+Use this procedure to evaluate a **fresh installation on a disposable AIO/PostgreSQL
+fixture**. The installer expects Nextcloud **35.0.2** by default, PHP 8.3–8.5,
+Passwords **2026.11.20** installed and enabled with matching on-disk metadata, a
+persistent writable `custom_apps` volume and an existing Nextcloud group.
 
-The complete commands below intentionally document the **published v1.0.0 archive with the `v1.0.0` tagged scripts**. Do not execute those commands with scripts copied from current source. The version in the archive, its `BUILD.json`, the script constants, output filenames and independently verified checksum must all correspond.
+Use `aio_install.py` and `release.py` from the **v1.1.3** tag with
+`passwords_otp-1.1.3.zip`. Keep the source, archive, `BUILD.json`, SHA-256 and
+receipts from that version together. Use the corresponding source tag for
+earlier archives. The installer consumes the compiled ZIP.
 
-A first-install test of 1.1.2 in a disposable AIO/PostgreSQL environment must use the 1.1.2 archive and the two scripts from its exact source commit, with its own SHA256 and fresh receipts. The phase sequence and explicit scope/risk acknowledgements remain the same; the historical hash and receipts below cannot be reused. Current release evidence and remaining lifecycle acceptance are recorded in [1.1.2 verification](VALIDATION_1.1.2.md); the original implementation is recorded in the [migration report](NEXTCLOUD_VUE_MIGRATION.md).
+The [v1.1.3 verification record](VALIDATION_1.1.3.md) covers localhost MariaDB and
+a separate SQLite fixture. A live first-install test of the published package
+on AIO/PostgreSQL is open. The package is unsigned and carries
+`production_approved=false`. The legacy `--accept-unapproved-rc` flag
+acknowledges that package status.
 
-**No production upgrade path is introduced.** Both installer versions refuse an existing `passwords_otp` deployment, including 0.7.3 or the public 1.0.0 release. The new prerequisite migration adds no OTP tables, but its bookkeeping and scheduled job still require a verified rollback boundary. Local Vue tests are not an AIO upgrade procedure. [App Store packaging](APPSTORE_PACKAGING.md) describes the prepared signing path; actual trusted signing and Store publication remain outstanding. Passwords must be exactly 2026.11.20, installed and enabled, with matching installed/on-disk versions.
-
-## Published v1.0.0 procedure
-
-**Scope:** a fresh installation of `passwords_otp` on Nextcloud AIO with **Nextcloud 35.0.2**, official **Passwords 2026.11.20**, PostgreSQL, PHP 8.3–8.5, persistent `custom_apps` storage and a valid restricted user group.
-
-**The published v1.0.0 ZIP passed a separate local Docker Compose/MariaDB acceptance (10/10 blocks, 49/49 checks), but a real first installation on AIO/PostgreSQL of this exact ZIP is still pending.** The local outcome must not be treated as authorization to run these AIO procedures on production. See [2026-11-11 acceptance report](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md). No general production or App Store approval is claimed. The package is unsigned; `BUILD.json` intentionally contains `production_approved=false`.
-
-**No in-place upgrades.** The AIO installer refuses an existing `passwords_otp` app. The original Passwords app is not changed. The legacy flag `--accept-unapproved-rc` remains the explicit acknowledgement required by the v1.0.0 installer; it does not denote an approved release.
+**No production upgrade path is introduced.** This first-install tool rejects an
+existing `passwords_otp` deployment, including the internal 0.7.3 pilot. The
+rollback below applies to an installation recorded by the matching AIO tool.
 
 ## 1. Verify backup, release files and environment
 
 Verify a restorable AIO/Borg backup, including PostgreSQL and the application volume, and retain a working restoration procedure.
 
-Use the **pinned [v1.0.0 tag](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.0.0)** (commit `56d6de06e4825c9bd03b4b07dec5825d64228390`) to obtain the two scripts `scripts/aio_install.py` and `scripts/release.py`. Obtain the matching ZIP from the [v1.0.0 release assets](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.0.0). Follow [Installation](INSTALLATION.md) for exact download, hash and same-tag instructions.
+Use the **pinned [v1.1.3 tag](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.3)** (commit `ae1096099521dcf9bf7bc6f5e5011f88bced5916`) to obtain the two scripts `scripts/aio_install.py` and `scripts/release.py`. Obtain the matching ZIP from the [v1.1.3 release assets](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). Follow [Installation](INSTALLATION.md) for exact download, hash and same-tag instructions.
 
-Transfer **`passwords_otp-1.0.0.zip`, `aio_install.py` and `release.py`** to a private directory on the AIO host and restrict access (`chmod 600` on all three files). Never mix installer scripts from `main` with the `v1.0.0` archive.
+Transfer **`passwords_otp-1.1.3.zip`, `aio_install.py` and `release.py`** to a private directory on the AIO host and restrict access (`chmod 600` on all three files). Never mix installer scripts from `main` with the `v1.1.3` archive.
 
 On the **AIO host**, in that private directory:
 
 ```sh
-sha256sum passwords_otp-1.0.0.zip
-# The following SHA must match the independently verified release asset:
-# ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256
+sha256sum passwords_otp-1.1.3.zip
+# SHA-256 of the independently verified release asset
+# 92021a9bc69d3a12378fc33de483fdb0806cacc240269a08b350234846a469dd
 
-OTP_SHA="$(sha256sum passwords_otp-1.0.0.zip | cut -d' ' -f1)"
-test "$OTP_SHA" = 'ffc002d7c41485cac4a4b7eb27659fd5d5dbbd4bd7fd40d78e3ea91373a12256'
-
-sudo python3 aio_install.py --inspect
+OTP_SHA="$(sha256sum passwords_otp-1.1.3.zip | cut -d' ' -f1)"
+test "$OTP_SHA" = '92021a9bc69d3a12378fc33de483fdb0806cacc240269a08b350234846a469dd' && sudo python3 aio_install.py --inspect
 ```
 
 Expected: `AIO_INSPECT_PASS`. Stop if the environment, image, Nextcloud/Passwords/PHP versions, PostgreSQL or volume do not match the supported combination. `SHA256_FROM_THIS_PACKAGE` in older examples means the **actual verified ZIP hash**, never a hash copied from another build.
@@ -50,7 +52,7 @@ sudo docker exec -u www-data nextcloud-aio-nextcloud \
   php /var/www/html/occ group:info 'otp-pilot' --output=json
 
 sudo python3 aio_install.py --preflight \
-  --package ./passwords_otp-1.0.0.zip \
+  --package ./passwords_otp-1.1.3.zip \
   --sha256 "$OTP_SHA" \
   --group 'otp-pilot'
 ```
@@ -59,11 +61,11 @@ Expected: `AIO_PREFLIGHT_PASS` and scope `otp-pilot`. Preflight does not change 
 
 ## 3. Explicit first-time install
 
-Only after reading the receipt, verifying the backup and acknowledging the [WebUI token residual risk](SECURITY_REVIEW.md):
+Read the receipt, verify the backup and review the [WebUI token residual risk](SECURITY_REVIEW.md) before installing. The tool requires these acknowledgement flags on the disposable AIO host as well:
 
 ```sh
 sudo python3 aio_install.py --install \
-  --package ./passwords_otp-1.0.0.zip \
+  --package ./passwords_otp-1.1.3.zip \
   --sha256 "$OTP_SHA" \
   --group 'otp-pilot' \
   --confirm-production \
@@ -72,7 +74,7 @@ sudo python3 aio_install.py --install \
   --accept-browser-token-risk
 ```
 
-Expected: `AIO_INSTALL_PASS: 1.0.0`. The installer stages only `passwords_otp` in the persistent `custom_apps` volume, checks file hashes, enables the app through `occ` and verifies group scope. No SQL patch or container restart is intended.
+Expected: `AIO_INSTALL_PASS: 1.1.3`. The installer stages only `passwords_otp` in the persistent `custom_apps` volume, checks file hashes, enables the app through `occ` and verifies group scope. No SQL patch or container restart is intended.
 
 If it prints `STOP`, **do not retry blindly**; inspect the transaction journal and effective app registration first.
 
@@ -80,7 +82,7 @@ If it prints `STOP`, **do not retry blindly**; inspect the transaction journal a
 
 ```sh
 sudo python3 aio_install.py --verify \
-  --package ./passwords_otp-1.0.0.zip \
+  --package ./passwords_otp-1.1.3.zip \
   --sha256 "$OTP_SHA"
 
 sudo docker exec -u www-data nextcloud-aio-nextcloud \
@@ -97,7 +99,7 @@ Retain the exact installed ZIP, corresponding source commit, checksum, scripts a
 
 ```sh
 sudo python3 aio_install.py --rollback \
-  --package ./passwords_otp-1.0.0.zip \
+  --package ./passwords_otp-1.1.3.zip \
   --sha256 "$OTP_SHA" \
   --confirm-production \
   --ack-aio-backup
@@ -105,4 +107,7 @@ sudo python3 aio_install.py --rollback \
 
 After an AIO update, `--allow-aio-update-for-rollback` permits only an *explicitly confirmed* emergency disable of the exact app installation recorded by this tool. It verifies receipt, unchanged app files, registration and persistent volume, **but it does not restore the database**. Use the independent AIO backup if identity or state is uncertain.
 
-**Earlier internal versions:** `0.7.3` was never a public release. These commands apply only to an original `v1.0.0` installation recorded by this installer; do not use them to alter an existing internal pilot installation.
+## Earlier releases
+
+For the historical `passwords_otp-1.0.0.zip` and its exact inputs, use
+[the v1.0.0-tagged AIO procedure](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.0.0/docs/AIO_MANUAL_INSTALL.md).
