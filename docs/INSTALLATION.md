@@ -112,8 +112,9 @@ python3 scripts/deploy.py --localhost-test-only --rollback '/absolute/path/from/
 
 The [AIO guide](AIO_MANUAL_INSTALL.md) documents version-matched first-install
 tooling, preflight and rollback. The installer refuses an existing OTP app,
-including 0.7.3. Live AIO/PostgreSQL acceptance and a production in-place upgrade
-procedure are open.
+including 0.7.3. The [1.1.3 verification record](VALIDATION_1.1.3.md) covers
+PostgreSQL/Redis lab tests and a separate manual production AIO replacement.
+Full-stack AIO first-install tooling and production rollback verification remain open.
 
 ## Published v1.0.0: historical installation procedure
 

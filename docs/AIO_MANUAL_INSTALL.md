@@ -12,15 +12,18 @@ Use `aio_install.py` and `release.py` from the **v1.1.3** tag with
 receipts from that version together. Use the corresponding source tag for
 earlier archives. The installer consumes the compiled ZIP.
 
-The [v1.1.3 verification record](VALIDATION_1.1.3.md) covers localhost MariaDB and
-a separate SQLite fixture. A live first-install test of the published package
-on AIO/PostgreSQL is open. The package is unsigned and carries
+The [v1.1.3 verification record](VALIDATION_1.1.3.md) covers localhost MariaDB,
+SQLite, isolated PostgreSQL/Redis fixtures and one manual production AIO
+replacement. A live first-install test with this installer on the full
+AIO/PostgreSQL stack is open. The package is unsigned and carries
 `production_approved=false`. The legacy `--accept-unapproved-rc` flag
 acknowledges that package status.
 
-**No production upgrade path is introduced.** This first-install tool rejects an
-existing `passwords_otp` deployment, including the internal 0.7.3 pilot. The
-rollback below applies to an installation recorded by the matching AIO tool.
+**No production upgrade path is introduced by this tool.** This first-install
+tool rejects an existing `passwords_otp` deployment, including the internal
+0.7.3 pilot. The [observed manual replacement](VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19)
+has its own acceptance record. The rollback below applies to an installation
+recorded by the matching AIO tool.
 
 ## 1. Verify backup, release files and environment
 
