@@ -211,3 +211,26 @@ configuration. The separate compiled-bundle browser and client suites test the
 provider selector, actual pinned challenge code and retry behavior with synthetic
 API responses. Ordinary Nextcloud login 2FA is a separate layer and is not claimed
 as tested by this runner.
+
+## Browser language matrix
+
+Use the same disposable loopback fixture and compiled assets. Set the existing
+`OTP_E2E_USER` account to German in Nextcloud, and set
+`OTP_E2E_ENGLISH_USER` and `OTP_E2E_ENGLISH_PASSWORD` for an additional OTP-enabled
+account whose Nextcloud language is English. Use separate browser contexts for
+the two accounts. The matrix checks English, German (Germany and Switzerland)
+and French browser locales, app and dialog language attributes, accessible
+labels, English copy and creation, and session expiry. It uses test records.
+
+```sh
+python3 tests/integration/localization.py
+```
+
+With `force_language` set to `de` on the disposable server, run the command below
+to verify that the shell changes to German and the English browser still
+selects the English app. The runner also accepts `--forced-language en` to check
+the inverse. Apply and revert the settings on the fixture.
+
+```sh
+python3 tests/integration/localization.py --forced-language de
+```

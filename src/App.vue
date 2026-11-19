@@ -12,8 +12,10 @@ import {clearSensitiveDom} from './ui/dom-safety.mjs';
 import {createClient, sodiumReady} from './ap1/upstream.js';
 
 const props = defineProps({config: {type: Object, required: true},
+    locale: {type: String, required: true}, t: {type: Function, required: true},
     onControllerReady: {type: Function, required: true}});
-const state = shallowRef({mode: 'loading', status: 'Sitzung wird geprüft …', statusType: 'info'});
+const {locale, t} = props;
+const state = shallowRef({mode: 'loading', status: t('checking-session'), statusType: 'info'});
 const unlockForm = ref(null), createDialog = ref(null);
 const scrubRevision = ref(0);
 function clear(options) {
@@ -34,7 +36,7 @@ function focus(name) {
 // Intentionally plain closure; never proxy the session or use a global store.
 const controller = createOtpController({config: props.config, pageUrl: window.location.href,
     doc: document, fetcher: (...args) => fetch(...args), createClient, sodiumReady,
-    publish: value => { state.value = value; }, clear, focus});
+    publish: value => { state.value = value; }, clear, focus, t});
 // Register synchronously in setup. Waiting for mount() to return would leave a
 // failure in the initial render or mounted hooks unable to stop authentication.
 props.onControllerReady(controller.fail);
@@ -61,35 +63,35 @@ const reload = () => window.location.reload();
 </script>
 
 <template>
-    <NcContent app-name="passwords_otp" lang="de">
+    <NcContent app-name="passwords_otp" :lang="locale">
         <NcAppContent>
             <div class="passwords-otp-panel">
                 <header class="passwords-otp-header">
                     <h1>Passwords OTP Generator</h1>
-                    <p class="passwords-otp-secondary">OTP-Codes aus deinen eigenen gespeicherten OTP-Passwörtern sowie aus den mit dir geteilten OTP-Passwörtern</p>
+                    <p class="passwords-otp-secondary">{{ t('description') }}</p>
                 </header>
                 <div id="passwords-otp-ap1-status" :role="state.statusType === 'error' ? 'alert' : 'status'"
                     :aria-live="state.statusType === 'error' ? 'assertive' : 'polite'">
                     <NcNoteCard :type="state.statusType">{{ state.status }}</NcNoteCard>
                 </div>
                 <VaultUnlock v-if="state.mode === 'needs-auth'" ref="unlockForm"
-                    :snapshot="state.snapshot" :busy="state.unlockBusy" :error="state.unlockError"
+                    :t="t" :snapshot="state.snapshot" :busy="state.unlockBusy" :error="state.unlockError"
                     @unlock="controller.unlock" />
                 <div v-if="state.mode === 'ready'" class="passwords-otp-toolbar" data-otp-protected>
                     <NcButton id="passwords-otp-ap12-open" variant="primary" :disabled="state.createOpening || state.createBusy"
                         aria-haspopup="dialog" :aria-controls="state.createOpen ? 'passwords-otp-ap12-dialog' : undefined" aria-describedby="passwords-otp-ap12-help"
                         @click="controller.openCreate">
-                        {{ state.createOpening ? 'Sitzung wird geprüft …' : 'Neues OTP Passwort hinzufügen' }}
+                        {{ t(state.createOpening ? 'checking-session' : 'add-entry') }}
                     </NcButton>
-                    <p id="passwords-otp-ap12-help" class="passwords-otp-secondary">Hier kann ein neuer OTP Eintrag zu deinen Passwörtern hinzugefügt werden. Er wird in der Passwords App zusammen mit deinen anderen Passwörtern gespeichert und kann über die Passwords App auch verwaltet (gelöscht, verändert) und mit anderen Nextcloud Benutzern geteilt werden.</p>
+                    <p id="passwords-otp-ap12-help" class="passwords-otp-secondary">{{ t('add-entry-help') }}</p>
                 </div>
-                <OtpAccountList v-if="state.mode === 'ready'" :view="state.otp" :query="state.query" :feedback="state.feedback" :scrub-revision="scrubRevision"
+                <OtpAccountList v-if="state.mode === 'ready'" :t="t" :view="state.otp" :query="state.query" :feedback="state.feedback" :scrub-revision="scrubRevision"
                     @filter="controller.filter" @copy="controller.copy" />
                 <NcButton v-if="state.canReload" id="passwords-otp-ap1-reload" variant="primary"
-                    @click="reload">Seite neu laden</NcButton>
+                    @click="reload">{{ t('reload') }}</NcButton>
             </div>
         </NcAppContent>
-        <OtpCreateDialog v-if="state.createOpen" ref="createDialog" :busy="state.createBusy" :error="state.createError"
+        <OtpCreateDialog v-if="state.createOpen" ref="createDialog" :t="t" :locale="locale" :busy="state.createBusy" :error="state.createError"
             @close="controller.closeCreate" @create="controller.create" />
     </NcContent>
 </template>

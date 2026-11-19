@@ -70,12 +70,13 @@ def accessibility(page):
 
 
 class RealFixture:
-    def __init__(self, browser, base, browser_name):
+    def __init__(self, browser, base, browser_name, *, locale='de-CH', app_language='de'):
         self.base = base
         self.origin = f'{urlparse(base).scheme}://{urlparse(base).netloc}'
         self.browser_name = browser_name
+        self.app_language = app_language
         options = {'ignore_https_errors': os.environ.get('OTP_E2E_IGNORE_HTTPS_ERRORS') == '1',
-                   'locale': 'de-CH', 'viewport': {'width': 1440, 'height': 900}}
+                   'locale': locale, 'viewport': {'width': 1440, 'height': 900}}
         if browser_name == 'chromium':
             options['permissions'] = ['clipboard-read', 'clipboard-write']
         self.context = browser.new_context(**options)
@@ -124,7 +125,8 @@ class RealFixture:
         response = self.page.goto(self.base + '/index.php/apps/passwords_otp/')
         assert response and response.status == 200
         if ready:
-            expect(self.page.locator('#passwords-otp-ap1-status')).to_contain_text('OTP-Konten geladen.')
+            expect(self.page.locator('#passwords-otp-ap1-status')).to_contain_text(
+                'OTP-Konten geladen.' if self.app_language == 'de' else 'OTP accounts loaded.')
             if self.page.locator('#passwords-otp-ap2-list li').count():
                 expect(self.page.locator('.passwords-otp-ap3__copy').first).to_be_enabled(timeout=45000)
         return response
@@ -189,11 +191,13 @@ class RealFixture:
             self.page.wait_for_timeout(1100)
         assert sample['code'] == totp(sample['now']), 'TOTP differs from independent HMAC calculation'
         assert sample['progress_max'] == 30, 'Native progress maximum must match the RFC fixture period'
-        countdown = re.fullmatch(r'Noch (\d+) s gültig', sample['countdown'])
+        countdown_pattern = r'Noch (\d+) s gültig' if self.app_language == 'de' else r'(\d+) s remaining'
+        countdown = re.fullmatch(countdown_pattern, sample['countdown'])
         assert countdown and math.ceil(sample['progress_value']) == int(countdown[1]), 'Native progress value and textual countdown disagree'
         for control in (button, displayed):
             control.click()
-            expect(self.page.locator('#passwords-otp-ap3-feedback')).to_contain_text('kopiert')
+            expect(self.page.locator('#passwords-otp-ap3-feedback')).to_contain_text(
+                'OTP-Code kopiert.' if self.app_language == 'de' else 'OTP code copied.')
             if self.browser_name == 'chromium':
                 copied = self.page.evaluate('navigator.clipboard.readText()')
                 assert copied in {totp(sample['now']), totp(self.page.evaluate('Date.now()'))}
@@ -219,7 +223,14 @@ class RealFixture:
     def session_expiry(self):
         self.context.clear_cookies()
         self.page.evaluate("window.dispatchEvent(new Event('focus'))")
-        expect(self.page.locator('#passwords-otp-ap1-reload')).to_be_visible()
+        # Nextcloud's own session listener can redirect to its login page
+        # before the app completes its independent session-status request.
+        expect(self.page.locator('#passwords-otp-ap1-reload, #user').first).to_be_visible()
+        if urlparse(self.page.url).path.endswith('/login'):
+            expect(self.page.locator('#user')).to_be_visible()
+        else:
+            expect(self.page.locator('#passwords-otp-ap1-reload')).to_have_text(
+                'Seite neu laden' if self.app_language == 'de' else 'Reload page')
         expect(self.page.locator('#passwords-otp-ap2-section')).to_have_count(0)
 
     def theme(self, name):

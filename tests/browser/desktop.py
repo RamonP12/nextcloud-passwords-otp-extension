@@ -21,12 +21,12 @@ def encoded(value):
     return base64.b64encode(json.dumps(value).encode()).decode()
 
 
-def shell(theme='light', direction='ltr'):
+def shell(theme='light', direction='ltr', shell_language='de'):
     state = {'status': 'ready', 'bootstrapUrl': PREFIX + '/apps/passwords_otp/bootstrap',
              'sessionStatusUrl': PREFIX + '/apps/passwords_otp/session-status', 'sessionFingerprint': FP}
     template = re.sub(r'<\?php.*?\?>', '', (ROOT/'templates/main.php').read_text(), flags=re.S)
     css = (ROOT/'tests/browser/shell.css').read_text()
-    return f'''<!doctype html><html lang="de" dir="{direction}" data-theme="{theme}"><head data-requesttoken="SYNTHETIC-CSRF">
+    return f'''<!doctype html><html lang="{shell_language}" dir="{direction}" data-theme="{theme}"><head data-requesttoken="SYNTHETIC-CSRF">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OTP fixture</title>
 <style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-113.css"></head>
 <body><header id="header">Nextcloud fixture</header><div id="skip-actions"></div><div id="content">
@@ -45,9 +45,10 @@ def record(identifier='seed', title='Fixture account'):
 
 
 class Fixture:
-    def __init__(self, browser, *, theme='light', width=1280, height=900, direction='ltr', auth=False, records=None, clock=TIME):
+    def __init__(self, browser, *, theme='light', width=1280, height=900, direction='ltr', auth=False, records=None, clock=TIME,
+                 locale='de-CH', expected_language='de', preferences=None, shell_language='de'):
         self.context = browser.new_context(viewport={'width': width, 'height': height},
-                                          color_scheme='dark' if theme == 'dark' else 'light', locale='de-CH')
+                                          color_scheme='dark' if theme == 'dark' else 'light', locale=locale)
         self.active = True
         self.expired = False
         self.rate = 0
@@ -72,11 +73,18 @@ Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
     window.__copied.push(value); return Promise.resolve();
 }}}}}});
 ''')
-        self.html = shell(theme, direction)
+        if preferences is not None:
+            self.page.add_init_script('Object.defineProperty(navigator, "languages", {value: '
+                                      + json.dumps(preferences) + '});')
+        self.html = shell(theme, direction, shell_language)
         self.page.route('**/*', self.route)
         self.page.goto(ORIGIN + PAGE)
-        expect(self.page.locator('#passwords-otp-ap1-status')).to_contain_text(
-            'Authentifizierung erforderlich' if auth else 'OTP-Konten geladen.', timeout=20000)
+        status = {
+            'de': ('Authentifizierung erforderlich', 'OTP-Konten geladen.'),
+            'en': ('Additional vault authentication is required.', 'OTP accounts loaded.'),
+        }[expected_language][0 if auth else 1]
+        expect(self.page.locator('#passwords-otp-ap1-status')).to_contain_text(status, timeout=20000)
+        expect(self.page.locator('#passwords-otp-app')).to_have_attribute('lang', expected_language)
         if not auth and self.records:
             expect(self.page.locator('.passwords-otp-ap3__code').first).to_have_text(re.compile(r'^\d{6}$'))
         self.page.evaluate('''() => {
@@ -400,6 +408,8 @@ def main():
         assert all(pixels['shield'] > 240 and pixels['bow'] < 64
                    and pixels['shaft'] < 60 and pixels['outside'] == 0 for pixels in alpha), alpha
         f.close(); passed('shield-key-negative-space-16-24-32-pixels')
+        from localization import run_cases as run_localization_cases
+        run_localization_cases(browser, passed)
         from lifecycle import run_cases
         results.extend(run_cases(browser))
         browser.close()

@@ -5,7 +5,9 @@ import NcTextField from '@nextcloud/vue/components/NcTextField';
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField';
 import NcSelect from '@nextcloud/vue/components/NcSelect';
 
-const props = defineProps({snapshot: {type: Object, required: true}, busy: Boolean, error: String});
+import {clearFieldValidation, localizeInvalidField} from '../ui/form-validation.mjs';
+
+const props = defineProps({snapshot: {type: Object, required: true}, t: {type: Function, required: true}, busy: Boolean, error: String});
 const emit = defineEmits(['unlock']);
 const password = ref(''), code = ref(''), selectedProvider = ref(null);
 const masterField = ref(null), tokenField = ref(null);
@@ -28,27 +30,29 @@ defineExpose({clearSecrets, focus});
 
 <template>
     <form id="passwords-otp-ap1-login" class="passwords-otp-form" autocomplete="off"
-        data-otp-protected :aria-busy="busy" @submit.prevent="submit">
+        data-otp-protected :aria-busy="busy" @submit.prevent="submit"
+        @invalid.capture="localizeInvalidField($event, t)">
         <NcPasswordField v-if="snapshot.needsChallenge" id="passwords-otp-ap1-password"
-            ref="masterField" v-model="password" label="Passwords-Master-Schlüssel"
+            ref="masterField" v-model="password" :label="t('master-key')"
             :check-password-strength="false" :show-trailing-button="false"
-            :minlength="12" :maxlength="128" required autocomplete="off"
+            :minlength="12" :maxlength="128" required autocomplete="off" @input="clearFieldValidation"
             :error="Boolean(error)" :aria-invalid="Boolean(error)" :disabled="busy"
             :aria-describedby="error ? 'passwords-otp-ap1-status' : undefined"
             data-otp-secret spellcheck="false" autocapitalize="off" />
         <template v-if="snapshot.needsToken">
             <NcSelect v-model="provider" input-id="passwords-otp-ap1-provider"
-                input-label="Zweiter Authentifizierungsfaktor" label="label"
+                :input-label="t('second-factor')" :aria-label-combobox="t('second-factor')"
+                :aria-label-listbox="t('second-factor')" label="label"
                 :options="providers" :clearable="false" :searchable="false"
                 :append-to-body="false" :disabled="busy" />
             <NcTextField id="passwords-otp-ap1-code" ref="tokenField" v-model="code"
-                label="Bestätigungscode" inputmode="numeric" :maxlength="128"
-                autocomplete="one-time-code" required :disabled="busy" data-otp-secret
+                :label="t('verification-code')" inputmode="numeric" :maxlength="128"
+                autocomplete="one-time-code" required @input="clearFieldValidation" :disabled="busy" data-otp-secret
                 spellcheck="false" autocapitalize="off" />
         </template>
         <NcButton type="submit" variant="primary" :disabled="busy"
-            :aria-label="busy ? 'Tresor wird entsperrt' : 'Tresor entsperren'">
-            {{ busy ? 'Tresor wird entsperrt …' : 'Tresor entsperren' }}
+            :aria-label="t(busy ? 'unlock-busy' : 'unlock')">
+            {{ t(busy ? 'unlock-busy-status' : 'unlock') }}
         </NcButton>
     </form>
 </template>

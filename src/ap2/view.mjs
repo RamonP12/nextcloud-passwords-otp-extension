@@ -1,13 +1,12 @@
-export function otpListNotice(snapshot, resultCount) {
+export function otpListNotice(snapshot, resultCount, t) {
     if (snapshot?.state !== 'ready') return '';
     const invalid = snapshot.invalidOtpCount || 0;
     const unsupported = snapshot.unsupportedOtpCount || 0;
     const total = snapshot.otpAccounts?.length || 0;
-    let basic = total === 0 ? 'Keine gültigen TOTP-Konten vorhanden.'
-        : resultCount === 0 ? 'Keine TOTP-Konten entsprechen der Suche.' : '';
-    if (invalid > 0) basic += (basic ? ' ' : '') + invalid +
-        ' OTP-Eintrag/Einträge wegen ungültiger Konfiguration ausgeblendet.';
-    if (unsupported > 0) basic += (basic ? ' ' : '') + unsupported +
-        ' OTP-Eintrag/Einträge mit nicht unterstütztem Typ (z. B. HOTP) ausgeblendet.';
-    return basic;
+    const notices = [];
+    if (total === 0) notices.push(t('no-accounts'));
+    else if (resultCount === 0) notices.push(t('no-matches'));
+    if (invalid > 0) notices.push(t('invalid-entries', {count: invalid}));
+    if (unsupported > 0) notices.push(t('unsupported-entries', {count: unsupported}));
+    return notices.join(' ');
 }

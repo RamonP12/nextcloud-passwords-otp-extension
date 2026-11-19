@@ -1,3 +1,4 @@
+import {createTranslator} from '../../src/l10n/translator.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TotpPresenter} from '../../src/ap3/ui.mjs';
@@ -20,7 +21,7 @@ function setup({period = 30, now = 1000, verify = async () => true, calculate,
             calculations++;
             return calculate ? calculate(id, time) : {code: '123456', ...timeSlot(time, period)};
         }};
-    const p = new TotpPresenter({now: () => clock, isHidden: () => hidden,
+    const p = new TotpPresenter({t: createTranslator('de'), now: () => clock, isHidden: () => hidden,
         verifySession: async () => { checks++; return verify(); },
         writeClipboard: value => { copies++; return writeClipboard(value); },
         fatal: () => fatals++, notify: message => notifications.push(message),
@@ -508,7 +509,7 @@ test('Empty and filtered views retain distinct explanatory notices', async t => 
     f.p.render(ready([], {invalidOtpCount: 1, unsupportedOtpCount: 2}));
     assert.match(f.view().notice, /Keine gültigen TOTP-Konten/);
     assert.match(f.view().notice, /1 OTP-Eintrag/);
-    assert.match(f.view().notice, /2 OTP-Eintrag/);
+    assert.match(f.view().notice, /2 OTP-Einträge/);
 });
 
 test('Malformed signing responses fail once instead of retrying indefinitely', async t => {

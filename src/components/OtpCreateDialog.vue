@@ -6,12 +6,14 @@ import NcTextField from '@nextcloud/vue/components/NcTextField';
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField';
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard';
 import {createErrorMessage} from '../ui/messages.mjs';
+import {clearFieldValidation, localizeInvalidField} from '../ui/form-validation.mjs';
 
-const props = defineProps({busy: Boolean, error: String});
+const props = defineProps({busy: Boolean, error: String,
+    locale: {type: String, required: true}, t: {type: Function, required: true}});
 const emit = defineEmits(['close', 'create']);
 const label = ref(''), username = ref(''), password = ref(''), secret = ref('');
 const labelField = ref(null), secretField = ref(null), feedback = ref(null);
-const errorMessage = computed(() => props.error ? createErrorMessage(props.error) : '');
+const errorMessage = computed(() => props.error ? createErrorMessage(props.error, props.t) : '');
 const invalid = field => props.error === `create-invalid-${field}`;
 function clearSecrets() { password.value = ''; secret.value = ''; }
 function close() {
@@ -76,42 +78,43 @@ defineExpose({clearSecrets, focus});
 </script>
 
 <template>
-    <NcDialog id="passwords-otp-ap12-dialog" class="passwords-otp-dialog" lang="de"
-        name="Neues OTP Passwort hinzufügen" size="normal" is-form
-        container="#passwords-otp-dialog-host" :open="true" :no-close="busy"
+    <NcDialog id="passwords-otp-ap12-dialog" class="passwords-otp-dialog" :lang="locale"
+        :name="t('add-entry')" size="normal" is-form
+        container="#passwords-otp-dialog-host" :open="true" no-close
         :close-on-click-outside="false" :out-transition="false"
         content-classes="passwords-otp-form" :aria-busy="busy" data-otp-protected
         @submit="submit" @closing="close" @update:open="value => { if (!value) close(); }"
-        @keydown.capture="onDialogKeydown">
-        <p id="passwords-otp-ap12-description">Einen neuen Eintrag in Nextcloud Passwords erstellen. Das OTP-Datenfeld wird automatisch angelegt.</p>
+        @keydown.capture="onDialogKeydown"
+        @invalid.capture="localizeInvalidField($event, t)">
+        <p id="passwords-otp-ap12-description">{{ t('entry-description') }}</p>
         <NcTextField id="passwords-otp-ap12-label" ref="labelField" v-model="label"
-            label="Bezeichnung" required :maxlength="160" autocomplete="off"
+            :label="t('entry-label')" required @input="clearFieldValidation" :maxlength="160" autocomplete="off"
             :disabled="busy" :error="invalid('label')" :aria-invalid="invalid('label')" />
         <NcTextField id="passwords-otp-ap12-username" v-model="username"
-            label="Benutzername (optional)" :maxlength="160" autocomplete="off"
+            :label="t('entry-username')" :maxlength="160" autocomplete="off"
             :disabled="busy" :error="invalid('username')" :aria-invalid="invalid('username')" spellcheck="false" />
         <NcPasswordField id="passwords-otp-ap12-password" v-model="password"
-            label="Passwort" required :maxlength="4096" autocomplete="new-password"
+            :label="t('entry-password')" required @input="clearFieldValidation" :maxlength="4096" autocomplete="new-password"
             :check-password-strength="false" :show-trailing-button="false" :disabled="busy"
             :error="invalid('password')" :aria-invalid="invalid('password')" data-otp-secret
-            helper-text="Passwort des Dienstkontos, nicht das Nextcloud-Masterpasswort."
+            :helper-text="t('entry-password-help')"
             spellcheck="false" autocapitalize="off" />
         <NcPasswordField id="passwords-otp-ap12-secret" ref="secretField" v-model="secret"
-            label="OTP-Secret (Base32)" required :maxlength="4096" autocomplete="off"
+            :label="t('entry-secret')" required @input="clearFieldValidation" :maxlength="4096" autocomplete="off"
             :check-password-strength="false" :show-trailing-button="false" :disabled="busy"
             :error="invalid('secret')" :aria-invalid="invalid('secret')" data-otp-secret
-            helper-text="Einrichtungsschlüssel des Dienstes. Neuanlage: SHA-1, 6 Stellen, 30 Sekunden."
+            :helper-text="t('entry-secret-help')"
             spellcheck="false" autocapitalize="off" />
-        <p class="passwords-otp-secondary">Mit «OTP speichern» bestätigen. Enter in einem Eingabefeld erstellt keinen Eintrag.</p>
+        <p class="passwords-otp-secondary">{{ t('entry-submit-help') }}</p>
         <div id="passwords-otp-ap12-feedback" ref="feedback" tabindex="-1"
             :role="error ? 'alert' : 'status'" :aria-live="error ? 'assertive' : 'polite'">
             <NcNoteCard v-if="error" type="error">{{ errorMessage }}</NcNoteCard>
-            <span v-else-if="busy">Neuer OTP-Eintrag wird erstellt …</span>
+            <span v-else-if="busy">{{ t('entry-creating') }}</span>
         </div>
         <template #actions>
-            <NcButton id="passwords-otp-ap12-cancel" :disabled="busy" @click="close">Abbrechen</NcButton>
+            <NcButton id="passwords-otp-ap12-cancel" :disabled="busy" @click="close">{{ t('cancel') }}</NcButton>
             <NcButton id="passwords-otp-ap12-save" type="submit" variant="primary" :disabled="busy">
-                {{ busy ? 'Wird gespeichert …' : 'OTP speichern' }}
+                {{ t(busy ? 'saving' : 'save') }}
             </NcButton>
         </template>
     </NcDialog>

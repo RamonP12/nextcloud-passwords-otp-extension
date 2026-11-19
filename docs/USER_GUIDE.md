@@ -2,6 +2,12 @@
 
 The app in [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) appears as **Passwords OTP Generator** in Nextcloud navigation and on the administrator’s Apps page. The icon is a shield with a diagonal key cut-out. Published version 1.1.2 appears as **Passwort OTP Code Generator**.
 
+## Interface language
+
+The published 1.1.3 interface is German. The unreleased multilingual interface uses the first supported language in your browser preferences. For example, German (Switzerland) selects German, and French with no other supported preference selects English. Put your preferred supported language first in the browser, then reload the page or reopen the app. The Nextcloud menu can use a different language set by your account or administrator.
+
+The steps below show the published German labels. In English, use **Search TOTP accounts**, **Copy code**, **Add a new OTP entry**, **Save OTP** and **Cancel**. See [localization](LOCALIZATION.md) for details.
+
 ## Required Passwords app
 
 The administrator must install and enable Passwords **2026.11.20** before enabling OTP. Users need access to both apps. A Passwords group restriction can deny an individual user without disabling OTP for other authorized users. If Passwords is disabled, removed or changed to an unsupported version, OTP denies further operations and disables itself through the documented lifecycle checks. After restoring the prerequisite, the administrator must enable OTP explicitly; it does not reactivate itself.
@@ -37,7 +43,5 @@ If the interface reports an uncertain save result, verify the original Passwords
 The app checks login validity before new mandatory time windows and when returning to the page. Leaving or hiding the page clears displayed codes and secret inputs; focus restoration requires appropriate verification before codes are shown again. Navigating away and returning through browser history can require a reload and fresh vault authentication.
 
 Keyboard focus follows the active form/dialog and returns to the opener when an idle create dialog closes. Errors distinguish authentication, validation, rate-limit and clipboard problems. If Nextcloud or the Passwords API session expires, reload or sign in as prompted. Signing out cannot revoke a code that has already been copied.
-
-The app's own interface remains **German**, with an explicit German language annotation. Additional app languages are tracked in [#6](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/6).
 
 Use a trusted browser. Browser extensions and clipboard history can retain sensitive data. Never place a real OTP setup secret, master passphrase, token or cookie in a bug report. See [Security review](SECURITY_REVIEW.md) for the unchanged architecture and threat boundaries.

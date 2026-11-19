@@ -4,19 +4,20 @@ import {boundedRequest} from '../ap1/network.mjs';
 import {makeSessionCheck} from '../ap9/session-check.mjs';
 import {TotpPresenter} from '../ap3/ui.mjs';
 import {createErrorMessage, messageFor, safeCreateErrorCode} from './messages.mjs';
+import {englishText} from '../l10n/translator.mjs';
 
 /** Application lifecycle, independent of Vue. Only public display state leaves
  * this closure. Never put the session, client, keys or credential objects in a
  * reactive proxy/store: the domain classes use native private fields.
  */
 export function createOtpController({config, pageUrl, doc, fetcher,
-    createClient, sodiumReady, publish = () => {}, clear = () => {}, focus = () => {},
+    createClient, sodiumReady, publish = () => {}, clear = () => {}, focus = () => {}, t = englishText,
     createSession = client => new OtpVaultSession(client),
     createPresenter = options => new TotpPresenter(options),
     bootstrap = loadBootstrap, checkSession = makeSessionCheck} = {}) {
     let session = null, presenter = null, started = false, ended = false, pageHidden = false;
     const bootstrapAbort = new AbortController();
-    let state = {mode: 'loading', status: 'Sitzung wird geprüft …', statusType: 'info',
+    let state = {mode: 'loading', status: t('checking-session'), statusType: 'info',
         snapshot: null, otp: {state: 'locked', rows: [], notice: ''}, query: '', feedback: '',
         canReload: false, unlockBusy: false, unlockError: '', createOpening: false,
         createOpen: false, createBusy: false, createError: '', createBlocked: false};
@@ -59,12 +60,12 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         if (!active()) return;
         const authorized = snapshot.state === 'ready';
         update({mode: snapshot.state, snapshot, query: authorized ? state.query : '',
-            status: authorized ? 'OTP-Konten geladen.' : 'Zusätzliche Tresor-Authentifizierung erforderlich.',
+            status: authorized ? t('accounts-loaded') : t('additional-authentication'),
             statusType: 'info', unlockError: ''});
         presenter.render(snapshot, state.query);
         if (snapshot.state === 'needs-auth') {
             if (snapshot.needsToken && !snapshot.providers.some(provider => provider.supported)) {
-                fail('Der konfigurierte 2FA-Anbieter wird nicht unterstützt.');
+                fail(t('configured-factor-unsupported'));
             } else focus(snapshot.needsChallenge ? 'master' : 'token');
         }
     }
@@ -74,16 +75,16 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         // the domain session already disposed itself during the failed probe.
         if (['passwords-session-expired', 'auth-rate-limited', 'create-uncertain'].includes(error?.code)) {
             if (error.code === 'create-uncertain') update({createBlocked: true});
-            fail(createErrorMessage(error.code));
+            fail(createErrorMessage(error.code, t));
         } else if (session?.disposed || ['auth-required', 'auth-invalid', 'disposed'].includes(error?.code)) {
-            fail('Nextcloud-Sitzung nicht mehr gültig. Bitte erneut anmelden.');
+            fail(t('session-invalid'));
         } else if (state.createOpen) {
             // Unknown exception details may contain upstream or input data.
             // Only our finite public error vocabulary may reach Vue state.
             update({createError: safeCreateErrorCode(error?.code)});
             focus(error?.code === 'create-invalid-secret' ? 'secret' : 'create-error');
         } else {
-            update({status: 'Die Passwords-API konnte nicht überprüft werden. Bitte erneut versuchen.', statusType: 'warning'});
+            update({status: t('api-check-failed'), statusType: 'warning'});
         }
     }
     async function start() {
@@ -92,11 +93,11 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         publish(state);
         try {
             if (config?.status !== 'ready') {
-                fail('Die Passwords-Integration ist nicht verfügbar.');
+                fail(t('integration-unavailable'));
                 return;
             }
             verifySession = checkSession(config, pageUrl, fetcher);
-            presenter = createPresenter({verifySession, isHidden: () => doc.hidden || pageHidden,
+            presenter = createPresenter({verifySession, t, isHidden: () => doc.hidden || pageHidden,
                 publish: otp => {
                     if (ended || pageHidden) return;
                     const nextRows = new Map(otp.rows.map(row => [row.account.id, row]));
@@ -122,7 +123,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
             await requireSession();
             showResult(result);
         } catch (error) {
-            if (!ended && !pageHidden) fail(messageFor(error?.code));
+            if (!ended && !pageHidden) fail(messageFor(error?.code, t));
             else session?.dispose();
         }
     }
@@ -138,7 +139,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         try {
             clear({inputs: true});
             update({unlockBusy: true, unlockError: '', statusType: 'info',
-                status: 'Tresor wird über die offizielle Passwords-API freigegeben …'});
+                status: t('vault-opening')});
             await requireSession();
             const updated = await session.unlock(credentials);
             await requireSession();
@@ -146,9 +147,9 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         } catch (error) {
             if (ended || pageHidden) return;
             if (error?.code === 'invalid-master-key' && active() && session.state === 'needs-auth') {
-                update({unlockError: error.code, status: messageFor(error.code), statusType: 'warning'});
+                update({unlockError: error.code, status: messageFor(error.code, t), statusType: 'warning'});
                 focus('master');
-            } else fail(messageFor(error?.code));
+            } else fail(messageFor(error?.code, t));
         } finally {
             credentials.password = ''; credentials.otpCode = '';
             auth.password = ''; auth.otpCode = '';
@@ -191,7 +192,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
             if (!ready()) return;
             update({createOpen: false, createBusy: false});
             showResult(created.snapshot);
-            update({status: 'Neuer OTP-Eintrag in Passwords gespeichert.', statusType: 'success'});
+            update({status: t('entry-created'), statusType: 'success'});
             focus('create');
         } catch (error) { createFailure(error); }
         finally {
@@ -213,7 +214,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         bootstrapAbort.abort();
         try { presenter?.dispose(); }
         finally {
-            try { lockUi('Sitzung beendet. Bitte Seite neu laden.'); }
+            try { lockUi(t('session-ended')); }
             finally {
                 // Local invalidation occurs synchronously inside close(); the
                 // network revocation remains best effort during navigation.
@@ -226,7 +227,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         if (event.persisted) {
             pageHide();
             pageHidden = false;
-            lockUi('Sitzung beendet. Bitte Seite neu laden.');
+            lockUi(t('session-ended'));
         }
     }
     return {
@@ -237,6 +238,6 @@ export function createOtpController({config, pageUrl, doc, fetcher,
             presenter?.visibilityChanged();
         },
         focusChanged: () => presenter?.focusChanged(),
-        fail: () => fail('Die Oberfläche konnte nicht sicher ausgeführt werden. Bitte Seite neu laden.'),
+        fail: () => fail(t('interface-failed')),
     };
 }
