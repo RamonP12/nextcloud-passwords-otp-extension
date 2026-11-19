@@ -116,6 +116,10 @@ including 0.7.3. The [1.1.3 verification record](VALIDATION_1.1.3.md) covers
 PostgreSQL/Redis lab tests and a separate manual production AIO replacement.
 Full-stack AIO first-install tooling and production rollback verification remain open.
 
+For an existing OTP deployment, use the [post-upgrade check and recovery](VALIDATION_1.1.3.md#post-upgrade-check-and-recovery)
+after an AIO core upgrade. One production upgrade to Nextcloud 35.0.3 required
+manual OTP activation after Passwords was active.
+
 ## Published v1.0.0: historical installation procedure
 
 **Distribution:** unsigned, unofficial GitHub source/release ZIP; not in the Nextcloud App Store. This is a manual **first-install** path, not a supported upgrade procedure.

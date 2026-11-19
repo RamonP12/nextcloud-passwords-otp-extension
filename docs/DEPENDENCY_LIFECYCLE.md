@@ -93,7 +93,7 @@ on MariaDB and the independent SQLite upgrade and rollback. It also records
 24 cases against pinned Nextcloud core with service doubles. Later PostgreSQL/Redis
 checks covered OTP group denial and confirmed the positive disable and explicit
 re-enable path on Nextcloud 35.0.3. The production AIO record covers the manual
-replacement and core browser acceptance.
+replacement and a later [core upgrade and OTP reactivation](VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation).
 
 The [1.1.2 verification record](VALIDATION_1.1.2.md) distinguishes standalone PHP
 contracts, tests executing unmodified Nextcloud 35 core classes with isolated
