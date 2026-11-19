@@ -86,10 +86,14 @@ constraints and [1.1.2 verification](VALIDATION_1.1.2.md) for actual evidence.
 On 2026-11-19 the maintainer confirmed five manual checks on the 1.1.0 Vue
 candidate: independent TOTP comparison, copying, search, persistent entry
 creation and logout invalidation. Those checks remain historical frontend
-acceptance. **1.1.2 changes server-side lifecycle behavior and needs additional
-disposable localhost tests** for missing/disabled/incompatible Passwords,
-activation, disable/remove handling, group separation and recovery. Do not
-infer those results from unit fixtures or the five previous checks.
+acceptance. **Later that day, OTP 1.1.2 successfully upgraded the same localhost
+fixture**, with backup, package-file verification, versioned assets and normal
+Passwords disable/recovery controls passing. Existing OTP accounts, code changes
+and new test-entry creation were also confirmed. See the
+[1.1.2 localhost acceptance](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md). Fresh
+installation without Passwords, removal with retained data, eventless loss,
+group separation and incompatible Passwords versions still need isolated tests.
+Do not infer those missing results from component fixtures or the earlier five checks.
 
 The AIO tool remains **first-install only**, with version/hash/scope/backup
 gates. It refuses an existing OTP app, including 0.7.3. A 1.1.2 AIO first install

@@ -94,7 +94,16 @@ service doubles, synthetic browser tests, and the maintainer's historical live
 acceptance. Core component tests are reproducible from pinned upstream source
 hashes; see [integration instructions](../tests/integration/README.md).
 
-Before treating 1.1.2 as accepted on a particular installed server, check:
+**Post-release positive-path acceptance:** On 2026-11-19, the maintainer
+confirmed 1.1.2 upgrade and rendering on the real localhost fixture; normal
+Passwords disable cascaded to OTP; a forbidden OTP re-enable exited with code 1;
+Passwords recovery left OTP disabled until explicit successful activation. OTP
+account display, changing codes and new test-entry creation also passed. See
+[localhost acceptance](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md). These are
+operator-reported local results, not a fresh cross-platform CI run.
+
+For a new server or full coverage of the remaining negative/destructive cases,
+check:
 
 1. Upgrade with Passwords 2026.11.20 enabled, open OTP, compare one TOTP value,
    and confirm the current app version and loaded assets.
@@ -108,8 +117,9 @@ Before treating 1.1.2 as accepted on a particular installed server, check:
    the excluded user and leaves OTP available to an authorized user.
 
 The five functional tests previously confirmed on the 1.1.0 Vue candidate remain
-valuable historical evidence. They do not prove these newly introduced
-installation and lifecycle behaviors on the maintainer's laptop.
+valuable historical evidence; the separate 1.1.2 localhost results above now
+support the **normal** lifecycle flow. They do not establish fresh installation
+without Passwords, removal with retained data, missed events or group isolation.
 
 ## Primary implementation references
 

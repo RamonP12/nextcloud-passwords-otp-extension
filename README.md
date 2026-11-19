@@ -25,7 +25,7 @@ The migration includes a Vite build, local regression tests against the compiled
 - Recheck the Nextcloud login before new code windows, on focus and when returning to the page; reject expired or near-expiry clipboard copies.
 - Use Nextcloud component styling, keyboard-accessible controls, distinct status messages and responsive layouts.
 
-The app's text remains **German**. Multilingual app content ([#6](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/6)) and clicking the displayed code itself to copy ([#7](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/7)) are separate feature requests; use the explicit copy button.
+The app's text remains **German**. Multilingual app content ([#6](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/6)) and clicking the displayed code itself to copy ([#7](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/7)) are separate feature requests; use the explicit copy button. The proposed display-name/icon change to **Passwords OTP Generator** is recorded in [#12](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/12) as **backlog only; not implemented**.
 
 ## Compatibility and verification
 
@@ -33,7 +33,7 @@ The app's text remains **German**. Multilingual app content ([#6](https://github
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
 | Passwords integration target | Passwords 2026.11.20; exact version required; dependency enforcement does not turn internal upstream classes into public APIs |
-| Version 1.1.2 | Dependency lifecycle and packaging changes; current component evidence and remaining installed-server checks are documented in the [1.1.2 record](docs/VALIDATION_1.1.2.md) |
+| Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
 | Published v1.0.0 | Exact ZIP passed the recorded 2026-11-11 localhost/Nextcloud/MariaDB acceptance: 10/10 blocks, 49/49 checks |
 | Production AIO/PostgreSQL | No general production approval or tested in-place upgrade procedure |
@@ -44,7 +44,7 @@ The earlier v1.0.0 results are historical evidence, not test results for the Vue
 
 Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Current 1.1.2 scripts accept the matching 1.1.2 package; use the `v1.1.2` tagged scripts for this release. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
 
-The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables; it does not supply a production AIO upgrade path. The five accepted 1.1.0 functional checks are not acceptance of the new 1.1.2 install/disable/remove behavior.
+The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables; it does not supply a production AIO upgrade path. The five accepted 1.1.0 functional checks alone did not cover the new 1.1.2 lifecycle. The maintainer has since accepted the 1.1.2 localhost upgrade, ordinary Passwords disable/enable safeguards and basic OTP operation. [The local acceptance report](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) details what passed and what remains untested.
 
 The Nextcloud server needs the compiled application assets and PHP files; **Node.js and npm are build-time tools**, not production server requirements.
 
