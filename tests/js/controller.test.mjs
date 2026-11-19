@@ -1,3 +1,4 @@
+import {createTranslator} from '../../src/l10n/translator.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createOtpController} from '../../src/ui/controller.mjs';
@@ -5,6 +6,8 @@ import {clearSensitiveDom} from '../../src/ui/dom-safety.mjs';
 import {createErrorMessage, messageFor, safeCreateErrorCode} from '../../src/ui/messages.mjs';
 import {SessionFault} from '../../src/ap1/session.mjs';
 import {deferred, settle} from './helpers.mjs';
+
+const german = createTranslator('de');
 
 const account = {id: 'synthetic', title: 'Synthetic account', type: 'totp', period: 30,
     algorithm: 'sha1', digits: 6};
@@ -84,7 +87,7 @@ function fixture(options = {}) {
             options.presenterDispose?.();
         },
     };
-    const controller = createOtpController({config, pageUrl: 'https://fixture.invalid/apps/passwords_otp/',
+    const controller = createOtpController({config, t: german, pageUrl: 'https://fixture.invalid/apps/passwords_otp/',
         doc, fetcher: () => { throw new Error('network must be injected'); },
         publish: next => { state = next; publications.push(next); },
         clear: instruction => { clears.push(instruction); options.clear?.(instruction); },
@@ -379,7 +382,7 @@ test('Disposed API expiry and rate-limit errors preserve their precise cause', a
         await f.ready();
         await f.controller.openCreate();
         assert.equal(f.state().mode, 'locked');
-        assert.equal(f.state().status, createErrorMessage(code));
+        assert.equal(f.state().status, createErrorMessage(code, german));
         assert.equal(f.state().createOpen, false);
         if (code === 'auth-rate-limited') assert.match(f.state().status, /nicht als abgelaufen nachgewiesen/);
     }
@@ -477,7 +480,7 @@ test('Ambiguous CREATE blocks all retry paths and preserves the warning against 
     assert.equal(f.state().mode, 'locked');
     assert.equal(f.state().createBlocked, true);
     const status = f.state().status;
-    assert.equal(status, createErrorMessage('create-uncertain'));
+    assert.equal(status, createErrorMessage('create-uncertain', german));
     await f.controller.openCreate();
     await f.controller.create(values());
     f.presenterOptions().fatal('LATE-LESS-PRECISE-CAUSE');

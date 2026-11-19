@@ -2,6 +2,11 @@
 
 All notable changes to the publicly maintained project are documented here. The first public source baseline is **1.0.0**; internal development candidates are not published as supported releases.
 
+## [Unreleased]
+
+- Translate the app body into German and English. Select the first supported browser preference, match regional variants to the base language and fall back to English. The Nextcloud shell follows its own language policy. See [localization and verification](docs/LOCALIZATION.md).
+- Localize vault, list and clipboard messages, the creation dialog, required and length validation, plural notices and accessible labels. Use the localized Cancel action or Escape to close an idle dialog.
+
 ## [1.1.3] – Branding and direct code copying (2026-11-19)
 
 - Use **Passwords OTP Generator** in Nextcloud app administration, navigation and the app heading. The shield icon contains a transparent, diagonal key. The app ID remains `passwords_otp`.

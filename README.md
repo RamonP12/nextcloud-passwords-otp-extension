@@ -25,7 +25,7 @@ The migration includes a Vite build, local regression tests against the compiled
 - Recheck the Nextcloud login before new code windows, on focus and when returning to the page; reject expired or near-expiry clipboard copies.
 - Use Nextcloud component styling, keyboard-accessible controls, distinct status messages and responsive layouts.
 
-The app's text remains **German**. Multilingual app content is tracked in [#6](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/6). The [user guide](docs/USER_GUIDE.md) describes both copy controls and the display name used by each version.
+The published **1.1.3** app uses German. The next release's [localized interface](docs/LOCALIZATION.md) selects German or English from the browser's preferences and uses English when no supported preference matches. The [user guide](docs/USER_GUIDE.md) describes both copy controls and the display name used by each version.
 
 ## Compatibility and verification
 

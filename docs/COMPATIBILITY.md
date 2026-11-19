@@ -48,4 +48,4 @@ The AIO installer refuses existing OTP deployments. Current source tooling accep
 
 The GitHub release includes a compiled unsigned TAR. App Store signing and an automatic Store update channel remain open. See [App Store packaging](APPSTORE_PACKAGING.md). Declaring and enforcing a Passwords dependency does not make private Passwords integration classes public Nextcloud APIs.
 
-App text remains German. Language negotiation and catalogues remain tracked in issue #6. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.
+Published 1.1.3 uses German. The [unreleased language support](LOCALIZATION.md) covers German and English selected by browser preference, with separate Nextcloud shell language settings. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.

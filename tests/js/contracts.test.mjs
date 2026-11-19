@@ -74,13 +74,17 @@ test('Retired HOTP implementation, metrics and manual lock stay absent', () => {
     assert.doesNotMatch(ownCode(), /hotpNext|importHotpKey|calculateHotp|OTP_HOTP_WRITE_TEST_ONLY|hotp-commit|passwords-otp-ap4|passwords-otp-ap1-lock|passwords-otp-ap0__metrics/);
 });
 
-test('Requested German copy is retained and subtree language is explicit', () => {
+test('German copy is retained and app subtree languages are explicit', () => {
     const app = read('src/App.vue');
-    assert.ok(app.includes('OTP-Codes aus deinen eigenen gespeicherten OTP-Passwörtern sowie aus den mit dir geteilten OTP-Passwörtern'));
-    assert.ok(app.includes('Hier kann ein neuer OTP Eintrag zu deinen Passwörtern hinzugefügt werden.'));
-    assert.ok(app.includes('Neues OTP Passwort hinzufügen'));
-    assert.match(read('templates/main.php'), /lang="de"/);
-    assert.match(read('src/components/OtpCreateDialog.vue'), /lang="de"/);
+    const german = JSON.parse(read('src/l10n/de.json'));
+    assert.equal(german['add-entry'], 'Neues OTP Passwort hinzufügen');
+    assert.match(german.description, /eigenen.*geteilten OTP-Passwörtern/);
+    assert.match(german['add-entry-help'], /neuer OTP Eintrag/);
+    assert.match(read('templates/main.php'), /lang="en"/);
+    assert.match(app, /:lang="locale"/);
+    assert.match(read('src/components/OtpCreateDialog.vue'), /:lang="locale"/);
+    assert.match(read('src/main.js'), /root.lang = locale/);
+    assert.match(read('src/main.js'), /dialogHost.lang = locale/);
     assert.doesNotMatch(app, /NextCloud|Desktop-Testversion/);
 });
 

@@ -3,7 +3,7 @@ import {computed} from 'vue';
 import NcButton from '@nextcloud/vue/components/NcButton';
 import NcTextField from '@nextcloud/vue/components/NcTextField';
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent';
-const props = defineProps({view: {type: Object, required: true}, query: String, feedback: String, scrubRevision: Number});
+const props = defineProps({view: {type: Object, required: true}, t: {type: Function, required: true}, query: String, feedback: String, scrubRevision: Number});
 const emit = defineEmits(['filter', 'copy']);
 // A synchronous security scrub can precede Vue's next tick. Reapply the final
 // values even if they equal the previous VNode, without remounting the focused
@@ -22,19 +22,19 @@ function copyCode(event, row) {
 function details(account) {
     const subtitle = [account.issuer, account.accountName, account.username]
         .filter((value, index, values) => value && values.indexOf(value) === index).join(' · ');
-    const config = `TOTP · ${account.algorithm.toUpperCase()} · ${account.digits} Stellen`;
+    const config = props.t('configuration', {algorithm: account.algorithm.toUpperCase(), digits: account.digits});
     return subtitle ? `${subtitle} · ${config}` : config;
 }
 </script>
 
 <template>
-    <section id="passwords-otp-ap2-section" aria-label="TOTP-Konten" data-otp-protected>
+    <section id="passwords-otp-ap2-section" :aria-label="t('accounts')" data-otp-protected>
         <NcTextField id="passwords-otp-ap2-search" type="search" :model-value="query"
-            class="passwords-otp-search" label="TOTP-Konten durchsuchen"
-            placeholder="Titel, Benutzername oder Anbieter" autocomplete="off" spellcheck="false"
+            class="passwords-otp-search" :label="t('search')"
+            :placeholder="t('search-placeholder')" autocomplete="off" spellcheck="false"
             @update:model-value="emit('filter', String($event))" />
         <div id="passwords-otp-ap2-empty" role="status" aria-live="polite">
-            <NcEmptyContent v-if="visibleCount === 0" :name="query ? 'Keine passenden TOTP-Konten' : 'Keine TOTP-Konten'"
+            <NcEmptyContent v-if="visibleCount === 0" :name="t(query ? 'empty-search' : 'empty-accounts')"
                 :description="view.notice" />
             <p v-else-if="view.notice" class="passwords-otp-secondary">{{ view.notice }}</p>
         </div>
@@ -48,17 +48,17 @@ function details(account) {
                     <button type="button" class="passwords-otp-ap3__code"
                         v-code="{code: row.code, revision: scrubRevision}"
                         v-disabled="{disabled: copyDisabled(row), revision: scrubRevision}"
-                        :disabled="copyDisabled(row)" :aria-label="'Angezeigten OTP-Code für ' + row.account.title + ' kopieren'"
+                        :disabled="copyDisabled(row)" :aria-label="t('copy-displayed', {title: row.account.title})"
                         @click="copyCode($event, row)" />
                     <div class="passwords-otp-account__time" aria-live="off">
-                        <span>{{ row.code ? `Noch ${Math.ceil(row.remainingMs / 1000)} s gültig` : 'Wird geprüft …' }}</span>
+                        <span>{{ row.code ? t('validity', {count: Math.ceil(row.remainingMs / 1000)}) : t('code-checking') }}</span>
                         <progress v-progress="{value: row.remainingMs / 1000, revision: scrubRevision}" class="passwords-otp-ap3__progress" :max="row.account.period"
-                            :value="row.remainingMs / 1000" :aria-label="'Restgültigkeit für ' + row.account.title"
-                            :aria-valuetext="row.code ? `${Math.ceil(row.remainingMs / 1000)} Sekunden` : 'Wird geprüft'" />
+                            :value="row.remainingMs / 1000" :aria-label="t('time-remaining', {title: row.account.title})"
+                            :aria-valuetext="row.code ? t('seconds', {count: Math.ceil(row.remainingMs / 1000)}) : t('time-checking')" />
                     </div>
                     <NcButton v-disabled="{disabled: copyDisabled(row), revision: scrubRevision}" class="passwords-otp-ap3__copy" :disabled="copyDisabled(row)"
-                        :aria-label="'Code kopieren für ' + row.account.title" @click="copyCode($event, row)">
-                        Code kopieren
+                        :aria-label="t('copy-account', {title: row.account.title})" @click="copyCode($event, row)">
+                        {{ t('copy') }}
                     </NcButton>
                 </div>
             </li>

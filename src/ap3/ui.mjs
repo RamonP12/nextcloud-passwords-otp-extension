@@ -1,6 +1,7 @@
 import {otpListNotice} from '../ap2/view.mjs';
 import {searchOtpAccounts} from '../ap2/parser.mjs';
 import {timeSlot} from './totp.mjs';
+import {englishText} from '../l10n/translator.mjs';
 
 /** Copy only the already validated public metadata, never a seed, key or client. */
 function publicAccount(account) {
@@ -39,7 +40,7 @@ export class TotpPresenter {
         isHidden = () => globalThis.document?.hidden === true,
         writeClipboard = text => globalThis.navigator?.clipboard?.writeText(text),
         fatal = () => {}, verifySession = async () => false, notify = () => {},
-        publish = () => {}} = {}) {
+        publish = () => {}, t = englishText} = {}) {
         this.now = now;
         this.isHidden = isHidden;
         this.writeClipboard = writeClipboard;
@@ -47,6 +48,7 @@ export class TotpPresenter {
         this.verifySession = verifySession;
         this.notify = notify;
         this.publish = publish;
+        this.t = t;
     }
 
     setSession(session) {
@@ -96,7 +98,7 @@ export class TotpPresenter {
         const rows = Array.from(this.#rows.values(), row => Object.freeze({...row}));
         this.publish(Object.freeze({state: this.#snapshot.state,
             rows: Object.freeze(rows),
-            notice: otpListNotice(this.#snapshot, rows.filter(row => !row.hidden).length)}));
+            notice: otpListNotice(this.#snapshot, rows.filter(row => !row.hidden).length, this.t)}));
     }
 
     #stopClock() {
@@ -179,7 +181,7 @@ export class TotpPresenter {
                     break;
                 }
             }
-        } catch (_) { this.#fail('Die Systemzeit ist für OTP ungültig.'); return; }
+        } catch (_) { this.#fail(this.t('system-clock-invalid')); return; }
 
         if (this.#checkedWindow !== windowId || newPeriodSlot || requestedAt < this.#checkedAt) {
             this.#hideCodes();
@@ -194,7 +196,7 @@ export class TotpPresenter {
                 if (this.#snapshot.state === 'ready') void this.refresh();
                 return;
             }
-            if (!permitted) { this.#fail('Nextcloud-Sitzung nicht mehr gültig. Bitte erneut anmelden.'); return; }
+            if (!permitted) { this.#fail(this.t('session-invalid')); return; }
             // Certify the START of the request, never a later slot reached while
             // awaiting HTTP. A boundary crossing therefore needs another guard.
             this.#checkedWindow = windowId;
@@ -249,7 +251,7 @@ export class TotpPresenter {
                 // A rejected signing operation from an obsolete render/focus
                 // generation must not lock a newly authorized view.
                 if (this.#disposed || epoch !== this.#epoch || refreshId !== this.#refreshId) return;
-                this.#fail('Die lokale OTP-Berechnung ist fehlgeschlagen. Tresor erneut entsperren.');
+                this.#fail(this.t('calculation-failed'));
                 return;
             }
         }
@@ -265,12 +267,12 @@ export class TotpPresenter {
             now = this.now();
             slot = timeSlot(now, row.account.period);
             currentWindow = timeSlot(now, 30).counter;
-        } catch (_) { this.#fail('Die Systemzeit ist für OTP ungültig.'); return; }
+        } catch (_) { this.#fail(this.t('system-clock-invalid')); return; }
         if (currentWindow !== this.#checkedWindow || now < this.#checkedAt
                 || this.#checkedAt < slot.counter * row.account.period * 1000
                 || slot.counter !== cached.counter || slot.remainingMs < 2500) {
             this.#hideCodes();
-            this.notify('Der Code wird geprüft. Neuen Code verwenden.');
+            this.notify(this.t('copy-wait'));
             void this.refresh();
             return;
         }
@@ -280,11 +282,11 @@ export class TotpPresenter {
             const pending = this.writeClipboard(cached.code);
             if (!pending || typeof pending.then !== 'function') throw new Error('clipboard-unavailable');
             void Promise.resolve(pending).then(() => {
-                if (current() && this.#session?.state === 'ready') this.notify('OTP-Code kopiert.');
+                if (current() && this.#session?.state === 'ready') this.notify(this.t('copied'));
             }).catch(() => {
-                if (current()) this.notify('Kopieren nicht möglich. Browser-Zwischenablage prüfen.');
+                if (current()) this.notify(this.t('copy-failed'));
             });
-        } catch (_) { this.notify('Kopieren nicht möglich. Browser-Zwischenablage prüfen.'); }
+        } catch (_) { this.notify(this.t('copy-failed')); }
     }
 
     dispose() {
