@@ -1,29 +1,35 @@
 # User guide
 
-The app is available as **Passwort OTP Code Generator** in the Nextcloud navigation for users assigned access by their administrator.
+The app appears as **Passwort OTP Code Generator** in Nextcloud navigation for users granted access by their administrator. Version 1.1.1 uses Nextcloud Vue controls; the historical 1.0.0 release retains its original interface.
 
 ## View and copy codes
 
 1. Sign in to Nextcloud and open the OTP app.
-2. If requested, complete the Nextcloud Passwords master-passphrase/CSE or secondary-factor challenge.
-3. Find the account in the list of valid TOTP records. The list can include your own records and records shared with you through the original Passwords app.
-4. Use the account's explicit copy button to place its current one-time code on the clipboard. Enter that code promptly in the corresponding service.
-5. Use the search field to filter accounts; clear it to return to all visible accounts.
+2. If requested, complete the Passwords master-passphrase/CSE or supported secondary-factor challenge. A wrong master passphrase can be corrected without resubmitting other operations.
+3. Find the account in the valid TOTP list. It can contain your own Passwords entries and entries shared with you through the original app.
+4. Activate **Code kopieren** for that account. Enter the copied code promptly in the service requesting it.
+5. Use **TOTP-Konten durchsuchen** to filter accounts; clear the search to restore the list. Searching does not discard accounts or reset their valid codes.
 
-TOTP codes normally change at the account's configured interval. Incorrect device time can prevent successful verification. Unsupported HOTP records do not produce TOTP codes.
+The displayed number itself does not copy to the clipboard; use the explicit button. The copy button is temporarily unavailable close to expiry or while session validity is being checked. A failed clipboard request is reported rather than presented as success. Leading zeroes are part of the code.
+
+Codes change according to each account's configured period. Incorrect device time can prevent verification. HOTP and invalid or unsupported configurations do not produce TOTP codes; the interface explains omitted records when applicable.
 
 ## Create a new OTP entry
 
-Choose **Neues OTP Passwort hinzufügen**. Supply a title, an account password and the service's Base32 TOTP setup secret. A username is optional. The new record is stored through the original Passwords API and can subsequently be managed and shared in **Nextcloud Passwords**.
+Choose **Neues OTP Passwort hinzufügen**. The app checks access before opening the dialog. Supply a title, the service account's password and its **Base32 TOTP setup secret**. A username is optional. This password is not the Nextcloud master passphrase.
 
-The current create dialog uses SHA-1, six digits and 30-second period. Check that these settings match the service before saving. New Base32 secrets must meet the application's minimum length validation.
+Creation uses **SHA-1, six digits and a 30-second period**. Check these settings against the service before saving. New secrets must meet the application's minimum-length validation.
 
-**Never share an OTP setup secret or master passphrase in bug reports.**
+Choose **OTP speichern** to confirm. Pressing Enter in an input field does not create an entry; keyboard activation of the save button still works. **Abbrechen** or Escape closes an idle dialog and clears the secret fields. While a save is in progress, closing and repeated submission are disabled. On completion the new record is stored together with your other passwords in the original Passwords app. Use the Passwords app to edit, delete or share it with other Nextcloud users.
 
-## Session behavior
+If the interface reports an uncertain save result, verify the original Passwords records before attempting another create operation. The app blocks a blind retry because the first request might already have been stored.
 
-The app checks login validity before generating codes in new time windows and on focus. If your Nextcloud or Passwords API session expires, unlock or reload as prompted. An already copied code cannot be revoked by signing out of Nextcloud.
+## Session and keyboard behavior
 
-The interface is currently primarily **German**. Browser extensions and the system clipboard may retain sensitive data; use a trusted browser.
+The app checks login validity before new mandatory time windows and when returning to the page. Leaving or hiding the page clears displayed codes and secret inputs; focus restoration requires appropriate verification before codes are shown again. Navigating away and returning through browser history can require a reload and fresh vault authentication.
 
-See [Security review](SECURITY_REVIEW.md) for limitations.
+Keyboard focus follows the active form/dialog and returns to the opener when an idle create dialog closes. Errors distinguish authentication, validation, rate-limit and clipboard problems. If Nextcloud or the Passwords API session expires, reload or sign in as prompted. Signing out cannot revoke a code that has already been copied.
+
+The app's own interface remains **German**, with an explicit German language annotation. Additional app languages ([#6](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/6)) and direct code-click copying ([#7](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/7)) remain separate requests.
+
+Use a trusted browser. Browser extensions and clipboard history can retain sensitive data. Never place a real OTP setup secret, master passphrase, token or cookie in a bug report. See [Security review](SECURITY_REVIEW.md) for the unchanged architecture and threat boundaries.

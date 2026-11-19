@@ -1,11 +1,8 @@
-name: CI - Passwords OTP companion
-# Repository-level Actions execution is currently disabled. This workflow
-# definition is not proof that checks ran on GitHub for this commit.
+name: Manual verification - Passwords OTP companion
+# GitHub Actions quota is exhausted and repository execution is disabled.
+# Retain a future manual recipe; pushes and PRs must not request hosted runs.
+# This definition is not evidence that any hosted check ran for this source.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    name: JS, actual client, package, PHP 8.5
+    name: JS, pinned client, package and PHP contracts
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -23,7 +20,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
       - name: Locked dependencies, unit tests, audit and deterministic package
         run: python3 scripts/local.py --build
@@ -34,24 +31,32 @@ jobs:
             php tests/php/security.php
           '
   desktop:
-    name: Chromium desktop and keyboard (synthetic transport)
+    name: Production Vue bundle in Chromium (synthetic HTTPS API)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Isolated Python desktop driver
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Build the actual production application
         run: |
-          python3 -m venv .build/desktop-venv
-          .build/desktop-venv/bin/pip install --disable-pip-version-check playwright==1.57.0
-      - name: Actual app modules, native modal and desktop reflow
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Isolated Python browser driver
+        run: |
+          python3 -m venv .build/browser-venv
+          .build/browser-venv/bin/python -m pip install --disable-pip-version-check playwright==1.62.0
+      - name: Nextcloud Vue forms, dialog, keyboard and reflow
         run: |
           export CHROME_BIN="$(command -v google-chrome || command -v chromium)"
           test -n "$CHROME_BIN"
-          .build/desktop-venv/bin/python tests/browser/desktop.py --output .build/desktop
+          .build/browser-venv/bin/python tests/browser/desktop.py --output .build/browser
   candidate:
-    name: Reproducible verification artifact (not a GitHub Release)
+    name: Verification artifact (not a GitHub Release)
     needs: [checks, desktop]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -61,7 +66,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '22'
+          node-version: '24'
       - run: |
           npm ci --no-audit --no-fund
           npm run build
@@ -71,6 +76,5 @@ jobs:
           name: passwords-otp-unreleased-test-package
           path: .build/package/*
           retention-days: 30
-# Real NC35 integration is intentionally performed against the operator's
-# existing localhost fixture, not claimed by this hosted CI workflow.
-# Uploading a CI artifact does not publish or certify a release.
+# Actual Nextcloud integration and target AIO acceptance are separate gates.
+# A synthetic Chromium result or uploaded artifact does not certify a release.

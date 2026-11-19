@@ -92,7 +92,33 @@ class DeployTests(unittest.TestCase):
   self.assertEqual(deploy.asset_for_version('0.7.2'),'app-072')
   self.assertEqual(deploy.asset_for_version('0.7.1'),'app-071')
   self.assertEqual(deploy.asset_for_version('1.0.0'),'app-100')
+  self.assertEqual(deploy.asset_for_version('1.0.1'),'app-101')
+  self.assertEqual(deploy.asset_for_version('1.1.0'),'app-110')
+  self.assertEqual(deploy.asset_for_version('1.1.1'),'app-111')
   with self.assertRaises(deploy.DeploymentError):deploy.asset_for_version('0.7.99')
+ def test_http_verification_checks_esm_candidate_and_classic_rollback_assets(self):
+  for version,asset,extension in [('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
+   with self.subTest(version=version):
+    backend=deploy.DockerBackend();requested=[]
+    bodies={'css/'+asset+'.css':b'CSS fixture','js/'+asset+'.'+extension:b'JS fixture'}
+    expected={name:deploy.digest(body) for name,body in bodies.items()}
+    class Response:
+     status=200
+     def __init__(self,body):self.body=body
+     def __enter__(self):return self
+     def __exit__(self,*args):pass
+     def read(self,limit):return self.body
+    class Opener:
+     def open(self,request,timeout):
+      path=request.full_url.removeprefix('https://localhost/custom_apps/passwords_otp/')
+      requested.append(path);return Response(bodies[path])
+    with patch.object(backend,'remote_hashes',return_value=expected),\
+     patch.object(backend,'occ',return_value=json.dumps({'enabled':{'passwords':'2026.11.20','passwords_otp':version}})),\
+     patch.object(backend,'config',side_effect=lambda key:version if key=='installed_version' else 'yes'),\
+     patch.object(backend,'exec',return_value='<info><id>passwords_otp</id><version>'+version+'</version></info>'),\
+     patch.object(deploy.urllib.request,'build_opener',return_value=Opener()):
+     backend.verify(version,expected,{'passwords':'2026.11.20','enabled':'yes'})
+    self.assertEqual(requested,list(bodies))
  def test_071_upgrade_and_explicit_rollback_to_070(self):
   with tempfile.TemporaryDirectory()as temp:
    b,n,r=self.context(temp);b.version='0.7.0'

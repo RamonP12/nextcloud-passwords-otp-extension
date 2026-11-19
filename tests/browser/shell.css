@@ -1,0 +1,39 @@
+/* Synthetic NC35-like host variables, NOT a copy or certification of the real shell.
+   The separate real integration suite loads Nextcloud's own styles/themes. */
+:root {
+  --color-main-background:#fff; --color-main-text:#222; --color-text-maxcontrast:#555;
+  --color-background-hover:#f1f1f1; --color-background-dark:#ededed; --color-background-darker:#ddd;
+  --color-primary:#00679e; --color-primary-element:#00679e; --color-primary-element-hover:#005681;
+  --color-primary-element-text:#fff; --color-primary-element-text-dark:#fff; --color-primary-light:#e5f1f8;
+  --color-primary-element-light:#e5f1f8; --color-primary-element-light-hover:#cce3f0;
+  --color-primary-element-light-text:#004c77; --color-primary-hover:#005681;
+  --color-border:#ccc; --color-border-dark:#888; --color-border-maxcontrast:#777;
+  --color-success:#edf5ed; --color-success-text:#286c28; --color-success-rgb:40,108,40; --color-success-hover:#205720;
+  --color-warning:#fff2d9; --color-warning-text:#8c5700; --color-warning-rgb:140,87,0;
+  --color-error:#ffe9e9; --color-error-text:#b00020; --color-error-rgb:176,0,32;
+  --color-info:#e7f3fc; --color-info-text:#00679e; --color-info-rgb:0,103,158; --color-box-shadow-rgb:0,0,0;
+  --color-text-light:#555; --color-text-lighter:#666; --color-placeholder-light:#555;
+  --font-face:Arial,sans-serif; --font-face-monospace:monospace; --default-font-size:15px;
+  --font-size-small:13px; --font-size-large:20px; --font-weight-normal:400; --font-weight-bold:600;
+  --default-grid-baseline:4px; --default-clickable-area:44px; --default-clickable-area-small:32px;
+  --default-clickable-area-large:48px; --border-radius-element:8px; --border-radius-element-round:22px;
+  --border-radius-container:12px; --border-radius-large:12px; --border-width-input:2px;
+  --border-width-input-focused:2px; --animation-quick:100ms; --animation-slow:300ms;
+  --body-container-margin:0px; --body-container-radius:0px; --body-height:calc(100dvh - 50px);
+  --header-height:50px; --app-navigation-padding:8px; --scrollbar-width:10px; color-scheme:light;
+}
+:root[data-theme=dark] {
+  --color-main-background:#202020; --color-main-text:#eee; --color-text-maxcontrast:#bbb;
+  --color-background-hover:#303030; --color-background-dark:#333; --color-background-darker:#444;
+  --color-border:#555; --color-border-dark:#888; --color-border-maxcontrast:#999;
+  --color-primary-element:#006ea8; --color-primary-element-light:#203b4c; --color-primary-element-light-text:#b6e1ff;
+  --color-info:#223949; --color-info-text:#a9dfff; --color-error:#4a2222; --color-error-text:#ffbcbc;
+  --color-warning:#443b22; --color-warning-text:#ffe3a0; --color-success:#223f22; --color-success-text:#b9edb9;
+  --color-text-light:#bbb; --color-text-lighter:#aaa; --color-placeholder-light:#bbb; color-scheme:dark;
+}
+:root[data-theme=brand] { --color-primary:#77329a; --color-primary-element:#77329a; --color-primary-element-hover:#592473; --color-primary-element-light:#f2e5fa; --color-primary-element-light-text:#592473; }
+* {box-sizing:border-box} body {margin:0;font:15px/1.5 var(--font-face);background:var(--color-main-background);color:var(--color-main-text)}
+#header {height:50px;background:var(--color-primary-element);color:white;padding:12px}
+#skip-actions {position:absolute;top:-9999px;z-index:100000}
+button,input,select {font:inherit} button {cursor:pointer} p {margin:0} [hidden] {display:none!important}
+.hidden-visually {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}

@@ -1,0 +1,32 @@
+{
+  "actual_client_tests_passed": 17,
+  "chromium_attempt": "BLOCKED_BEFORE_APP_LAUNCH",
+  "chromium_reason": "Workspace denied local socket creation (Operation not permitted)",
+  "chromium_version": "156.0.8078.79",
+  "firefox_compiled_cases_passed": 30,
+  "firefox_version": "153.0",
+  "javascript_tests_passed": 237,
+  "live_nextcloud_111_tested": false,
+  "metadata_sha256": "a5ecdc9df5de3348e4b6a8725c35fe797eb1b27c750749b4730711507f04f56b",
+  "nextcloud35_xsd": "PASS",
+  "node": "v24.22.3",
+  "npm_audit_vulnerabilities": 0,
+  "php_security_assertions": 51,
+  "php_syntax_files": 6,
+  "php_version": "8.4.27",
+  "production_approved": false,
+  "python": "Python 3.12.14",
+  "python_tests_passed": 82,
+  "source_clean_at_check": true,
+  "source_commit": "4c54928cfc8344907c7ab59066ace02d6783c3c4",
+  "tested_php_files": {
+    "appinfo/routes.php": "8dbdaabe6543a0d160c88db4a7e5cd214caaa608f2237be9583fb095d30dd09e",
+    "lib/AppInfo/Application.php": "96814a18cd1a138a2aef3b1f4dd3c12b07cad1682171387f4b7285897c3ae5fd",
+    "lib/Controller/PageController.php": "48334dbc26ff83fa0fd8253cfa9b701d583c0030e9e3ee5ad30c3b39fe72ab7a",
+    "lib/Service/PasswordsAuthAdapter.php": "b25a0527103a7315de88416c80dd0b0db871dbd3820d2ebbb544ffea61dbd3e6",
+    "templates/main.php": "6052856995607050a2014a8953a4f04cb0a3e1399d67715a1a51c358d1eb7756",
+    "tests/php/security.php": "6ed0737aa8936923de70625b6d36dba0955b788f80e7f164915f4805c4902a7e"
+  },
+  "xsd_sha256": "f51024ffc9b94bd305ab2a4d2c498d6c3cc9e3bbcd9e2c1413bb2188f0b71fb7",
+  "xsd_url": "https://raw.githubusercontent.com/nextcloud/server/v35.0.2/resources/app-info.xsd"
+}

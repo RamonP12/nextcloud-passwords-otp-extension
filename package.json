@@ -1,23 +1,30 @@
 {
   "name": "nextcloud-passwords-otp-extension",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.1",
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": "^22.12.0 || ^24.0.0"
   },
   "scripts": {
     "test": "node --test tests/js/*.test.mjs",
     "test:client": "esbuild tests/client/integration.mjs --bundle --platform=node --target=node22 --format=cjs --outfile=.build/client-test.cjs && node --test .build/client-test.cjs",
-    "build": "esbuild src/ap1/index.js --bundle --format=iife --platform=browser --target=es2022 --minify --legal-comments=linked --outfile=js/app-100.js",
-    "test:php": "php tests/php/security.php"
+    "build": "vite build",
+    "test:php": "php tests/php/security.php",
+    "watch": "vite build --watch --mode development",
+    "test:browser": "python3 tests/browser/desktop.py --output .build/browser"
   },
   "dependencies": {
+    "@nextcloud/vue": "9.14.1",
+    "libsodium-wrappers-sumo": "0.8.4",
     "passwords-client": "1.0.0-beta.6117",
-    "libsodium-wrappers-sumo": "0.8.4"
+    "vue": "3.5.45"
   },
   "devDependencies": {
-    "esbuild": "0.25.12"
+    "axe-core": "4.14.1",
+    "esbuild": "0.25.12",
+    "vite": "7.3.8",
+    "@vitejs/plugin-vue": "6.0.11"
   },
   "description": "Independent TOTP viewer and OTP-enabled entry creator for Nextcloud Passwords",
   "license": "AGPL-3.0-or-later",
@@ -27,5 +34,8 @@
   },
   "bugs": {
     "url": "https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues"
+  },
+  "overrides": {
+    "minimatch": "11.0.9"
   }
 }

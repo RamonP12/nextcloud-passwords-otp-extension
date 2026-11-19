@@ -34,8 +34,9 @@ final class PageController extends Controller {
             } catch (Throwable) { $state = ['status' => 'unavailable', 'reason' => 'integration-unavailable']; }
         }
         $this->initialState->provideInitialState('ap1', $state);
-        Util::addScript(Application::APP_ID, 'app-100');
-        Util::addStyle(Application::APP_ID, 'app-100');
+        // Nextcloud 35 resolves .mjs before .js and emits type="module".
+        Util::addScript(Application::APP_ID, 'app-111');
+        Util::addStyle(Application::APP_ID, 'app-111');
         $response = new TemplateResponse(Application::APP_ID, 'main');
         // Required by the unmodified upstream libsodium/PWDv1r1 implementation.
         $response->getContentSecurityPolicy()->allowEvalWasm(true);

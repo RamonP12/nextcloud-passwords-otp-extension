@@ -1,7 +1,26 @@
-import {renderOtpView, otpListNotice} from '../ap2/view.mjs';
+import {otpListNotice} from '../ap2/view.mjs';
 import {searchOtpAccounts} from '../ap2/parser.mjs';
 import {timeSlot} from './totp.mjs';
-/** Desktop TOTP presentation. Clipboard calls remain within the trusted click. */
+
+/** Copy only the already validated public metadata, never a seed, key or client. */
+function publicAccount(account) {
+    const {id, title, username, issuer, accountName, type, algorithm, digits, period} = account;
+    return Object.freeze({id, title, username, issuer, accountName, type, algorithm, digits, period});
+}
+
+/**
+ * Framework-independent TOTP presentation and clipboard policy.
+ *
+ * Keep this instance and its OtpVaultSession OUTSIDE Vue's deep reactivity: both
+ * own private fields. `publish` receives detached, immutable display snapshots;
+ * it must replace the current view, never persist or log it. Only the ephemeral
+ * displayed code is published, never OTP seeds, CryptoKeys or upstream tokens.
+ *
+ * Clearing publishes synchronously. A UI adapter must also clear sensitive DOM
+ * synchronously on pagehide/lock, because a framework may defer DOM updates.
+ * Clipboard writes deliberately happen synchronously in copy(), before awaiting
+ * anything, so the browser's trusted user activation is preserved.
+ */
 export class TotpPresenter {
     #session = null;
     #snapshot = {state: 'locked'};
@@ -15,99 +34,153 @@ export class TotpPresenter {
     #checkedAt = -Infinity;
     #guardPending = false;
     #guardGeneration = 0;
-    constructor(nodes, doc, {now = () => Date.now(),
+
+    constructor({now = () => Date.now(),
+        isHidden = () => globalThis.document?.hidden === true,
         writeClipboard = text => globalThis.navigator?.clipboard?.writeText(text),
-        fatal = () => {}, verifySession = async () => false, notify = () => {}} = {}) {
-        this.nodes = nodes; this.doc = doc; this.now = now; this.writeClipboard = writeClipboard;
-        this.fatal = fatal; this.verifySession = verifySession; this.notify = notify;
+        fatal = () => {}, verifySession = async () => false, notify = () => {},
+        publish = () => {}} = {}) {
+        this.now = now;
+        this.isHidden = isHidden;
+        this.writeClipboard = writeClipboard;
+        this.fatal = fatal;
+        this.verifySession = verifySession;
+        this.notify = notify;
+        this.publish = publish;
     }
-    setSession(session) { this.#session = session; }
+
+    setSession(session) {
+        if (this.#disposed || this.#session === session) return;
+        this.#reset();
+        this.#session = session;
+        this.#publish();
+    }
+
     render(snapshot, query = '') {
         if (this.#disposed) return;
-        this.#stopClock();
-        this.#epoch++;
-        this.#checkedWindow = null; this.#checkedAt = -Infinity;
-        this.#guardGeneration++; this.#refreshId++;
-        this.#rows.clear(); this.#codes.clear();
-        this.#snapshot = snapshot;
-        if (this.nodes.feedback) this.nodes.feedback.textContent = '';
-        // Always materialize every authorized OTP row on each new snapshot
-        // (notably after CREATE). Search must only toggle visibility; otherwise
-        // clearing the query cannot restore rows omitted during this render.
-        renderOtpView(snapshot, '', this.nodes, this.doc,
-            {renderControls: (account, item, doc) => this.#createControls(account, item, doc)});
-        if (snapshot?.state === 'ready') this.filter(query);
-        if (snapshot?.state === 'ready' && this.#session?.state === 'ready') {
+        this.#reset();
+        const ready = snapshot?.state === 'ready';
+        const accounts = ready ? (snapshot.otpAccounts || []).filter(account => account.type === 'totp')
+            .map(publicAccount) : [];
+        this.#snapshot = {state: snapshot?.state || 'locked', otpAccounts: accounts,
+            invalidOtpCount: ready ? snapshot.invalidOtpCount || 0 : 0,
+            unsupportedOtpCount: ready ? snapshot.unsupportedOtpCount || 0 : 0};
+        // Materialize every authorized row, including after CREATE with active
+        // search. Filtering changes visibility, never the cache or guard epoch.
+        for (const account of accounts) {
+            this.#rows.set(account.id, {account, code: null, remainingMs: 0,
+                copyDisabled: true, hidden: false});
+        }
+        if (ready) this.#filter(query);
+        this.#publish();
+        if (ready && this.#session?.state === 'ready' && !this.#session.disposed) {
             this.#interval = setInterval(() => { void this.refresh(); }, 1000);
             this.#interval?.unref?.();
             void this.refresh();
         }
     }
-    /** Search only hides existing rows. Never discard a signed, still valid
-     * code or reset the auth/30s guard merely because the user typed.
-     */
+
+    /** Search must not reset a verified code, restart the clock or reauthorize. */
     filter(query = '') {
-        if (this.#disposed || this.#snapshot?.state !== 'ready') return;
-        const matches = new Set(searchOtpAccounts(this.#snapshot.otpAccounts, query).map(a => a.id));
-        for (const [id, row] of this.#rows) row.item.hidden = !matches.has(id);
-        this.nodes.empty.textContent = otpListNotice(this.#snapshot, matches.size);
+        if (this.#disposed || this.#snapshot.state !== 'ready') return;
+        this.#filter(query);
+        this.#publish();
     }
-    #createControls(account, item, doc) {
-        const controls = doc.createElement('div');
-        controls.className = 'passwords-otp-ap3__controls';
-        const code = doc.createElement('output');
-        code.className = 'passwords-otp-ap3__code'; code.textContent = '\u2014';
-        code.setAttribute('aria-label', 'Einmalcode');
-        const countdown = doc.createElement('span');
-        countdown.className = 'passwords-otp-ap3__countdown'; countdown.textContent = 'Wird berechnet \u2026';
-        const progress = doc.createElement('progress');
-        progress.className = 'passwords-otp-ap3__progress'; progress.max = account.period; progress.value = 0;
-        progress.setAttribute('aria-label', 'Restg\u00fcltigkeit in Sekunden');
-        const copy = doc.createElement('button');
-        copy.type = 'button'; copy.className = 'passwords-otp-ap3__copy'; copy.textContent = 'Code kopieren'; copy.disabled = true;
-        copy.addEventListener('click', () => this.copy(account.id));
-        controls.append(code, countdown, progress, copy); item.append(controls);
-        this.#rows.set(account.id, {item, code, countdown, progress, copy, period: account.period});
+
+    #filter(query) {
+        const matches = new Set(searchOtpAccounts(this.#snapshot.otpAccounts, query).map(account => account.id));
+        for (const [id, row] of this.#rows) row.hidden = !matches.has(id);
     }
-    #stopClock() { if (this.#interval !== null) { clearInterval(this.#interval); this.#interval = null; } }
+
+    #publish() {
+        const rows = Array.from(this.#rows.values(), row => Object.freeze({...row}));
+        this.publish(Object.freeze({state: this.#snapshot.state,
+            rows: Object.freeze(rows),
+            notice: otpListNotice(this.#snapshot, rows.filter(row => !row.hidden).length)}));
+    }
+
+    #stopClock() {
+        if (this.#interval !== null) { clearInterval(this.#interval); this.#interval = null; }
+    }
+
+    #reset() {
+        this.#stopClock();
+        this.#epoch++;
+        this.#guardGeneration++;
+        this.#refreshId++;
+        this.#checkedWindow = null;
+        this.#checkedAt = -Infinity;
+        this.#codes.clear();
+        this.#rows.clear();
+        this.#snapshot = {state: 'locked'};
+        // A verification already in flight remains single-flight. Its stale
+        // completion will request verification of the new epoch, if still ready.
+    }
+
     #hideCodes() {
         this.#refreshId++;
         this.#codes.clear();
         for (const row of this.#rows.values()) {
-            row.code.textContent = '\u2014'; row.countdown.textContent = ''; row.progress.value = 0; row.copy.disabled = true;
+            row.code = null;
+            row.remainingMs = 0;
+            row.copyDisabled = true;
+        }
+        this.#publish();
+    }
+
+    #fail(message) {
+        this.#reset();
+        // Internal revocation is complete before any external callback. Even a
+        // failing session cleanup must not prevent publication of the empty view.
+        try { this.#session?.dispose?.(); }
+        finally {
+            try { this.#publish(); }
+            finally { this.fatal(message); }
         }
     }
-    #fail(message) {
-        this.#hideCodes(); this.#stopClock(); this.#epoch++; this.#guardGeneration++;
-        this.#snapshot = {state: 'locked'};
-        this.#session?.dispose?.();
-        this.fatal(message);
-    }
+
     visibilityChanged() {
         if (this.#disposed) return;
-        if (this.doc.hidden) {
-            this.#checkedWindow = null; this.#checkedAt = -Infinity;
-            this.#guardGeneration++; this.#hideCodes();
+        if (this.isHidden()) {
+            this.#checkedWindow = null;
+            this.#checkedAt = -Infinity;
+            this.#guardGeneration++;
+            this.#hideCodes();
         } else void this.refresh();
     }
+
     focusChanged() {
         if (this.#disposed) return;
-        this.#checkedWindow = null; this.#checkedAt = -Infinity;
-        this.#guardGeneration++; this.#hideCodes(); void this.refresh();
+        this.#checkedWindow = null;
+        this.#checkedAt = -Infinity;
+        this.#guardGeneration++;
+        this.#hideCodes();
+        void this.refresh();
     }
+
     async refresh() {
-        if (this.#disposed || this.doc.hidden || this.#snapshot?.state !== 'ready'
-                || this.#session?.disposed || this.#session?.state !== 'ready') { this.#hideCodes(); return; }
-        const requestedAt = this.now();
-        let windowId, newPeriodSlot = false;
+        if (this.#disposed) return;
+        if (this.#snapshot.state !== 'ready' || this.#session?.disposed || this.#session?.state !== 'ready') {
+            this.#reset();
+            this.#publish();
+            return;
+        }
+        if (this.isHidden()) { this.#hideCodes(); return; }
+        let requestedAt, windowId, newPeriodSlot = false;
         try {
+            requestedAt = this.now();
             windowId = timeSlot(requestedAt, 30).counter;
             for (const [id, row] of this.#rows) {
-                const slot = timeSlot(requestedAt, row.period), previous = this.#codes.get(id);
+                const period = row.account.period;
+                const slot = timeSlot(requestedAt, period), previous = this.#codes.get(id);
                 if ((!previous || previous.counter !== slot.counter)
-                        && this.#checkedAt < slot.counter * row.period * 1000) { newPeriodSlot = true; break; }
+                        && this.#checkedAt < slot.counter * period * 1000) {
+                    newPeriodSlot = true;
+                    break;
+                }
             }
-        } catch (_) { this.#fail('Die Systemzeit ist f\u00fcr OTP ung\u00fcltig.'); return; }
+        } catch (_) { this.#fail('Die Systemzeit ist für OTP ungültig.'); return; }
+
         if (this.#checkedWindow !== windowId || newPeriodSlot || requestedAt < this.#checkedAt) {
             this.#hideCodes();
             if (this.#guardPending) return;
@@ -116,78 +189,109 @@ export class TotpPresenter {
             let permitted = false;
             try { permitted = (await this.verifySession()) === true; } catch (_) { /* fail closed */ }
             this.#guardPending = false;
-            if (this.#disposed || guardEpoch !== this.#epoch || this.#session?.disposed) return;
-            if (guardGeneration !== this.#guardGeneration) { void this.refresh(); return; }
-            if (!permitted) { this.#fail('Nextcloud-Sitzung nicht mehr g\u00fcltig. Bitte erneut anmelden.'); return; }
-            // Bind the result to the START of the request. Never certify a later slot
-            // merely because an old successful HTTP response arrived after its boundary.
+            if (this.#disposed || this.#session?.disposed) return;
+            if (guardEpoch !== this.#epoch || guardGeneration !== this.#guardGeneration) {
+                if (this.#snapshot.state === 'ready') void this.refresh();
+                return;
+            }
+            if (!permitted) { this.#fail('Nextcloud-Sitzung nicht mehr gültig. Bitte erneut anmelden.'); return; }
+            // Certify the START of the request, never a later slot reached while
+            // awaiting HTTP. A boundary crossing therefore needs another guard.
             this.#checkedWindow = windowId;
             this.#checkedAt = requestedAt;
             void this.refresh();
             return;
         }
         if (this.#guardPending) return;
+
         const epoch = this.#epoch, refreshId = ++this.#refreshId;
         for (const [id, row] of this.#rows) {
             if (this.#disposed || epoch !== this.#epoch || refreshId !== this.#refreshId) return;
             try {
-                const now = this.now(), slot = timeSlot(now, row.period);
-                // The loop or signing can itself cross the mandatory 30-second boundary.
+                const period = row.account.period;
+                const now = this.now(), slot = timeSlot(now, period);
                 if (timeSlot(now, 30).counter !== this.#checkedWindow || now < this.#checkedAt
-                        || this.#checkedAt < slot.counter * row.period * 1000) {
+                        || this.#checkedAt < slot.counter * period * 1000) {
                     this.#hideCodes(); void this.refresh(); return;
                 }
                 let current = this.#codes.get(id);
                 if (!current || current.counter !== slot.counter) {
-                    row.code.textContent = '\u2014'; row.countdown.textContent = 'Wird aktualisiert \u2026';
-                    row.copy.disabled = true; this.#codes.delete(id);
+                    row.code = null;
+                    row.remainingMs = 0;
+                    row.copyDisabled = true;
+                    this.#codes.delete(id);
+                    this.#publish();
                     const candidate = await this.#session.totpFor(id, now);
-                    if (this.#disposed || this.doc.hidden || epoch !== this.#epoch || refreshId !== this.#refreshId
+                    if (this.#disposed || this.isHidden() || epoch !== this.#epoch || refreshId !== this.#refreshId
                             || this.#session?.state !== 'ready' || this.#session.disposed) return;
-                    const afterNow = this.now(), after = timeSlot(afterNow, row.period);
+                    // A result must belong to the requested slot. A malformed or
+                    // permanently stale result is an error, not an infinite retry.
+                    if (!candidate || candidate.counter !== slot.counter
+                            || typeof candidate.code !== 'string' || !/^[0-9]{6,9}$/.test(candidate.code)
+                            || candidate.code.length !== row.account.digits) throw new Error('invalid-code');
+                    const afterNow = this.now(), after = timeSlot(afterNow, period);
                     if (after.counter !== candidate.counter || timeSlot(afterNow, 30).counter !== this.#checkedWindow
                             || afterNow < this.#checkedAt) { this.#hideCodes(); void this.refresh(); return; }
-                    if (typeof candidate.code !== 'string' || !/^[0-9]{6,9}$/.test(candidate.code)) throw new Error('invalid-code');
-                    current = candidate; this.#codes.set(id, current);
+                    // Retain only the values actually needed by the copy policy.
+                    current = {code: candidate.code, counter: candidate.counter};
+                    this.#codes.set(id, current);
                 }
-                const afterNow = this.now(), after = timeSlot(afterNow, row.period);
-                if (after.counter !== current.counter || timeSlot(afterNow, 30).counter !== this.#checkedWindow) {
+                const afterNow = this.now(), after = timeSlot(afterNow, period);
+                if (after.counter !== current.counter || timeSlot(afterNow, 30).counter !== this.#checkedWindow
+                        || afterNow < this.#checkedAt) {
                     this.#hideCodes(); void this.refresh(); return;
                 }
-                row.code.textContent = current.code;
-                row.countdown.textContent = 'Noch ' + Math.ceil(after.remainingMs / 1000) + ' s g\u00fcltig';
-                row.progress.value = Math.min(row.period, after.remainingMs / 1000);
-                row.copy.disabled = after.remainingMs < 2500;
-            } catch (_) { this.#fail('Die lokale OTP-Berechnung ist fehlgeschlagen. Tresor erneut entsperren.'); return; }
+                row.code = current.code;
+                row.remainingMs = after.remainingMs;
+                row.copyDisabled = after.remainingMs < 2500;
+                this.#publish();
+            } catch (_) {
+                // A rejected signing operation from an obsolete render/focus
+                // generation must not lock a newly authorized view.
+                if (this.#disposed || epoch !== this.#epoch || refreshId !== this.#refreshId) return;
+                this.#fail('Die lokale OTP-Berechnung ist fehlgeschlagen. Tresor erneut entsperren.');
+                return;
+            }
         }
     }
+
     copy(id) {
-        if (this.#disposed || this.doc.hidden || this.#guardPending || this.#snapshot?.state !== 'ready'
+        if (this.#disposed || this.isHidden() || this.#guardPending || this.#snapshot.state !== 'ready'
                 || this.#session?.state !== 'ready' || this.#session.disposed) return;
         const cached = this.#codes.get(id), row = this.#rows.get(id);
-        if (!cached || !row || row.item.hidden) return;
+        if (!cached || !row || row.hidden) return;
         let slot, currentWindow, now;
-        try { now = this.now(); slot = timeSlot(now, row.period); currentWindow = timeSlot(now, 30).counter; }
-        catch (_) { this.#fail('Die Systemzeit ist f\u00fcr OTP ung\u00fcltig.'); return; }
-        if (currentWindow !== this.#checkedWindow || now < this.#checkedAt || this.#checkedAt < slot.counter * row.period * 1000
+        try {
+            now = this.now();
+            slot = timeSlot(now, row.account.period);
+            currentWindow = timeSlot(now, 30).counter;
+        } catch (_) { this.#fail('Die Systemzeit ist für OTP ungültig.'); return; }
+        if (currentWindow !== this.#checkedWindow || now < this.#checkedAt
+                || this.#checkedAt < slot.counter * row.account.period * 1000
                 || slot.counter !== cached.counter || slot.remainingMs < 2500) {
-            this.#hideCodes(); this.notify('Der Code wird gepr\u00fcft. Neuen Code verwenden.'); void this.refresh(); return;
+            this.#hideCodes();
+            this.notify('Der Code wird geprüft. Neuen Code verwenden.');
+            void this.refresh();
+            return;
         }
-        const epoch = this.#epoch;
+        const epoch = this.#epoch, generation = this.#guardGeneration;
+        const current = () => !this.#disposed && epoch === this.#epoch && generation === this.#guardGeneration;
         try {
             const pending = this.writeClipboard(cached.code);
             if (!pending || typeof pending.then !== 'function') throw new Error('clipboard-unavailable');
             void Promise.resolve(pending).then(() => {
-                if (!this.#disposed && epoch === this.#epoch && this.#session?.state === 'ready') this.notify('OTP-Code kopiert.');
+                if (current() && this.#session?.state === 'ready') this.notify('OTP-Code kopiert.');
             }).catch(() => {
-                if (!this.#disposed && epoch === this.#epoch) this.notify('Kopieren nicht m\u00f6glich. Browser-Zwischenablage pr\u00fcfen.');
+                if (current()) this.notify('Kopieren nicht möglich. Browser-Zwischenablage prüfen.');
             });
-        } catch (_) { this.notify('Kopieren nicht m\u00f6glich. Browser-Zwischenablage pr\u00fcfen.'); }
+        } catch (_) { this.notify('Kopieren nicht möglich. Browser-Zwischenablage prüfen.'); }
     }
+
     dispose() {
         if (this.#disposed) return;
-        this.render({state: 'locked'}, '');
-        this.#disposed = true; this.#session = null; this.#snapshot = {state: 'locked'};
-        this.#rows.clear(); this.#codes.clear(); this.#stopClock();
+        this.#reset();
+        this.#disposed = true;
+        this.#session = null;
+        this.#publish();
     }
 }

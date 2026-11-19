@@ -7,7 +7,7 @@ These gates do NOT assert PostgreSQL/AIO or production compatibility.
 """
 from __future__ import annotations
 import argparse, json, os, pathlib, shutil, subprocess, sys
-from release import VERSION, digest, canonical_json, validate_package
+from release import VERSION, JS_ASSET, CSS_ASSET, digest, canonical_json, validate_package
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 class GateError(RuntimeError):pass
 
@@ -31,16 +31,17 @@ def build(commit):
  directory=candidate(commit)
  if directory.exists():raise GateError('Build directory already exists; preserve and move it before a deliberate retry: '+str(directory))
  directory.mkdir(parents=True)
- node_major=int(subprocess.check_output(['node','-p','process.versions.node.split(".")[0]'],text=True))
- if node_major<22:raise GateError('Node.js 22 or newer required')
+ node_version=tuple(map(int,subprocess.check_output(['node','-p','process.versions.node'],text=True).strip().split('.')))
+ if not (node_version[0]==24 or node_version[0]==22 and node_version[1]>=12):
+  raise GateError('Node.js 22.12+ (22.x) or 24.x required by the pinned Vue/Vite toolchain')
  execute(['npm','ci','--no-audit','--no-fund'])
  execute(['npm','test']);execute(['npm','run','test:client'])
- execute(['npm','audit','--audit-level=high'])
+ execute(['npm','audit','--audit-level=low'])
  execute([sys.executable,'-m','unittest','discover','-s','tests/python','-v'])
- execute(['npm','run','build']);execute(['node','--check','js/app-100.js'])
- first={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-100.js*')}
+ execute(['npm','run','build']);execute(['node','--check',JS_ASSET])
+ first={name:(ROOT/name).read_bytes() for name in (JS_ASSET,CSS_ASSET)}
  execute(['npm','run','build'])
- second={path.name:path.read_bytes()for path in (ROOT/'js').glob('app-100.js*')}
+ second={name:(ROOT/name).read_bytes() for name in (JS_ASSET,CSS_ASSET)}
  if first!=second:raise GateError('Browser double build is not byte-identical')
  execute([sys.executable,'scripts/release.py',str(directory/'package')])
  archive=directory/'package'/f'passwords_otp-{VERSION}.zip';sha=digest(archive.read_bytes())
