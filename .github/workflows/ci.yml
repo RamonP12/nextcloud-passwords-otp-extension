@@ -1,8 +1,9 @@
-name: Manual verification - Passwords OTP companion
-# GitHub Actions quota is exhausted and repository execution is disabled.
-# Retain a future manual recipe; pushes and PRs must not request hosted runs.
-# This definition is not evidence that any hosted check ran for this source.
+name: Verify Passwords OTP
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

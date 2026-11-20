@@ -38,6 +38,7 @@ test('Runtime is precompiled Vue3 with Nextcloud9 components and explicit produc
 });
 
 test('Single JS/CSS runtime inventory excludes fixtures and old imperative entry', () => {
+    assert.match(read('vite.config.js'), /outDir: '\.build\/vite'/);
     assert.match(read('vite.config.js'), /entryFileNames: 'js\/app-120-dev\.mjs'/);
     assert.match(read('vite.config.js'), /return 'css\/app-120-dev\.css'/);
     assert.match(read('vite.config.js'), /inlineDynamicImports: true/);

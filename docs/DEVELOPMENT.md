@@ -63,11 +63,13 @@ Use synthetic users and OTP seeds. Do not run production installation scripts to
 
 ## Deterministic build and package
 
-`npm run build` compiles Vue Single File Components using pinned Vite and the official `@vitejs/plugin-vue` plugin. The explicit configuration avoids the shared configuration's unused Node/crypto polyfill dependencies. It produces exactly:
+`npm run build` compiles Vue Single File Components into `.build/vite/` using pinned Vite and the official `@vitejs/plugin-vue` plugin. The build checks the output before copying assets to the paths Nextcloud serves. It exposes these files:
 
 - `js/app-120-dev.mjs`
 - `css/app-120-dev.css`
 - `.build/bundle-modules.json`, a local provenance record for the contributing npm modules and output hashes, production mode, complete source input hashes and allowed build module paths.
+
+The JS module includes libsodium even for vaults without client-side encryption. The pinned Passwords client's default class loader imports it for the master-password challenge, keychains and encryption. At the time of review the module was about 1.10 MB (368 kB gzip). A lazy split requires testing the challenge and CSE paths as well as extending the fixed asset inventory, Nextcloud module delivery and archive verification.
 
 The two assets are generated and ignored by Git. Do not edit them manually or include test fixtures in the production entry point. A repeated production build must produce identical JS and CSS bytes; `scripts/local.py --build` performs this comparison in its full source gate.
 
@@ -172,13 +174,21 @@ The cross-environment compression difference is covered by the documented
 content check. A digest-pinned build image could standardize future
 release-byte reproduction if required. [Issue #16](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/16)
 
-## GitHub Actions status
+## GitHub Actions
 
-**GitHub Actions is unavailable because the account/repository quota is exhausted, and repository execution remains disabled.** The retained workflow has **`workflow_dispatch` only**. It has no push or pull-request trigger, so publishing this source or a PR does not request an Actions run.
+The verification workflow uses standard GitHub-hosted Ubuntu runners with read-only repository permissions. Pull requests targeting `main`, pushes to `main` and manual dispatch trigger it. GitHub provides standard runner usage free for public repositories. [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 
-Do not dispatch the workflow during this migration. Its definition is prepared for later verification after Actions becomes available; it is not evidence that hosted checks ran. Current evidence comes from the local commands and version-bound receipts, and no hosted passing-status badge is asserted.
+Report the result of the actual workflow run for the tested commit. The hosted artifact is an unsigned verification package. Live Nextcloud and AIO acceptance are separate checks.
 
 ## Maintainer-only local tools and deployment boundaries
+
+The reviewed Passwords build for installer checks is declared in
+[`PasswordsDependency.php`](../lib/Service/PasswordsDependency.php).
+The app derives its runtime patch range from that build and still checks
+installed metadata and upstream interfaces. The Python installers check the
+exact reviewed build. The AIO development installer reads the policy from the
+SHA-verified package when available. A standalone development `--inspect`
+needs the matching ZIP and `--sha256` when it runs outside a source checkout.
 
 - `scripts/local.py --build` runs locked installation, JS/client tests, audit, Python tests, two production builds and checked packaging for an exact clean commit. Run PHP and browser checks separately as shown above; the build receipt is not a full live-server acceptance.
 - `scripts/local.py --preflight`, `--install` and `--verify` target the previously configured **localhost-only MariaDB/PHP 8.5 fixture**. Its historical container names and volume layout are local assumptions. It must not be pointed at an unrelated fixture or changed simply to bypass a mismatch.

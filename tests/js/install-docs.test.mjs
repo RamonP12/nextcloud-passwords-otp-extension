@@ -55,11 +55,13 @@ test('public documentation keeps historical evidence and current local verificat
     assert.match(development, /clean committed checkout|clean, committed|clean committed source|clean committed/i);
 });
 
-test('GitHub Actions has only an explicit future manual trigger while quota is unavailable', () => {
+test('GitHub Actions verifies pull requests, main pushes and manual dispatch', () => {
     const workflow = read('.github/workflows/ci.yml');
     assert.match(workflow, /^  workflow_dispatch:/m);
-    assert.doesNotMatch(workflow, /^  (push|pull_request|pull_request_target|schedule):/m);
-    assert.match(workflow, /quota is exhausted/);
+    assert.match(workflow, /^  push:\n    branches: \[main\]/m);
+    assert.match(workflow, /^  pull_request:\n    branches: \[main\]/m);
+    assert.doesNotMatch(workflow, /^  pull_request_target:/m);
+    assert.match(workflow, /^permissions:\n  contents: read/m);
     const desktop = workflow.split('  desktop:')[1].split('  candidate:')[0];
     assert.ok(desktop.indexOf('npm ci') < desktop.indexOf('npm run build'));
     assert.ok(desktop.indexOf('npm run build') < desktop.indexOf('tests/browser/desktop.py'));

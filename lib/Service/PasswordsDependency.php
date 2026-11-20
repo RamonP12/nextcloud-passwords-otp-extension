@@ -16,8 +16,9 @@ use Throwable;
 /** Global prerequisite only. User/group permissions remain a separate check. */
 final class PasswordsDependency {
     public const APP_ID = 'passwords';
-    // Limit compatibility to maintenance builds in the reviewed stable release line.
-    private const VERSION_PATTERN = '/\A2026\.11\.2[0-9]\z/';
+    // The installer checks use this exact build. Runtime also accepts stable patch
+    // builds in this release line, subject to the metadata and interface checks.
+    public const REVIEWED_VERSION = '2026.11.20';
     private const REQUIRED_METHODS = [
         ApiTokenHelper::class => ['getWebUiToken'],
         EnvironmentService::class => ['getUserId', 'isImpersonating'],
@@ -40,7 +41,10 @@ final class PasswordsDependency {
             if ($info === false || (string) $info->id !== self::APP_ID) return 'passwords-missing';
             if (!$this->appManager->isEnabledForAnyone(self::APP_ID)) return 'passwords-disabled';
             if ((string) $info->version !== $installed) return 'passwords-update-pending';
-            if (preg_match(self::VERSION_PATTERN, $installed) !== 1) return 'passwords-incompatible';
+            $releaseLine = substr(self::REVIEWED_VERSION, 0, -1);
+            if (strlen($installed) !== strlen(self::REVIEWED_VERSION)
+                    || !str_starts_with($installed, $releaseLine)
+                    || !ctype_digit(substr($installed, -1))) return 'passwords-incompatible';
             foreach (self::REQUIRED_METHODS as $class => $methods) {
                 foreach ($methods as $name) {
                     $method = new ReflectionMethod($class, $name);
@@ -64,8 +68,10 @@ final class PasswordsDependency {
         if (($versions[Application::APP_ID] ?? '') !== '') return;
         $reason = $this->reason();
         if ($reason !== null) {
+            $latestPatch = substr(self::REVIEWED_VERSION, 0, -1) . '9';
             throw new RuntimeException('Passwords OTP cannot be enabled. Install and enable a compatible Passwords '
-                . '2026.11.20–2026.11.29 build and complete any pending updates. Reason: ' . $reason);
+                . self::REVIEWED_VERSION . '–' . $latestPatch
+                . ' build and complete any pending updates. Reason: ' . $reason);
         }
     }
 }
