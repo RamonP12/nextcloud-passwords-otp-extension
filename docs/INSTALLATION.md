@@ -69,7 +69,7 @@ are unsigned and retain `production_approved=false`. A correctly formatted TAR
 alone is insufficient for an App Store release; see [App Store packaging and
 signing](APPSTORE_PACKAGING.md).
 
-For a reproducible source build, check out the tag and follow [Development](DEVELOPMENT.md),
+For a source rebuild, check out the tag and follow [Development](DEVELOPMENT.md#compare-a-rebuild-with-a-release),
 including a clean committed checkout and checked packaging. The app contains
 `js/app-113.mjs` and `css/app-113.css`. Node.js and npm are build-time tools.
 

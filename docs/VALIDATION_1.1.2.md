@@ -47,11 +47,11 @@ See [additional checks](validation/1.1.2/additional-checks.json),
 [bundle provenance](validation/1.1.2/bundle-modules.json).
 
 The local and release ZIP packages have different whole-archive SHA256 digests,
-although a later operator comparison found **all 18 runtime files and the
-BUILD.json manifest identical**. The cause is undetermined; the repeatability
-claims above apply to reruns within the recorded build environment, not
-cross-environment compressed-byte identity. Details and exact digests are in
-[the post-release localhost report](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md).
+although a later operator comparison found all **18 archive files, including
+BUILD.json**, identical. In a later controlled comparison, changing only
+the compressor reproduced different archive hashes with identical payload
+bytes. See [the compressor comparison](DEVELOPMENT.md#controlled-comparison-for-issue-16)
+and [the original localhost digests](LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md).
 
 The final version-bound results and reviewed source hashes are recorded in
 `docs/validation/1.1.2/`. The GitHub Release's `BUILD.json` binds its archives to

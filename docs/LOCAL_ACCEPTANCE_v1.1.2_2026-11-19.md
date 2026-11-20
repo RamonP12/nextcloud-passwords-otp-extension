@@ -25,15 +25,16 @@ The backup location and transaction identifier remain private to the operator.
 The deployment tool's automatic rollback remains available but **no real rollback
 was exercised in this acceptance**.
 
-### Archive byte reproducibility: open limitation
+### Archive byte reproducibility
 
 The locally built and officially published ZIPs report **different SHA256 values**
 even though all 18 extracted files and their manifests matched. The build receipt
 also reported a local TAR hash differing from the published release TAR.
-The exact cause of those compressed-archive byte differences was **not determined**.
-Successful repeated byte-identical builds within one build environment are
-distinct from reproducibility across different environments. No claim of
-cross-environment byte-identical archives is supported by this acceptance.
+The original comparison established identical extracted ZIP content. A later
+controlled run with this release reproduced different compressed bytes by
+swapping classic zlib for zlib-ng while preserving the uncompressed files.
+The original local archives were unavailable to that follow-up.
+[Controlled comparison and verification commands](DEVELOPMENT.md#compare-a-rebuild-with-a-release)
 
 ## Actual Passwords dependency lifecycle
 

@@ -11,7 +11,7 @@ Use the compiled ZIP for the version-matched installer tooling and the compiled 
 | `passwords_otp-1.1.3.zip` | `92021a9bc69d3a12378fc33de483fdb0806cacc240269a08b350234846a469dd` |
 | `passwords_otp-1.1.3.tar.gz` | `2019ff98d6decadc7fbbd14f3a486a9b3a7898a407fa5bfe3cd82b91f94197cc` |
 
-The GitHub artifacts are unsigned Nextcloud packages with `production_approved=false`. Archive checksums verify byte identity. Independent cryptographic verification of the GitHub release attestation is tracked in [#3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/3). Nextcloud certificate signing and App Store submission are tracked in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14). Cross-environment archive reproducibility is tracked in [#16](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/16).
+The GitHub artifacts are unsigned Nextcloud packages with `production_approved=false`. Archive checksums verify byte identity. Independent cryptographic verification of the GitHub release attestation is tracked in [#3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/3). Nextcloud certificate signing and App Store submission are tracked in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14). A fresh build from this tag with CPython 3.12.14 and classic zlib 1.3.2 reproduced both published archive checksums. The [cross-environment comparison](DEVELOPMENT.md#controlled-comparison-for-issue-16) records the zlib-ng result and the verified content comparison.
 
 ## Verification by environment
 
