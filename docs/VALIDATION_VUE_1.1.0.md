@@ -131,7 +131,7 @@ python3 scripts/local.py --build
 
 PHP contracts/syntax, the official XSD validation, both compiled-browser suites and both real-server suites were run separately. The clean build gate does not claim to run these external acceptance layers itself.
 
-GitHub Actions quota was unavailable. The workflow is **manual-only**, no workflow was dispatched, and publishing the migration does not request a push/PR-triggered run. Verification is local; no hosted green status is claimed.
+The workflow was manual-only during this migration. The results here came from local checks. See [Development](DEVELOPMENT.md#github-actions) for the active workflow.
 
 ## Reviewed screenshots
 

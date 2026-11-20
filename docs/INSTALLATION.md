@@ -64,10 +64,10 @@ source revision behind `v1.1.3`. Both archives contain the same runtime payload
 inside one `passwords_otp/` directory. GitHub's automatic **Source code** archives
 are source snapshots and do not contain the compiled application.
 
-A SHA256 checksum is not a Nextcloud signature. These ordinary GitHub artifacts
-are unsigned and retain `production_approved=false`. A correctly formatted TAR
-alone is insufficient for an App Store release; see [App Store packaging and
-signing](APPSTORE_PACKAGING.md).
+The [verified GitHub release attestation](VALIDATION_1.1.3.md#github-release-integrity)
+binds the release tag and assets. The packages retain `production_approved=false`.
+Nextcloud certificate signing and App Store distribution have their own
+requirements. See [App Store packaging and signing](APPSTORE_PACKAGING.md).
 
 For a source rebuild, check out the tag and follow [Development](DEVELOPMENT.md#compare-a-rebuild-with-a-release),
 including a clean committed checkout and checked packaging. The app contains
@@ -83,8 +83,9 @@ covers the remaining scenarios.
 
 #### Upgrade the existing localhost test fixture
 
-From a clean checkout of the `v1.1.3` tag, use the browser, Playwright environment
-and PHP image described in [Development](DEVELOPMENT.md). The build creates a
+From a clean checkout of the `v1.1.3` tag, use Node 24 for the complete build
+and the browser, Playwright environment and PHP image described in
+[Development](DEVELOPMENT.md). The build creates a
 local, commit-bound package and receipt. Run the steps in order:
 
 ```fish

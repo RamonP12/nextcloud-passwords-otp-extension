@@ -48,8 +48,10 @@ The AIO 15.1.1 record shows a failed OTP activation before Passwords activation
 and a successful manual recovery. Its exact original exception is unavailable.
 For systems running the released 1.1.3, follow the historical steps in the
 [production upgrade record](VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation).
-The version-specific deployment tools retain the prerequisite for their
-previously verified fixture. [Installation](INSTALLATION.md)
+The version-specific deployment tools use the exact reviewed dependency build
+from [the PHP policy](../lib/Service/PasswordsDependency.php). On development
+source this is `2026.11.20`, which also defines the runtime maintenance line.
+See [deployment boundaries](DEVELOPMENT.md#maintainer-only-local-tools-and-deployment-boundaries).
 
 ## Verification and remaining installed-server acceptance
 
@@ -59,7 +61,7 @@ keep-data removal, and legacy job retirement. See the [core-component test instr
 [1.1.3 verification](VALIDATION_1.1.3.md) and [1.1.2 verification](VALIDATION_1.1.2.md)
 record the previous behavior of the published packages.
 
-### Development verification
+### Lifecycle verification for PR #22
 
 On disposable Nextcloud **35.0.3.2**, PHP **8.4.27**, SQLite and Chromium
 **156.0.8078.79**, first registration was rejected with Passwords disabled.
@@ -78,7 +80,7 @@ using the released 2026.11.20 code. It verifies the version and recovery logic.
 The 20 pinned Nextcloud core-component cases and the 41 compiled-browser
 cases passed. The complete `scripts/local.py --build` sequence passed on both
 Node **22.22.2** and **24.22.3**, with identical JS/CSS output and verified
-ZIP/TAR.GZ packages in each environment.
+ZIP/TAR.GZ packages in each environment. See [PR #22](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/22) for these results and [development verification](DEVELOPMENT.md#verification-on-2026-11-20) for the subsequent CI run.
 
 ## Primary implementation references
 

@@ -4,17 +4,26 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ## [Unreleased]
 
+### User-facing changes
+
+- Show when the session is being checked after returning to the window. Copy the code with a fresh click once it reappears. See [copying codes](docs/USER_GUIDE.md#view-and-copy-codes).
 - Announce when a tab switch clears entered passwords or OTP secrets in the creation dialog. Keep the title and username available for retry.
 - Send the configured SHA-1 prefix for CSE creation. A hash length of zero sends an empty hash, and invalid settings stop creation before the write.
 - Localize the fallback title for unnamed OTP accounts and align the German app description with the English scope.
-- Identify development builds as **1.2.0-dev** in Nextcloud, the package manifest and asset names.
-
 - Respect the Passwords inactivity limit in the vault. Trusted app activity or user-initiated API actions extend the local deadline according to the selected mode. On expiry, remove OTP codes and form secrets and close the upstream session on a best-effort basis. See [session behavior](docs/USER_GUIDE.md#session-and-keyboard-behavior).
 - Keep OTP activation and group scope while Passwords is unavailable. Deny access on OTP requests and resume on reload when the installed dependency is compatible. Allow stable 2026.11.20 through 2026.11.29 after checking the required Passwords interfaces. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
-- Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
-
 - Translate the app body into German and English. Select the first supported browser preference, match regional variants to the base language and fall back to English. The Nextcloud shell follows its own language policy. See [localization and verification](docs/LOCALIZATION.md).
 - Localize vault, list and clipboard messages, the creation dialog, required and length validation, plural notices and accessible labels. Use the localized Cancel action or Escape to close an idle dialog.
+
+### Build, verification and maintenance
+
+- Identify development builds as **1.2.0-dev** in Nextcloud, the package manifest and asset names.
+- Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
+- Define the reviewed Passwords build once in PHP. The runtime derives its maintenance range from that value, and the Python installers use the exact reviewed build.
+- Compile into `.build/vite/` and publish the verified JS and CSS into the paths used by Nextcloud.
+- Restore GitHub Actions for pushes to `main` and pull requests targeting `main`. Stabilize the virtual-clock dialog test and record the successful hosted checks. See [development verification](docs/DEVELOPMENT.md#verification-on-2026-11-20).
+- Record the zlib and zlib-ng comparison for reproducible content verification and the completed GitHub release-attestation checks. See [archive comparison](docs/DEVELOPMENT.md#controlled-comparison-for-issue-16) and [release integrity](docs/VALIDATION_1.1.3.md#github-release-integrity).
+- Retire the superseded `release/v1.0.1-appinfo-schema` branch. The original candidate is preserved in [PR #5](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/5).
 
 ## [1.1.3] – Branding and direct code copying (2026-11-19)
 
@@ -22,6 +31,7 @@ All notable changes to the publicly maintained project are documented here. The 
 - Copy the displayed TOTP code by clicking it or using Enter or Space on the focused code. The separate **Code kopieren** button remains available. Both controls share the same validation and clipboard feedback.
 - Publish verified ZIP and TAR.GZ packages from the merge commit. Record the maintainer’s localhost upgrade, the separate SQLite upgrade/rollback and the distribution checks in [1.1.3 verification](docs/VALIDATION_1.1.3.md).
 - Record post-release PostgreSQL/Redis verification and one [maintainer-confirmed manual AIO replacement](docs/VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19) from internal 0.7.3 to 1.1.3.
+- Document the Apps icon cache workaround and manual OTP reactivation after AIO 15.1.1 upgraded Nextcloud to 35.0.3. See the [production upgrade record](docs/VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation).
 
 ## [1.1.2] – Passwords dependency and tar.gz distribution (2026-11-19)
 
@@ -33,7 +43,7 @@ All notable changes to the publicly maintained project are documented here. The 
 - Align version, `app-112` assets, package inventory and installer checks with 1.1.2, including the new migration/job bookkeeping. Preserve previous public tags/assets and historical evidence.
 - Document current component verification and the additional disposable localhost lifecycle acceptance in [1.1.2 verification](docs/VALIDATION_1.1.2.md) and [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md). The five accepted Vue checks on 1.1.0 are not proof of the new lifecycle behavior.
 
-Ordinary GitHub artifacts remain unsigned, with `production_approved=false`. GitHub Actions is not used. Dependency enforcement does not convert internal Passwords interfaces into public APIs or resolve the broader WebUI bearer-token scope.
+Ordinary GitHub artifacts remain unsigned, with `production_approved=false`. Verification for this release was local. Dependency enforcement does not convert internal Passwords interfaces into public APIs or resolve the broader WebUI bearer-token scope.
 
 ## [1.1.1] – Nextcloud Vue edition (2026-11-19)
 
@@ -56,7 +66,7 @@ Distribution remains an unsigned, version-matched GitHub ZIP. GitHub Actions was
 - Rework compiled-browser tests to exercise the actual production application, client/libsodium and WebCrypto with synthetic API responses. Document current live-server integration separately from the historical release.
 - Include the missing appinfo `<bugs>` URL identified in PR #5 without merging or publishing its separate 1.0.1 branch.
 - Retain first-install-only AIO behavior, version-matched tooling and earlier localhost rollback asset mappings. No production AIO upgrade or signed App Store release is added; PR #9 remains separate.
-- Remove automatic GitHub Actions push/PR triggers while quota is exhausted; keep a manual workflow definition for future use. Local evidence is documented in the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md).
+- Retain a manual-only GitHub Actions workflow during the migration. Local evidence is documented in the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md).
 
 The app's German wording and explicit copy button remain. Full localization (#6) and clicking the code to copy (#7) are separate features. **Published v1.0.0 source, tag, release assets and historical test reports are unchanged.**
 

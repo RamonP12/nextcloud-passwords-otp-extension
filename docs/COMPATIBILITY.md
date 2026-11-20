@@ -13,7 +13,7 @@ Version 1.1.2 enforces the Passwords dependency and adds an installable TAR alon
 | PHP | Metadata permits 8.3–8.5 | A contract test does not establish every permitted PHP/server combination |
 | Browser | Modern browser with ES modules, WebCrypto and clipboard support | Compiled browser checks use a synthetic shell/API; real-server and other-browser evidence is separate |
 | Frontend | Vue 3.5.45 and @nextcloud/vue 9.14.1 | Dependencies pinned in the lockfile; no runtime CDN |
-| Build host | Node.js 22.12+ within 22.x, or 24.x | Node/npm are not required on the installed Nextcloud server |
+| Build host | Node.js 24.x for rebuilding the v1.1.3 package | The tag declares Node 22 support, but its packaging step can fail on missing optional dependency notices. Installed Nextcloud needs only the compiled assets and PHP. |
 | Database | No own OTP tables; a framework migration checks the install prerequisite and a scheduled job checks dependency state | Migration/job bookkeeping uses Nextcloud facilities; rollback and the underlying database need environment-specific acceptance |
 | Installation | Version-matched unsigned TAR and ZIP for manual distribution and version-specific tools | One manual AIO 0.7.3 → 1.1.3 replacement passed. Full-stack AIO first-install tooling, production rollback and signed App Store installation remain open. |
 
@@ -33,8 +33,9 @@ eventless removal and per-user **Passwords** group isolation remain open.
 The request-time guard accepts matching stable Passwords **2026.11.20–2026.11.29**
 manifests when the required private methods are available. Passwords is still
 required for every new OTP vault session. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
-for historical and current behavior. Both Node.js 22 and 24 can build development
-packages. The 1.1.3 distribution evidence above applies to its exact tag.
+for historical and current behavior. Both Node.js 22.12+ within 22.x and 24.x
+can build development packages. The install tools still require the exact
+reviewed Passwords build. See [development verification](DEVELOPMENT.md#verification-on-2026-11-20).
 
 ## Historical published v1.0.0 evidence
 

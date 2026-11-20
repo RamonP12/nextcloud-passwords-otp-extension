@@ -1,6 +1,6 @@
 # User guide
 
-The app in [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) appears as **Passwords OTP Generator** in Nextcloud navigation and on the administrator’s Apps page. The icon is a shield with a diagonal key cut-out. Published version 1.1.2 appears as **Passwort OTP Code Generator**.
+The app in [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) appears as **Passwords OTP Generator** in Nextcloud navigation and on the administrator’s Apps page. The icon is a shield with a diagonal key cut-out. Published version 1.1.2 appears as **Passwort OTP Code Generator**. If the Apps page still shows the old shield after an update, see the [icon cache workaround](VALIDATION_1.1.3.md#apps-administration-icon-cache).
 
 ## Interface language
 
@@ -22,7 +22,7 @@ The interface cannot revoke a code already copied to another application. Normal
 4. Click the displayed code or activate **Code kopieren** for that account. Both controls support Tab, Enter and Space. In 1.1.2, use **Code kopieren**. Enter the copied code promptly in the service requesting it.
 5. Use **TOTP-Konten durchsuchen** to filter accounts; clear the search to restore the list. Searching does not discard accounts or reset their valid codes.
 
-Copying is temporarily unavailable close to expiry or while session validity is being checked. A failed clipboard request is reported rather than presented as success. Leading zeroes are part of the code.
+Copying is temporarily unavailable close to expiry or while session validity is being checked. In **1.2.0-dev**, returning to the window shows a message while the session check runs. When the code reappears, click it or **Code kopieren** again. A failed clipboard request is reported rather than presented as success. Leading zeroes are part of the code.
 
 ![Version 1.1.3 showing a clickable code and the separate copy button in a synthetic Nextcloud fixture](images/vue-1.1.3-light.png)
 

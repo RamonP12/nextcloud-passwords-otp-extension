@@ -13,7 +13,7 @@ Work on short feature branches and review changes through pull requests. Preserv
 
 Install exactly the locked dependencies with `npm ci`; do not run `npm update` as part of routine verification. Vite and Node are build-time dependencies. The packaged Nextcloud app does not need a Node service.
 
-## Local checks without GitHub Actions
+## Local checks
 
 Run these commands in the repository root:
 
@@ -178,7 +178,20 @@ release-byte reproduction if required. [Issue #16](https://github.com/RamonP12/n
 
 The verification workflow uses standard GitHub-hosted Ubuntu runners with read-only repository permissions. Pull requests targeting `main`, pushes to `main` and manual dispatch trigger it. GitHub provides standard runner usage free for public repositories. [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 
-Report the result of the actual workflow run for the tested commit. The hosted artifact is an unsigned verification package. Live Nextcloud and AIO acceptance are separate checks.
+Report the result of the actual workflow run for the tested commit. The hosted artifact is an unsigned verification package. Live Nextcloud and AIO acceptance are separate checks. Routine Dependabot version-update PRs are paused by the zero limits in [Dependabot configuration](../.github/dependabot.yml). Security alerts and security-update PRs use separate repository settings.
+
+### Verification on 2026-11-20
+
+[PR #25](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/25) restored the push and pull request triggers. The first push run exposed a timing issue in the browser test for vault inactivity. [PR #26](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/26) let the dialog initialize its focus trap before jumping the test clock. The test still checks that inactivity locks the vault and clears the inputs without sending a Passwords keepalive.
+
+| Scope | Result |
+| --- | --- |
+| Hosted package and PHP checks on commit `5865b351351da249e830ced415c1047b3fe71621` | 249 JavaScript, 20 pinned-client and 103 Python tests passed. PHP 8.5.13 lint, 87 security assertions and 20 dependency assertions passed. npm audit reported zero vulnerabilities for the checked lockfile. Both bundle builds, verified ZIP/TAR generation and artifact upload passed. |
+| Hosted Chromium on the same commit | All 44 cases passed with the production bundle and synthetic shell, API and clipboard. The delayed session check confirmed that returning to the window shows a waiting message and copy requires a fresh click. |
+| Local build on commit `010939c9aec9129bafff86ea97905e3758762a50` | Node 22.22.2 passed the full build and package gate on the first maintenance merge. |
+| Local integration on the PR #25 source tree | PHP 8.4.27 passed the standalone contracts and all 20 pinned Nextcloud 35.0.2 lifecycle component cases with service doubles. |
+
+[Successful PR run](https://github.com/RamonP12/nextcloud-passwords-otp-extension/actions/runs/44737110666) and [successful push run on `main`](https://github.com/RamonP12/nextcloud-passwords-otp-extension/actions/runs/44737362435).
 
 ## Maintainer-only local tools and deployment boundaries
 
@@ -199,5 +212,7 @@ needs the matching ZIP and `--sha256` when it runs outside a source checkout.
 ## Release coordination
 
 Development builds on `main` use **1.2.0-dev**. After tagging a stable release, immediately advance `main` to the next development version and include the suffix in the asset basename. Update app metadata, package/lock versions, output names, build markers, tests and inventory together. The next stable version sorts after its development version in Nextcloud. [Nextcloud release process](https://docs.nextcloud.com/server/stable/developer_manual/app_publishing_maintenance/release_process.html) Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
+
+The superseded `release/v1.0.1-appinfo-schema` branch was deleted on 2026-11-20. The candidate commit is still accessible through [PR #5](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/5) and the resolved metadata change is in the published Vue line. See [issue #2](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/2).
 
 Version 1.1.2 incorporates reviewed TAR/signing preparation and corrects the signature-path assumption in draft PR #9. v1.1.3 is distributed through GitHub as an unsigned release. Track App Store publication in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14). AIO/PostgreSQL acceptance and dependency lifecycle checks on the maintainer's localhost remain distinct from synthetic contract tests.

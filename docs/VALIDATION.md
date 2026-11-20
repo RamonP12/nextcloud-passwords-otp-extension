@@ -61,6 +61,6 @@ An internal AIO/PostgreSQL deployment previously demonstrated earlier OTP behavi
 4. **Distribution:** source/manual ZIP, unsigned, not in Nextcloud App Store; `production_approved=false` unchanged.
 5. **Deployment lifecycle:** the v1.0.0 AIO installer is first-install only; no supported in-place upgrades from internal 0.7.3 or to future releases.
 6. **GitHub release integrity:** tag changes/deletion are blocked by a ruleset, but the already-published GitHub release reports `immutable=false`, so **release assets are not protected by GitHub immutable releases**. See [integrity record](RELEASE_INTEGRITY_v1.0.0.md).
-7. **Automation:** GitHub Actions workflows are intentionally disabled, and no passing hosted CI status is claimed.
+7. **Automation at the time:** This record covers local checks. See [Development](DEVELOPMENT.md#github-actions) for later hosted verification.
 
 **Status:** **Local functional acceptance = PASS. AIO/PostgreSQL first-install acceptance and general production security approval = OPEN.**

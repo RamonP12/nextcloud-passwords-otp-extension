@@ -12,7 +12,8 @@ Its format is suitable for the Nextcloud release flow; this does not make it a
 published or signed App Store release. `production_approved` remains `false`.
 No Nextcloud-issued signing certificate or corresponding private key was
 provided for this release. No App Store registration or publication was performed.
-The remaining signing and Store acceptance work is tracked in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14).
+The [verified GitHub release attestation](VALIDATION_1.1.3.md#github-release-integrity)
+binds the Git tag and all attached assets. The remaining signing and Store acceptance work is tracked in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14).
 
 The GitHub-generated **Source code (tar.gz)** is a source snapshot, not this
 installable artifact. It lacks the compiled assets and uses GitHub's versioned
