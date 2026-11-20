@@ -4,13 +4,13 @@ The app in [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extensio
 
 ## Interface language
 
-The published 1.1.3 interface is German. The unreleased multilingual interface uses the first supported language in your browser preferences. For example, German (Switzerland) selects German, and French with no other supported preference selects English. Put your preferred supported language first in the browser, then reload the page or reopen the app. The Nextcloud menu can use a different language set by your account or administrator.
+The published 1.1.3 interface is German. The 1.1.4 multilingual interface uses the first supported language in your browser preferences. For example, German (Switzerland) selects German, and French with no other supported preference selects English. Put your preferred supported language first in the browser, then reload the page or reopen the app. The Nextcloud menu can use a different language set by your account or administrator.
 
 The steps below show the published German labels. In English, use **Search TOTP accounts**, **Copy code**, **Add a new OTP entry**, **Save OTP** and **Cancel**. See [localization](LOCALIZATION.md) for details.
 
 ## Required Passwords app
 
-Users need access to both apps. Published 1.1.3 requires Passwords **2026.11.20** and can require explicit OTP reactivation after restoring Passwords. In the unreleased app, dependency loss blocks access at runtime. Once a compatible Passwords installation returns, reload the OTP page. [Dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
+Users need access to both apps. Published 1.1.3 requires Passwords **2026.11.20** and can require explicit OTP reactivation after restoring Passwords. In 1.1.4, dependency loss blocks access at runtime. Once a compatible Passwords installation returns, reload the OTP page. [Dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
 
 The interface cannot revoke a code already copied to another application. Normal session/window checks remain active. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for detection timing and administrator recovery.
 
@@ -22,7 +22,7 @@ The interface cannot revoke a code already copied to another application. Normal
 4. Click the displayed code or activate **Code kopieren** for that account. Both controls support Tab, Enter and Space. In 1.1.2, use **Code kopieren**. Enter the copied code promptly in the service requesting it.
 5. Use **TOTP-Konten durchsuchen** to filter accounts; clear the search to restore the list. Searching does not discard accounts or reset their valid codes.
 
-Copying is temporarily unavailable close to expiry or while session validity is being checked. In **1.2.0-dev**, returning to the window shows a message while the session check runs. When the code reappears, click it or **Code kopieren** again. A failed clipboard request is reported rather than presented as success. Leading zeroes are part of the code.
+Copying is temporarily unavailable close to expiry or while session validity is being checked. In **1.1.4**, returning to the window shows a message while the session check runs. When the code reappears, click it or **Code kopieren** again. A failed clipboard request is reported rather than presented as success. Leading zeroes are part of the code.
 
 ![Version 1.1.3 showing a clickable code and the separate copy button in a synthetic Nextcloud fixture](images/vue-1.1.3-light.png)
 
@@ -36,13 +36,13 @@ Creation uses **SHA-1, six digits and a 30-second period**. Check these settings
 
 Choose **OTP speichern** to confirm. Pressing Enter in an input field does not create an entry; keyboard activation of the save button still works. **Abbrechen** or Escape closes an idle dialog and clears the secret fields. While a save is in progress, closing and repeated submission are disabled. On completion the new record is stored together with your other passwords in the original Passwords app. Use the Passwords app to edit, delete or share it with other Nextcloud users.
 
-Switching tabs clears the password and OTP secret in the open dialog. The title and username stay filled. The development version shows a message so you know to re-enter the cleared fields.
+Switching tabs clears the password and OTP secret in the open dialog. The title and username stay filled. Version 1.1.4 shows a message so you know to re-enter the cleared fields.
 
 If the interface reports an uncertain save result, verify the original Passwords records before attempting another create operation. The app blocks a blind retry because the first request might already have been stored.
 
 ## Session and keyboard behavior
 
-In the unreleased app, OTP reads the Passwords inactivity duration and
+In 1.1.4, OTP reads the Passwords inactivity duration and
 keepalive mode from the API when the vault opens. The default duration is
 **600 seconds**. Reload OTP to apply a setting changed in Passwords.
 

@@ -30,14 +30,14 @@ function bundleInventory() {
         generateBundle: {
             order: 'post',
             handler(_options, bundle) {
-                const css = bundle['css/app-120-dev.css'];
+                const css = bundle['css/app-114.css'];
                 if (css?.type !== 'asset' || typeof css.source !== 'string') {
                     throw new Error('Missing final CSS asset for installer marker');
                 }
                 // CSS minification removes source comments. Preserve the
                 // installer's fixed build sentinel in the final output before
                 // writeBundle binds the emitted bytes to source/module hashes.
-                css.source = '/*! PASSWORDS_OTP_CSS_120_DEV_VERIFIED */\n' + css.source;
+                css.source = '/*! PASSWORDS_OTP_CSS_114_VERIFIED */\n' + css.source;
             },
         },
         writeBundle({dir}, bundle) {
@@ -47,7 +47,7 @@ function bundleInventory() {
             const modules = new Set();
             const buildModules = new Set();
             for (const [path, item] of Object.entries(bundle)) {
-                if (!['js/app-120-dev.mjs', 'css/app-120-dev.css'].includes(path)) {
+                if (!['js/app-114.mjs', 'css/app-114.css'].includes(path)) {
                     throw new Error(`Unexpected runtime asset: ${path}`);
                 }
                 const bytes = readFileSync(resolve(dir, path));
@@ -97,11 +97,11 @@ export default defineConfig({
                 input: 'src/main.js',
                 output: {
                     intro: `const appName = "passwords_otp"; const appVersion = ${JSON.stringify(JSON.parse(readFileSync('package.json', 'utf8')).version)};`,
-                    entryFileNames: 'js/app-120-dev.mjs',
+                    entryFileNames: 'js/app-114.mjs',
                     inlineDynamicImports: true,
                     assetFileNames: info => {
                         if (!info.names.every(name => name.endsWith('.css'))) throw new Error('Unexpected non-CSS runtime asset');
-                        return 'css/app-120-dev.css';
+                        return 'css/app-114.css';
                     },
                 },
             },

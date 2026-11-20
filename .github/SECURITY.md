@@ -4,7 +4,8 @@
 
 | Version | Status |
 | --- | --- |
-| 1.1.3 | Current GitHub release. Unsigned TAR/ZIP, verified localhost upgrade and OTP functions. See the [verification record](../docs/VALIDATION_1.1.3.md) for the acceptance limits. |
+| 1.1.4 | Version covered by this source. See [release notes](../docs/RELEASE_1.1.4.md). |
+| 1.1.3 | Previous GitHub release. Unsigned TAR/ZIP, verified localhost upgrade and OTP functions. See the [verification record](../docs/VALIDATION_1.1.3.md) for the acceptance limits. |
 | 1.1.2 | Historical Vue release with documented Passwords prerequisite and localhost lifecycle checks |
 | 1.1.1 | Historical Vue release; superseded, tag and assets unchanged |
 | 1.1.0 source candidate | Superseded internal Vue candidate; not published as a separate release |

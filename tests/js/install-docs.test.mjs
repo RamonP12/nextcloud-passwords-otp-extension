@@ -12,9 +12,9 @@ test('current release metadata and historical acceptance are distinguished in pu
     const readme = read('README.md'), info = read('appinfo/info.xml');
     const version = JSON.parse(read('package.json')).version;
     const publishedVersion = '1.1.3';
-    assert.equal(version, '1.2.0-dev');
-    assert.ok(readme.includes('Development on `main` uses **' + version + '**'));
-    assert.ok(readme.includes(`Latest published release: ${publishedVersion}`));
+    assert.equal(version, '1.1.4');
+    assert.ok(readme.includes('This source builds **' + version + '**'));
+    assert.ok(readme.includes('docs/RELEASE_' + version + '.md'));
     assert.ok(readme.includes('docs/VALIDATION_' + publishedVersion + '.md'));
     assert.ok(readme.includes('/releases/tag/v' + publishedVersion + ')'));
     assert.doesNotMatch(readme, /\*\*Latest published release: 1\.1\.3 \(unreleased\)/);
@@ -25,6 +25,7 @@ test('current release metadata and historical acceptance are distinguished in pu
     assert.ok(info.includes(`<version>${version}</version>`));
     assert.ok(read('scripts/release.py').includes(`VERSION='${version}'`));
     assert.ok(exists('LICENSE'));
+    assert.match(read('CHANGELOG.md'), /\[1\.1\.4\]/);
     assert.match(read('CHANGELOG.md'), /\[1\.1\.3\].*2026-11-19/);
     assert.match(read('CHANGELOG.md'), /\[1\.1\.2\].*2026-11-19/);
 });

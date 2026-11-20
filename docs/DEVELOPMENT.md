@@ -26,7 +26,7 @@ npm run test:php
 git ls-files -z -- '*.php' | xargs -0 -n1 php -l
 npm audit --audit-level=low
 npm run build
-node --check js/app-120-dev.mjs
+node --check js/app-114.mjs
 ```
 
 The browser suite needs the **fresh production build** from the preceding step. A separate Python environment can be prepared as follows:
@@ -65,8 +65,8 @@ Use synthetic users and OTP seeds. Do not run production installation scripts to
 
 `npm run build` compiles Vue Single File Components into `.build/vite/` using pinned Vite and the official `@vitejs/plugin-vue` plugin. The build checks the output before copying assets to the paths Nextcloud serves. It exposes these files:
 
-- `js/app-120-dev.mjs`
-- `css/app-120-dev.css`
+- `js/app-114.mjs`
+- `css/app-114.css`
 - `.build/bundle-modules.json`, a local provenance record for the contributing npm modules and output hashes, production mode, complete source input hashes and allowed build module paths.
 
 The JS module includes libsodium even for vaults without client-side encryption. The pinned Passwords client's default class loader imports it for the master-password challenge, keychains and encryption. At the time of review the module was about 1.10 MB (368 kB gzip). A lazy split requires testing the challenge and CSE paths as well as extending the fixed asset inventory, Nextcloud module delivery and archive verification.
@@ -83,8 +83,8 @@ Verify both archives from their output directory; the checksum files use relativ
 
 ```sh
 cd .build/package
-sha256sum -c passwords_otp-1.2.0-dev.zip.sha256
-sha256sum -c passwords_otp-1.2.0-dev.tar.gz.sha256
+sha256sum -c passwords_otp-1.1.4.zip.sha256
+sha256sum -c passwords_otp-1.1.4.tar.gz.sha256
 ```
 
 The package generator refuses an existing output directory, a dirty checkout, stale asset/module evidence, source/config/lock changes since compilation, changed or missing dependency notices, unsafe paths or an unexpected runtime file. The source commit and clean checkout are rechecked after packaging, before writing output. It records the exact **`source_commit`** and every payload hash in `BUILD.json`, with **`production_approved=false`**. Two constructions of each archive must be identical; that comparison is separate from compiling the frontend twice. Both archives have exactly one `passwords_otp/` root and identical runtime payloads. The ordinary artifacts are unsigned. The separate [App Store signing procedure](APPSTORE_PACKAGING.md) requires real certificate trust verification and an archive signature.
@@ -211,7 +211,7 @@ needs the matching ZIP and `--sha256` when it runs outside a source checkout.
 
 ## Release coordination
 
-Development builds on `main` use **1.2.0-dev**. After tagging a stable release, immediately advance `main` to the next development version and include the suffix in the asset basename. Update app metadata, package/lock versions, output names, build markers, tests and inventory together. The next stable version sorts after its development version in Nextcloud. [Nextcloud release process](https://docs.nextcloud.com/server/stable/developer_manual/app_publishing_maintenance/release_process.html) Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
+This release branch builds **1.1.4** with its own asset basename. Development builds on `main` use **1.2.0-dev** and a different asset basename. For future releases, keep the stable release version higher than the preceding public release and keep development assets distinct. Update app metadata, package/lock versions, output names, build markers, tests and inventory together. Verify the version order for the installation being upgraded. [Nextcloud release process](https://docs.nextcloud.com/server/stable/developer_manual/app_publishing_maintenance/release_process.html) Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
 
 The superseded `release/v1.0.1-appinfo-schema` branch was deleted on 2026-11-20. The candidate commit is still accessible through [PR #5](https://github.com/RamonP12/nextcloud-passwords-otp-extension/pull/5) and the resolved metadata change is in the published Vue line. See [issue #2](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/2).
 

@@ -1,5 +1,5 @@
 {
-  "app_version": "1.2.0-dev",
+  "app_version": "1.1.4",
   "graph_policy": "production dependencies, optional dependencies and required peers; optional-only peers excluded and checked against actual bundle inputs",
   "packages": {
     "node_modules/@babel/helper-string-parser": {

@@ -1,6 +1,8 @@
 # Installation and version selection
 
-## Current GitHub release 1.1.3
+For version 1.1.4, see the [release and upgrade notes](RELEASE_1.1.4.md).
+
+## Published GitHub release 1.1.3
 
 [Version 1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)
 requires Nextcloud 35, PHP 8.3–8.5 and Passwords **2026.11.20**. Use the
@@ -39,7 +41,7 @@ can enable OTP for all test users; this does not override Passwords group access
 - Restoring Passwords does not re-enable OTP automatically. The administrator
   reviews the prerequisite and enables OTP explicitly.
 
-See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the published behavior and the changes in unreleased source. The migration checks prerequisites and adds no OTP
+See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the published behavior and the 1.1.4 behavior. The migration checks prerequisites and adds no OTP
 data tables, but Nextcloud migration/job bookkeeping is real state and must be
 included in rollback verification.
 

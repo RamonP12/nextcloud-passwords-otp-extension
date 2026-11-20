@@ -58,7 +58,7 @@ namespace {
    public bool $enabled=true;public bool $globalEnabled=true;public bool $otpEnabled=true;
    public string $installed='2026.11.20';public string $disk='2026.11.20';public int $disableCalls=0;
    public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}
-   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.2.0-dev'];}
+   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.4'];}
    public function __construct(private string $path) {}
    public function getAppPath($id,$ignoreCache=false){
     file_put_contents($this->path.'/appinfo/info.xml','<info><id>passwords</id><version>'.htmlspecialchars($this->disk,ENT_XML1).'</version></info>');

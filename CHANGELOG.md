@@ -2,7 +2,7 @@
 
 All notable changes to the publicly maintained project are documented here. The first public source baseline is **1.0.0**; internal development candidates are not published as supported releases.
 
-## [Unreleased]
+## [1.1.4] – Session handling, localization and compatibility
 
 ### User-facing changes
 
@@ -17,7 +17,7 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ### Build, verification and maintenance
 
-- Identify development builds as **1.2.0-dev** in Nextcloud, the package manifest and asset names.
+- Use **1.1.4** in Nextcloud and package metadata, with separate `app-114` assets. [Release and upgrade notes](docs/RELEASE_1.1.4.md)
 - Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
 - Define the reviewed Passwords build once in PHP. The runtime derives its maintenance range from that value, and the Python installers use the exact reviewed build.
 - Compile into `.build/vite/` and publish the verified JS and CSS into the paths used by Nextcloud.

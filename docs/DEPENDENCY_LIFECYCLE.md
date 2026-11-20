@@ -1,6 +1,6 @@
 # Passwords prerequisite and lifecycle
 
-The unreleased OTP source permits stable Passwords builds **2026.11.20 through
+Version 1.1.4 permits stable Passwords builds **2026.11.20 through
 2026.11.29** in the 2026.11 release line. Passwords must be installed, enabled,
 and accessible to the current user. The installed version must match the
 on-disk manifest. The developer-reviewed upstream package is Passwords
@@ -11,7 +11,7 @@ nightlies and LSR variants require a compatibility review. [Upstream version scr
 
 ## What happens when Passwords is unavailable
 
-| Situation | Unreleased OTP behavior |
+| Situation | OTP 1.1.4 behavior |
 | --- | --- |
 | First installation with no recorded migration and Passwords absent, disabled or incompatible | The schema migration rejects registration. Nextcloud may already have extracted the app files. |
 | A registered OTP instance opens while Passwords is absent, disabled, incompatible or has an update pending | Initial page state and bootstrap are unavailable. Session status denies continued use. |
@@ -36,7 +36,7 @@ for the WebUI token scope and related limits.
 ## Transition from version 1.1.3
 
 The published v1.1.3 requires exactly Passwords **2026.11.20** and can disable
-itself at boot, on lifecycle events or through its scheduled job. The new source
+itself at boot, on lifecycle events or through its scheduled job. Version 1.1.4
 checks the dependency on OTP requests. The old job class retires its own
 persisted entry on its next run, or a normal disable removes that entry through
 the existing repair step. There are no OTP data tables and the previous
@@ -49,8 +49,7 @@ and a successful manual recovery. Its exact original exception is unavailable.
 For systems running the released 1.1.3, follow the historical steps in the
 [production upgrade record](VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation).
 The version-specific deployment tools use the exact reviewed dependency build
-from [the PHP policy](../lib/Service/PasswordsDependency.php). On development
-source this is `2026.11.20`, which also defines the runtime maintenance line.
+from [the PHP policy](../lib/Service/PasswordsDependency.php). For 1.1.4 this is `2026.11.20`, which also defines the runtime maintenance line.
 See [deployment boundaries](DEVELOPMENT.md#maintainer-only-local-tools-and-deployment-boundaries).
 
 ## Verification and remaining installed-server acceptance

@@ -1,6 +1,6 @@
 # Interface localization
 
-The app selects German (`de`) or English (`en`) for its own interface. English is the source catalog and fallback. This feature is in development source for the next release. The published 1.1.3 packages contain the German interface.
+The app selects German (`de`) or English (`en`) for its own interface. English is the source catalog and fallback. This feature is available in 1.1.4. The published 1.1.3 packages contain the German interface.
 
 ## Browser and Nextcloud language settings
 

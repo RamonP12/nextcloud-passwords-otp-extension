@@ -142,7 +142,7 @@ namespace Harness {
  final class Client implements \OCP\Http\Client\IClientService {} final class Temp implements \OCP\ITempManager {}
  final class AppManager extends \OC\App\AppManager {
   public array $present=['passwords'=>true,'passwords_otp'=>true];
-  public array $versions=['passwords'=>'2026.11.20','passwords_otp'=>'1.2.0-dev'];
+  public array $versions=['passwords'=>'2026.11.20','passwords_otp'=>'1.1.4'];
   public function __construct(public Config $state,public Users $users,public Dispatcher $events,Log $log) {parent::__construct($users,$state,new Groups(),new Cache(),$events,$log,new \OCP\ServerVersion(),new \OC\Config\ConfigManager(),new \OC\App\DependencyAnalyzer());}
   public function getAppPath(string $appId,bool $ignoreCache=false):string {if(!($this->present[$appId]??false))throw new \OCP\App\AppPathNotFoundException('Absent test app');return $appId==='passwords_otp'?ROOT:ROOT.'/.build/synthetic-passwords';}
   public function getAppInfo(string $appId,bool $path=false,$lang=null):?array {
@@ -217,7 +217,7 @@ namespace Harness {
   check($f['manager']->present['passwords_otp'],'downloaded files may remain after rejection');
   casePass('fresh-schema-only-install-rejected-'.$reason);
  }
- $f=fixture();install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.2.0-dev','valid install records version');check(count($f['db']->migrations['passwords_otp'])===1,'valid migration recorded');$f['manager']->enableApp('passwords_otp');check($f['manager']->isEnabledForAnyone('passwords_otp'),'valid install enabled');casePass('valid-fresh-install-and-enable');
+ $f=fixture();install($f);check($f['store']->values['passwords_otp']['installed_version']==='1.1.4','valid install records version');check(count($f['db']->migrations['passwords_otp'])===1,'valid migration recorded');$f['manager']->enableApp('passwords_otp');check($f['manager']->isEnabledForAnyone('passwords_otp'),'valid install enabled');casePass('valid-fresh-install-and-enable');
 
 
  foreach(['all-users','group'] as $scope){
@@ -256,7 +256,7 @@ namespace Harness {
  foreach([false,true] as $valid){
   $f=fixture(true);if(!$valid)$f['manager']->disableApp('passwords');
   check($f['manager']->upgradeApp('passwords_otp'),'core upgrade returns success');
-  check($f['store']->values['passwords_otp']['installed_version']==='1.2.0-dev','core upgrade records version');
+  check($f['store']->values['passwords_otp']['installed_version']==='1.1.4','core upgrade records version');
   check($f['manager']->isEnabledForAnyone('passwords_otp'),'core upgrade preserves existing enablement');
   check(($f['dependency']->reason()===null)===$valid,'upgrade preserves the runtime gate');
   check($f['jobs']->jobs===[],'upgrade does not schedule old job');

@@ -111,7 +111,7 @@ class DeployTests(unittest.TestCase):
    with self.subTest(version=version,files=files),self.assertRaises(deploy.DeploymentError):
     deploy.require_schema_free(version,files)
  def test_http_verification_checks_esm_candidate_and_classic_rollback_assets(self):
-  for version,asset,extension in [(deploy.VERSION,'app-120-dev','mjs'),('1.1.3','app-113','mjs'),('1.1.2','app-112','mjs'),('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
+  for version,asset,extension in [(deploy.VERSION,'app-114','mjs'),('1.1.3','app-113','mjs'),('1.1.2','app-112','mjs'),('1.1.1','app-111','mjs'),('1.1.0','app-110','mjs'),('1.0.0','app-100','js')]:
    with self.subTest(version=version):
     backend=deploy.DockerBackend();requested=[]
     bodies={'css/'+asset+'.css':b'CSS fixture','js/'+asset+'.'+extension:b'JS fixture'}

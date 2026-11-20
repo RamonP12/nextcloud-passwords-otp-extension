@@ -1,6 +1,6 @@
 # Architecture overview
 
-`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The **Vue edition** uses Vue 3 and Nextcloud Vue components. The unreleased source uses a Passwords dependency service and a prerequisite migration. There is **no separate OTP database or OTP data-schema change**; Nextcloud maintains normal migration/job bookkeeping.
+`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The **Vue edition** uses Vue 3 and Nextcloud Vue components. Version 1.1.4 uses a Passwords dependency service and a prerequisite migration. There is **no separate OTP database or OTP data-schema change**; Nextcloud maintains normal migration/job bookkeeping.
 
 ## Request and data flow
 
@@ -66,7 +66,7 @@ Vue batches DOM updates. `clearSensitiveDom()` therefore synchronously erases di
 
 ## Build and release boundaries
 
-Vite compiles the Single File Components in `.build/vite/` and verifies the output before copying **`js/app-120-dev.mjs`** and **`css/app-120-dev.css`** into the served paths. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
+Vite compiles the Single File Components in `.build/vite/` and verifies the output before copying **`js/app-114.mjs`** and **`css/app-114.css`** into the served paths. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
 
 The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs deterministic ZIP and TAR archives with the same `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
 

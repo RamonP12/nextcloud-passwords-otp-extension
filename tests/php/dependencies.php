@@ -36,7 +36,7 @@ namespace {
     use OCA\PasswordsOtp\Service\PasswordsDependency;
 
     final class FakeApps implements \OCP\App\IAppManager {
-        public array $versions = ['passwords' => '2026.11.20', 'passwords_otp' => '1.2.0-dev'];
+        public array $versions = ['passwords' => '2026.11.20', 'passwords_otp' => '1.1.4'];
         public bool $enabled = true;
         public bool $missingPath = false;
         public bool $unavailable = false;

@@ -1,6 +1,6 @@
 # Compatibility and supported scope
 
-## Current published version 1.1.3
+## Previous release 1.1.3
 
 [The 1.1.3 release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) adds the display name, shield icon and direct clipboard action. See [1.1.3 verification](VALIDATION_1.1.3.md) for checks tied to the published release.
 
@@ -28,13 +28,13 @@ eventless removal and per-user **Passwords** group isolation remain open.
 
 **Newer Nextcloud or Passwords versions are not automatically supported.** In particular, changes to `ApiTokenHelper`, `EnvironmentService`, session behavior or encryption formats require another compatibility review.
 
-## Unreleased source
+## Version 1.1.4
 
 The request-time guard accepts matching stable Passwords **2026.11.20–2026.11.29**
 manifests when the required private methods are available. Passwords is still
 required for every new OTP vault session. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
 for historical and current behavior. Both Node.js 22.12+ within 22.x and 24.x
-can build development packages. The install tools still require the exact
+can build the 1.1.4 packages. The install tools still require the exact
 reviewed Passwords build. See [development verification](DEVELOPMENT.md#verification-on-2026-11-20).
 
 ## Historical published v1.0.0 evidence
@@ -53,8 +53,8 @@ On **2026-11-11**, the exact public v1.0.0 ZIP passed first app installation int
 
 The app reads valid personal/shared **TOTP** fields and creates new Passwords entries. Existing entries are edited and shared through the original Passwords app. HOTP is not supported.
 
-The AIO installer refuses existing OTP deployments. The current source builds **1.2.0-dev** packages. For published versions, use the exact tagged tooling. See [Installation](INSTALLATION.md).
+The AIO installer refuses existing OTP deployments. This source builds **1.1.4** packages. See [upgrade notes](RELEASE_1.1.4.md). For published versions, use the exact tagged tooling. See [Installation](INSTALLATION.md).
 
 The GitHub release includes a compiled unsigned TAR. App Store signing and an automatic Store update channel remain open. See [App Store packaging](APPSTORE_PACKAGING.md). Declaring and enforcing a Passwords dependency does not make private Passwords integration classes public Nextcloud APIs.
 
-Published 1.1.3 uses German. The [unreleased language support](LOCALIZATION.md) covers German and English selected by browser preference, with separate Nextcloud shell language settings. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.
+Published 1.1.3 uses German. The [1.1.4 language support](LOCALIZATION.md) covers German and English selected by browser preference, with separate Nextcloud shell language settings. Responsive layouts and automated checks improve coverage, but native browser zoom, assistive-technology behavior and complete WCAG conformance require separate evidence.

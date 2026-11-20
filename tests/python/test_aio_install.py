@@ -123,8 +123,8 @@ def package_fixture(root):
     (root / release.PASSWORDS_POLICY).write_bytes(policy)
     (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>' + release.VERSION + '</version></info>')
     (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
-    (root / release.JS_ASSET).write_text('PASSWORDS_OTP_JS_120_DEV_VERIFIED' + '.' * 10011)
-    (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_120_DEV_VERIFIED')
+    (root / release.JS_ASSET).write_text('PASSWORDS_OTP_JS_114_VERIFIED' + '.' * 10011)
+    (root / release.CSS_ASSET).write_text('PASSWORDS_OTP_CSS_114_VERIFIED')
     with patch.object(release, 'third_party_license_bundle',
                       return_value=b'SYNTHETIC AIO TEST LICENSE NOTICES - NOT FOR DISTRIBUTION\n') as licenses, \
             patch.object(release, 'validate_bundle_metadata', return_value={'module_count': 0, 'packages': []}):
