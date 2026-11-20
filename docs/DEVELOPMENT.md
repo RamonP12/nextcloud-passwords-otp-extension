@@ -26,7 +26,7 @@ npm run test:php
 git ls-files -z -- '*.php' | xargs -0 -n1 php -l
 npm audit --audit-level=low
 npm run build
-node --check js/app-113.mjs
+node --check js/app-120-dev.mjs
 ```
 
 The browser suite needs the **fresh production build** from the preceding step. A separate Python environment can be prepared as follows:
@@ -65,8 +65,8 @@ Use synthetic users and OTP seeds. Do not run production installation scripts to
 
 `npm run build` compiles Vue Single File Components using pinned Vite and the official `@vitejs/plugin-vue` plugin. The explicit configuration avoids the shared configuration's unused Node/crypto polyfill dependencies. It produces exactly:
 
-- `js/app-113.mjs`
-- `css/app-113.css`
+- `js/app-120-dev.mjs`
+- `css/app-120-dev.css`
 - `.build/bundle-modules.json`, a local provenance record for the contributing npm modules and output hashes, production mode, complete source input hashes and allowed build module paths.
 
 The two assets are generated and ignored by Git. Do not edit them manually or include test fixtures in the production entry point. A repeated production build must produce identical JS and CSS bytes; `scripts/local.py --build` performs this comparison in its full source gate.
@@ -81,8 +81,8 @@ Verify both archives from their output directory; the checksum files use relativ
 
 ```sh
 cd .build/package
-sha256sum -c passwords_otp-1.1.3.zip.sha256
-sha256sum -c passwords_otp-1.1.3.tar.gz.sha256
+sha256sum -c passwords_otp-1.2.0-dev.zip.sha256
+sha256sum -c passwords_otp-1.2.0-dev.tar.gz.sha256
 ```
 
 The package generator refuses an existing output directory, a dirty checkout, stale asset/module evidence, source/config/lock changes since compilation, changed or missing dependency notices, unsafe paths or an unexpected runtime file. The source commit and clean checkout are rechecked after packaging, before writing output. It records the exact **`source_commit`** and every payload hash in `BUILD.json`, with **`production_approved=false`**. Two constructions of each archive must be identical; that comparison is separate from compiling the frontend twice. Both archives have exactly one `passwords_otp/` root and identical runtime payloads. The ordinary artifacts are unsigned. The separate [App Store signing procedure](APPSTORE_PACKAGING.md) requires real certificate trust verification and an archive signature.
@@ -183,11 +183,11 @@ Do not dispatch the workflow during this migration. Its definition is prepared f
 - `scripts/local.py --build` runs locked installation, JS/client tests, audit, Python tests, two production builds and checked packaging for an exact clean commit. Run PHP and browser checks separately as shown above; the build receipt is not a full live-server acceptance.
 - `scripts/local.py --preflight`, `--install` and `--verify` target the previously configured **localhost-only MariaDB/PHP 8.5 fixture**. Its historical container names and volume layout are local assumptions. It must not be pointed at an unrelated fixture or changed simply to bypass a mismatch.
 - `scripts/deploy.py` is a legacy **localhost test** upgrade/rollback tool. Its supported file/asset mappings include the 1.1.0 candidate, 1.1.1, 1.1.2 and 1.1.3, but it is not a supported production AIO upgrader. The new dependency migration/job state must be accounted for in rollback; consult its version-specific validation record.
-- `scripts/aio_install.py` supports an explicitly scoped **first install only** and rejects an existing `passwords_otp` app. Current scripts accept only the matching 1.1.3 package version. Use the matching v1.1.3 tag with the published archive. See the [AIO instructions](AIO_MANUAL_INSTALL.md).
+- `scripts/aio_install.py` supports an explicitly scoped **first install only** and rejects an existing `passwords_otp` app. Use the package and installer scripts from the same version. Use the matching v1.1.3 tag with the published archive. See the [AIO instructions](AIO_MANUAL_INSTALL.md).
 - The migration's disposable Nextcloud fixture and its observed results are described separately in the [migration report](NEXTCLOUD_VUE_MIGRATION.md). Do not transfer historical v1.0.0 test totals or database compatibility claims to the current release.
 
 ## Release coordination
 
-Update app metadata, package/lock versions, output names, build markers, tests and inventory together. Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
+Development builds on `main` use **1.2.0-dev**. After tagging a stable release, immediately advance `main` to the next development version and include the suffix in the asset basename. Update app metadata, package/lock versions, output names, build markers, tests and inventory together. The next stable version sorts after its development version in Nextcloud. [Nextcloud release process](https://docs.nextcloud.com/server/stable/developer_manual/app_publishing_maintenance/release_process.html) Run the final checks on the final source commit, then bind any candidate archive to that commit. Publishing a source branch or a verification ZIP does not publish a release.
 
 Version 1.1.2 incorporates reviewed TAR/signing preparation and corrects the signature-path assumption in draft PR #9. v1.1.3 is distributed through GitHub as an unsigned release. Track App Store publication in [#14](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/14). AIO/PostgreSQL acceptance and dependency lifecycle checks on the maintainer's localhost remain distinct from synthetic contract tests.

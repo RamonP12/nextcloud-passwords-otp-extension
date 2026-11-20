@@ -25,7 +25,7 @@ if (root) {
         dialogHost.lang = locale;
         document.body.append(dialogHost);
     }
-    root.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_113_VERIFIED');
+    root.setAttribute('data-js-build', 'PASSWORDS_OTP_JS_120_DEV_VERIFIED');
     const boundary = createUiFailureBoundary(() =>
         clearSensitiveDom(document, {inputs: true, codes: true, lock: true}));
     const app = createApp(App, {config, locale, t, onControllerReady: boundary.register});

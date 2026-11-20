@@ -52,7 +52,7 @@ On **2026-11-11**, the exact public v1.0.0 ZIP passed first app installation int
 
 The app reads valid personal/shared **TOTP** fields and creates new Passwords entries. Existing entries are edited and shared through the original Passwords app. HOTP is not supported.
 
-The AIO installer refuses existing OTP deployments. Current source tooling accepts **1.1.3** packages. For published versions, use the exact tagged tooling. See [Installation](INSTALLATION.md).
+The AIO installer refuses existing OTP deployments. The current source builds **1.2.0-dev** packages. For published versions, use the exact tagged tooling. See [Installation](INSTALLATION.md).
 
 The GitHub release includes a compiled unsigned TAR. App Store signing and an automatic Store update channel remain open. See [App Store packaging](APPSTORE_PACKAGING.md). Declaring and enforcing a Passwords dependency does not make private Passwords integration classes public Nextcloud APIs.
 

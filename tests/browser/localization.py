@@ -58,6 +58,44 @@ def run_cases(browser, passed):
             f.close()
         passed(f'locale-{locale}-{language}-preferences-{preferences}')
 
+    for locale, language, title, notice in [
+        ('en-US', 'en', 'OTP account', 'Switching tabs cleared the password and OTP secret.'),
+        ('de-CH', 'de', 'OTP-Konto', 'Beim Tab-Wechsel wurden Passwort und OTP-Secret geleert.'),
+    ]:
+        f = Fixture(browser, locale=locale, expected_language=language, records=[record(title='', issuer='')])
+        try:
+            page = f.page
+            expect(page.locator('#passwords-otp-ap2-list strong')).to_have_text(title)
+            expect(page.locator('.passwords-otp-ap3__code')).to_have_accessible_name(re.compile(title))
+            search = page.locator('#passwords-otp-ap2-search')
+            search.fill(title)
+            expect(page.locator('#passwords-otp-ap2-list li')).to_be_visible()
+            f.open()
+            dialog = page.get_by_role('dialog')
+            expect(dialog.get_by_text(notice, exact=False)).to_have_count(0)
+            f.fill()
+            page.locator('#passwords-otp-ap12-username').fill('Synthetic user')
+            page.evaluate("""() => {
+                Object.defineProperty(document, 'hidden', {value:true, configurable:true});
+                document.dispatchEvent(new Event('visibilitychange'));
+                Object.defineProperty(document, 'hidden', {value:false, configurable:true});
+                document.dispatchEvent(new Event('visibilitychange'));
+            }""")
+            expect(dialog.get_by_role('status').filter(has_text=notice)).to_be_visible()
+            expect(page.locator('#passwords-otp-ap12-label')).to_have_value('New fixture')
+            expect(page.locator('#passwords-otp-ap12-username')).to_have_value('Synthetic user')
+            expect(page.locator('#passwords-otp-ap12-password')).to_have_value('')
+            expect(page.locator('#passwords-otp-ap12-secret')).to_have_value('')
+            f.save()
+            assert f.created == 0
+            f.fill()
+            f.save()
+            expect(dialog).to_have_count(0)
+            assert f.created == 1
+        finally:
+            f.close()
+        passed(f'locale-{language}-untitled-account-and-tab-switch-notice')
+
     f = Fixture(browser, locale='en-US', expected_language='en', auth=True)
     try:
         page = f.page

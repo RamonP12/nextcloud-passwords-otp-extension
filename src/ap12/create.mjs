@@ -29,15 +29,23 @@ export async function sha1ForPasswords(value, subtle = globalThis.crypto?.subtle
         return Array.from(digest, b => b.toString(16).padStart(2, '0')).join('');
     } finally { bytes.fill(0); digest?.fill(0); }
 }
+function passwordHashLength(raw) {
+    if (typeof raw === 'string' && /^(0|[1-9][0-9]?)$/.test(raw)) raw = Number(raw);
+    if (!Number.isInteger(raw) || raw < 0 || raw > 40) {
+        throw new OtpCreateFault('create-hash-policy-unknown');
+    }
+    return raw;
+}
 export async function prepareOtpCreatePayload(form, {
-    mode, cseEncryption = null, subtle = globalThis.crypto?.subtle
+    mode, cseEncryption = null, hashLength, subtle = globalThis.crypto?.subtle
 } = {}) {
     const plain = buildNewOtpValues(form);
     if (mode === 'none') return plain;
     if (mode !== 'CSEv1r1' || !cseEncryption || typeof cseEncryption.encrypt !== 'function'
             || cseEncryption.enabled?.() !== true) throw new OtpCreateFault('create-cse-unavailable');
     try {
-        const hash = await sha1ForPasswords(plain.password, subtle);
+        const length = passwordHashLength(hashLength);
+        const hash = length === 0 ? '' : (await sha1ForPasswords(plain.password, subtle)).slice(0, length);
         let encrypted;
         try { encrypted = await cseEncryption.encrypt({...plain, hash}, 'password'); }
         catch (_) { throw new OtpCreateFault('create-cse-unavailable'); }

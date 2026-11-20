@@ -270,7 +270,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         copy: id => { if (ready()) presenter.copy(id); },
         visibilityChanged: () => {
             if (!checkIdle()) return;
-            if (doc.hidden) clear({inputs: true, codes: true});
+            if (doc.hidden) clear({inputs: true, codes: true, background: true});
             presenter?.visibilityChanged();
         },
         focusChanged: () => { if (checkIdle()) presenter?.focusChanged(); },

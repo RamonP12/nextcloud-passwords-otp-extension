@@ -11,10 +11,12 @@ const exists = name => existsSync(path.join(ROOT, name));
 test('current release metadata and historical acceptance are distinguished in public docs', () => {
     const readme = read('README.md'), info = read('appinfo/info.xml');
     const version = JSON.parse(read('package.json')).version;
-    assert.equal(version, '1.1.3');
-    assert.ok(readme.includes(`Latest published release: ${version}`));
-    assert.ok(readme.includes('docs/VALIDATION_' + version + '.md'));
-    assert.ok(readme.includes('/releases/tag/v' + version + ')'));
+    const publishedVersion = '1.1.3';
+    assert.equal(version, '1.2.0-dev');
+    assert.ok(readme.includes('Development on `main` uses **' + version + '**'));
+    assert.ok(readme.includes(`Latest published release: ${publishedVersion}`));
+    assert.ok(readme.includes('docs/VALIDATION_' + publishedVersion + '.md'));
+    assert.ok(readme.includes('/releases/tag/v' + publishedVersion + ')'));
     assert.doesNotMatch(readme, /\*\*Latest published release: 1\.1\.3 \(unreleased\)/);
     assert.match(readme, /published \*\*v1\.0\.0\*\*/);
     for (const marker of ['docs/INSTALLATION.md', 'docs/COMPATIBILITY.md', 'docs/NEXTCLOUD_VUE_MIGRATION.md', 'THIRD_PARTY_NOTICES.md', '.github/SECURITY.md']) {

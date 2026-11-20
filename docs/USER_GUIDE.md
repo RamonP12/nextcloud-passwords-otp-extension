@@ -36,6 +36,8 @@ Creation uses **SHA-1, six digits and a 30-second period**. Check these settings
 
 Choose **OTP speichern** to confirm. Pressing Enter in an input field does not create an entry; keyboard activation of the save button still works. **Abbrechen** or Escape closes an idle dialog and clears the secret fields. While a save is in progress, closing and repeated submission are disabled. On completion the new record is stored together with your other passwords in the original Passwords app. Use the Passwords app to edit, delete or share it with other Nextcloud users.
 
+Switching tabs clears the password and OTP secret in the open dialog. The title and username stay filled. The development version shows a message so you know to re-enter the cleared fields.
+
 If the interface reports an uncertain save result, verify the original Passwords records before attempting another create operation. The app blocks a blind retry because the first request might already have been stored.
 
 ## Session and keyboard behavior

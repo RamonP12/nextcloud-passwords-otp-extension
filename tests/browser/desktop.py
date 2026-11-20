@@ -28,20 +28,20 @@ def shell(theme='light', direction='ltr', shell_language='de'):
     css = (ROOT/'tests/browser/shell.css').read_text()
     return f'''<!doctype html><html lang="{shell_language}" dir="{direction}" data-theme="{theme}"><head data-requesttoken="SYNTHETIC-CSRF">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OTP fixture</title>
-<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-113.css"></head>
+<style>{css}</style><link rel="stylesheet" href="{PREFIX}/apps/passwords_otp/css/app-120-dev.css"></head>
 <body><header id="header">Nextcloud fixture</header><div id="skip-actions"></div><div id="content">
 <input type="hidden" id="initial-state-passwords_otp-ap1" value="{encoded(state)}">
 <input type="hidden" id="initial-state-core-capabilities" value="{encoded({'theming': {'name': 'Nextcloud fixture'}})}">
 <input type="hidden" id="initial-state-core-apps" value="{encoded([{'id': 'passwords_otp', 'name': 'Passwords OTP Generator'}])}">
-{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-113.mjs"></script></body></html>'''
+{template}</div><script type="module" src="{PREFIX}/apps/passwords_otp/js/app-120-dev.mjs"></script></body></html>'''
 
 
-def record(identifier='seed', title='Fixture account'):
+def record(identifier='seed', title='Fixture account', issuer='Fixture'):
     return {'id': identifier, 'revision': 'r0', 'label': title, 'username': 'test@example.invalid',
             'password': 'SYNTHETIC-EXISTING', 'cseType': 'none',
             'customFields': json.dumps([{'label': 'client.ios.otp', 'type': 'data', 'value': json.dumps({
                 'secret': SECRET, 'type': 'totp', 'algorithm': 'sha1', 'digits': 6, 'period': 30,
-                'issuer': 'Fixture', 'accountName': 'test@example.invalid'})}])}
+                'issuer': issuer, 'accountName': 'test@example.invalid'})}])}
 
 
 class Fixture:
@@ -107,7 +107,7 @@ Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
             route.fulfill(body=self.html, content_type='text/html', headers={
                 'Content-Security-Policy': "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; base-uri 'none'"})
             return
-        for name, mime in [('js/app-113.mjs', 'text/javascript'), ('css/app-113.css', 'text/css')]:
+        for name, mime in [('js/app-120-dev.mjs', 'text/javascript'), ('css/app-120-dev.css', 'text/css')]:
             if path == PREFIX + '/apps/passwords_otp/' + name:
                 route.fulfill(body=(ROOT/name).read_bytes(), content_type=mime)
                 return
@@ -230,7 +230,7 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     results = []
     asset_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-                    for name in ['js/app-113.mjs', 'css/app-113.css']}
+                    for name in ['js/app-120-dev.mjs', 'css/app-120-dev.css']}
     executable = os.environ.get('CHROME_BIN') or shutil.which('chromium-headless-shell') or shutil.which('chromium') or shutil.which('google-chrome')
     with sync_playwright() as p:
         browser = p.firefox.launch(headless=True) if args.browser == 'firefox' else p.chromium.launch(executable_path=executable, headless=True, args=['--no-sandbox'])
@@ -241,7 +241,7 @@ def main():
         f = Fixture(browser)
         page = f.page
         expect(page.get_by_role('heading', level=1)).to_have_text('Passwords OTP Generator')
-        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_113_VERIFIED'
+        assert page.locator('#passwords-otp-app').get_attribute('data-js-build') == 'PASSWORDS_OTP_JS_120_DEV_VERIFIED'
         code = page.locator('.passwords-otp-ap3__code').inner_text()
         page.get_by_role('button', name='Code kopieren für Fixture account').click()
         expect(page.locator('#passwords-otp-ap3-feedback')).to_have_text('OTP-Code kopiert.')

@@ -301,7 +301,8 @@ export class OtpVaultSession {
             this._checkActive();
             const settings = await this.client.getRequest().setPath('1.0/settings/list').send();
             this._checkActive();
-            const mode = readEncryptionPreference(settings.getData());
+            const preferences = settings.getData();
+            const mode = readEncryptionPreference(preferences);
             let encryption = null;
             if (mode === 'CSEv1r1') {
                 if (!this.requiresChallenge) throw new SessionFault('create-cse-unavailable');
@@ -310,7 +311,7 @@ export class OtpVaultSession {
                 await this._crypto(() => encryption.ready());
             }
             payload = await this._crypto(() => prepareOtpCreatePayload(immutableForm,
-                {mode, cseEncryption: encryption, subtle: this.subtle}));
+                {mode, cseEncryption: encryption, hashLength: preferences['user.password.security.hash'], subtle: this.subtle}));
             this._checkActive();
             // This is a fresh check, never the presenter's cached TOTP slot decision.
             if (await verifySession() !== true) { this.dispose(); throw new SessionFault('auth-required'); }

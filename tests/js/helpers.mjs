@@ -54,7 +54,7 @@ export function fixture(options = {}) {
                     const call={path,method,data:data?clone(data):undefined,accepted}; calls.push(call);
                     if(options.onRequest){ const result=await options.onRequest(call,{records,encryption}); if(result!==undefined) return {getData:()=>clone(result)}; }
                     if(path==='1.0/session/request') return {getData:()=>({})};
-                    if(path==='1.0/settings/list') return {getData:()=>({'user.encryption.cse':options.mode ?? 0})};
+                    if(path==='1.0/settings/list') return {getData:()=>({'user.encryption.cse':options.mode ?? 0,'user.password.security.hash':40})};
                     if(path==='1.0/password/list') return {getData:()=>clone(records)};
                     if(path==='1.0/password/create'){
                         const record={...clone(data),id:'new-'+(++sequence),revision:'rev-'+sequence}; records.push(record);

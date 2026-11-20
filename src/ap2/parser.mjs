@@ -77,7 +77,7 @@ export function toPublicOtpAccount(record, otp) {
     if (!plainObject(record) || typeof record.id !== 'string' || !record.id.length
             || record.id.length > 200 || !plainObject(otp) || otp.type !== 'totp') return null;
     const issuer = visibleText(otp.issuer), accountName = visibleText(otp.accountName);
-    return Object.freeze({id: record.id, title: visibleText(record.label) || issuer || 'OTP-Konto',
+    return Object.freeze({id: record.id, title: visibleText(record.label) || issuer,
         username: visibleText(record.username), issuer, accountName, type: 'totp',
         algorithm: otp.algorithm, digits: otp.digits, period: otp.period});
 }

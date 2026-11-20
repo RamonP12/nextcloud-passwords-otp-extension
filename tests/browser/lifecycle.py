@@ -96,7 +96,7 @@ window._oc_webroot = '{PREFIX}'; window._oc_user = 'fixture'; window._oc_isadmin
             request_route.fulfill(body=html, content_type='text/html', headers={
                 'Content-Security-Policy': "default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; base-uri 'none'"})
             return
-        for name, mime in [('js/app-113.mjs', 'text/javascript'), ('css/app-113.css', 'text/css')]:
+        for name, mime in [('js/app-120-dev.mjs', 'text/javascript'), ('css/app-120-dev.css', 'text/css')]:
             if path == PREFIX + '/apps/passwords_otp/' + name:
                 request_route.fulfill(body=(ROOT / name).read_bytes(), content_type=mime)
                 return
@@ -263,7 +263,7 @@ def same_tick_input_erasure(browser):
 
 def run_cases(browser):
     """Run lifecycle cases, returning PASS dictionaries for desktop.report.json."""
-    assets = [ROOT / name for name in ['js/app-113.mjs', 'css/app-113.css']]
+    assets = [ROOT / name for name in ['js/app-120-dev.mjs', 'css/app-120-dev.css']]
     expected_hashes = [hashlib.sha256(path.read_bytes()).digest() for path in assets]
     results = []
     for name, run in [
@@ -297,7 +297,7 @@ def main():
             browser.close()
     report = {'scope': 'Production compiled Vue modules and pinned client; synthetic HTTPS shell/API/clipboard',
               'results': results, 'sha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                                           for name in ['js/app-113.mjs', 'css/app-113.css']}}
+                                           for name in ['js/app-120-dev.mjs', 'css/app-120-dev.css']}}
     (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
     print(f'BROWSER_LIFECYCLE_PASS cases={len(results)}')
 

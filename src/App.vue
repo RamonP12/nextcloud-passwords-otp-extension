@@ -22,7 +22,7 @@ function clear(options) {
     if (options.codes) scrubRevision.value++;
     if (options.inputs) {
         unlockForm.value?.clearSecrets();
-        createDialog.value?.clearSecrets();
+        createDialog.value?.clearSecrets(options.background);
     }
     clearSensitiveDom(document, options);
 }

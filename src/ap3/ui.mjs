@@ -4,9 +4,9 @@ import {timeSlot} from './totp.mjs';
 import {englishText} from '../l10n/translator.mjs';
 
 /** Copy only the already validated public metadata, never a seed, key or client. */
-function publicAccount(account) {
+function publicAccount(account, t) {
     const {id, title, username, issuer, accountName, type, algorithm, digits, period} = account;
-    return Object.freeze({id, title, username, issuer, accountName, type, algorithm, digits, period});
+    return Object.freeze({id, title: title || t('account-untitled'), username, issuer, accountName, type, algorithm, digits, period});
 }
 
 /**
@@ -63,7 +63,7 @@ export class TotpPresenter {
         this.#reset();
         const ready = snapshot?.state === 'ready';
         const accounts = ready ? (snapshot.otpAccounts || []).filter(account => account.type === 'totp')
-            .map(publicAccount) : [];
+            .map(account => publicAccount(account, this.t)) : [];
         this.#snapshot = {state: snapshot?.state || 'locked', otpAccounts: accounts,
             invalidOtpCount: ready ? snapshot.invalidOtpCount || 0 : 0,
             unsupportedOtpCount: ready ? snapshot.unsupportedOtpCount || 0 : 0};
