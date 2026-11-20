@@ -97,7 +97,7 @@ Generated assets and verification archives remain generated output. The reposito
 
 ## 5. Local quality assurance and reproducibility
 
-GitHub Actions quota is exhausted. The existing workflow now has **only `workflow_dispatch`**, with no push or pull-request trigger. It was not dispatched. Current results are local and must not be represented as hosted CI success.
+At the time of this migration the workflow was manual-only, and the results recorded here came from local checks. See [Development](DEVELOPMENT.md#github-actions) for current triggers.
 
 The test layers are deliberately distinguished:
 

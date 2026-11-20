@@ -372,6 +372,29 @@ def main():
         expect(f.page.locator('.passwords-otp-ap3__code')).to_have_text(original)
         expect(f.page.locator('.passwords-otp-ap3__copy')).to_be_enabled()
         f.close(); passed('same-code-focus-and-background-dom-repair')
+        f = Fixture(browser)
+        page = f.page
+        held = []
+        page.route('**/session-status', lambda route: held.append(route))
+        page.evaluate("window.dispatchEvent(new Event('focus'))")
+        hint = page.get_by_text('Sitzung wird geprüft. Sobald der Code wieder erscheint, kannst du ihn kopieren.')
+        direct = page.locator('.passwords-otp-ap3__code')
+        copy = page.locator('.passwords-otp-ap3__copy')
+        expect(hint).to_be_visible()
+        expect(direct).to_have_text('—')
+        expect(direct).to_be_disabled()
+        expect(copy).to_be_disabled()
+        expect(copy).to_contain_text('Wird geprüft')
+        copy.click(force=True)
+        assert page.evaluate('window.__copied') == []
+        assert len(held) == 1
+        f.route(held.pop())
+        expect(hint).to_have_count(0)
+        expect(copy).to_be_enabled()
+        assert page.evaluate('window.__copied') == []
+        copy.click()
+        assert page.evaluate('window.__copied') == [direct.inner_text()]
+        f.close(); passed('copy-feedback-while-focus-verification-is-pending')
         for theme in ['light', 'dark', 'brand']:
             for width, height in [(1440, 900), (1024, 768), (640, 450), (320, 720)]:
                 f = Fixture(browser, theme=theme, width=width, height=height)

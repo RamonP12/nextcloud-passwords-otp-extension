@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import vue from '@vitejs/plugin-vue';
 import {createHash} from 'node:crypto';
 import {mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
-import {relative, resolve} from 'node:path';
+import {dirname, relative, resolve} from 'node:path';
 
 /** Bind reviewed dependencies to modules in the output. Build-only metadata. */
 function bundleInventory() {
@@ -40,16 +40,19 @@ function bundleInventory() {
                 css.source = '/*! PASSWORDS_OTP_CSS_120_DEV_VERIFIED */\n' + css.source;
             },
         },
-        writeBundle(_options, bundle) {
+        writeBundle({dir}, bundle) {
             if (JSON.stringify(sourceInputs) !== JSON.stringify(inputs())) throw new Error('Frontend changed during compilation');
             const assets = {};
+            const files = new Map();
             const modules = new Set();
             const buildModules = new Set();
             for (const [path, item] of Object.entries(bundle)) {
                 if (!['js/app-120-dev.mjs', 'css/app-120-dev.css'].includes(path)) {
                     throw new Error(`Unexpected runtime asset: ${path}`);
                 }
-                assets[path] = createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
+                const bytes = readFileSync(resolve(dir, path));
+                files.set(path, bytes);
+                assets[path] = createHash('sha256').update(bytes).digest('hex');
                 if (item.type === 'chunk' && (item.imports.length || item.dynamicImports.length)) {
                     throw new Error('Runtime imports are outside the fixed asset inventory');
                 }
@@ -65,7 +68,11 @@ function bundleInventory() {
                 }
             }
             if (Object.keys(assets).length !== 2) throw new Error('Missing compiled JS/CSS asset');
-            mkdirSync('.build', {recursive: true});
+            // Publish only the files Nextcloud serves, after verifying Vite's output.
+            for (const [path, bytes] of files) {
+                mkdirSync(dirname(path), {recursive: true});
+                writeFileSync(path, bytes);
+            }
             writeFileSync('.build/bundle-modules.json', JSON.stringify({schema: 2, mode, command, assets,
                 source_inputs: sourceInputs, build_modules: [...buildModules].sort(),
                 modules: [...modules].sort()}, null, 2) + '\n');
@@ -80,8 +87,8 @@ export default defineConfig({
         plugins: [vue(), bundleInventory()],
         define: {__VUE_OPTIONS_API__: true, __VUE_PROD_DEVTOOLS__: false, __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false},
         build: {
-            outDir: '.',
-            emptyOutDir: false,
+            outDir: '.build/vite',
+            emptyOutDir: true,
             target: 'es2022',
             sourcemap: false,
             cssCodeSplit: false,

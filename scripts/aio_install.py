@@ -20,7 +20,7 @@ import sys
 import tempfile
 import uuid
 from contextlib import contextmanager
-from release import VERSION, PackageError, digest, validate_package, extract_checked
+from release import VERSION, PackageError, digest, validate_package, extract_checked, reviewed_passwords_version
 
 CONTAINER = 'nextcloud-aio-nextcloud'
 APP = 'passwords_otp'
@@ -74,6 +74,9 @@ def local_docker():
 
 
 class AioBackend:
+    def __init__(self, reviewed_passwords: str | None = None):
+        self.reviewed_passwords = reviewed_passwords or reviewed_passwords_version()
+
     def docker(self, *args: str, allow_failure: bool = False, timeout: int = 60):
         return invoke(['docker', *args], timeout=timeout, allow_failure=allow_failure)
 
@@ -100,8 +103,8 @@ class AioBackend:
         return {key: m.get(key) for key in ('Type', 'Name', 'Source', 'Destination', 'RW')}
 
     def check_base(self, expected_nc: str, expected_passwords: str) -> dict:
-        if expected_passwords != '2026.11.20':
-            raise AioError(f'OTP {VERSION} requires Passwords 2026.11.20; another version needs a compatibility review')
+        if expected_passwords != self.reviewed_passwords:
+            raise AioError(f'OTP {VERSION} requires Passwords {self.reviewed_passwords}; another version needs a compatibility review')
         local_docker()
         info = json.loads(self.docker('inspect', CONTAINER))[0]
         if info.get('Name') != '/' + CONTAINER or info.get('State', {}).get('Running') is not True:
@@ -480,7 +483,7 @@ def main(argv: list[str] | None = None):
     parser.add_argument('--sha256')
     parser.add_argument('--state-dir', type=pathlib.Path, default=DEFAULT_STATE)
     parser.add_argument('--expect-nc', default='35.0.2')
-    parser.add_argument('--expect-passwords', default='2026.11.20')
+    parser.add_argument('--expect-passwords', help='Passwords version to verify (defaults to the reviewed build)')
     parser.add_argument('--confirm-production', action='store_true')
     parser.add_argument('--ack-aio-backup', dest='ack_backup', action='store_true')
     parser.add_argument('--accept-unapproved-rc', action='store_true')
@@ -493,16 +496,20 @@ def main(argv: list[str] | None = None):
     if args.allow_aio_update_for_rollback and not args.rollback:
         parser.error('--allow-aio-update-for-rollback only permitted with --rollback')
     os.umask(0o077)
-    backend = AioBackend()
+    files = manifest = expected = None
+    if not args.inspect or args.package is not None or args.sha256 is not None:
+        if not args.package or not args.sha256 or not re.fullmatch('[0-9a-f]{64}', args.sha256):
+            parser.error('Explicit --package and 64-character --sha256 required')
+        files, manifest, expected = load_package(args.package.resolve(), args.sha256)
+    reviewed = reviewed_passwords_version(files)
+    args.expect_passwords = reviewed if args.expect_passwords is None else args.expect_passwords
+    backend = AioBackend(reviewed)
     if args.inspect:
         base = backend.check_base(args.expect_nc, args.expect_passwords)
         print('AIO_INSPECT_PASS:', json.dumps({'nextcloud':base['nextcloud'],
             'passwords':base['passwords'],'php':base['php'],'db':base['db'],
             'image':base['image'],'mount':base['mount']['Destination']}, sort_keys=True))
         return
-    if not args.package or not args.sha256 or not re.fullmatch('[0-9a-f]{64}', args.sha256):
-        parser.error('Explicit --package and 64-character --sha256 required')
-    files, manifest, expected = load_package(args.package.resolve(), args.sha256)
     with exclusive_state(args.state_dir.resolve()) as state:
         if args.preflight:
             preflight(args, backend, manifest, args.sha256, state)

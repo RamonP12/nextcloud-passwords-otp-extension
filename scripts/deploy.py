@@ -4,7 +4,7 @@ Does not deploy to production. Changes only passwords_otp files/app configuratio
 """
 from __future__ import annotations
 import argparse, datetime, hashlib, json, os, pathlib, re, shutil, ssl, subprocess, sys, tempfile, time, urllib.request, uuid
-from release import VERSION, JS_ASSET, PackageError, validate_package, extract_checked, identity, digest, canonical_json, safe_relative
+from release import VERSION, JS_ASSET, PackageError, validate_package, extract_checked, identity, digest, canonical_json, safe_relative, reviewed_passwords_version
 LIVE='/var/www/html/custom_apps/passwords_otp'
 PHP='passwords-php'; NGINX='passwords-nginx'
 class DeploymentError(RuntimeError):pass
@@ -90,6 +90,9 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise DeploymentError('Unexpected HTTPS redirect')
 
 class DockerBackend:
+    def __init__(self, reviewed_passwords: str | None = None):
+        self.reviewed_passwords = reviewed_passwords
+
     def run(self,args:list[str],*,timeout:int=120)->str:
         try:
             result=subprocess.run(args,check=True,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout)
@@ -136,7 +139,9 @@ class DockerBackend:
         if 'localhost' not in self.occ('config:system:get','trusted_domains').splitlines():raise DeploymentError('localhost trusted domain missing')
         apps=json.loads(self.occ('app:list','--output=json'));enabled=apps.get('enabled',{})
         if 'passwords'not in enabled or 'passwords_otp'not in enabled:raise DeploymentError('Both original Passwords and existing OTP app must be enabled')
-        if enabled['passwords']!='2026.11.20':raise DeploymentError(f'OTP {VERSION} requires the reviewed Passwords 2026.11.20 integration')
+        reviewed = self.reviewed_passwords or reviewed_passwords_version()
+        if enabled['passwords'] != reviewed:
+            raise DeploymentError(f'OTP {VERSION} requires the reviewed Passwords {reviewed} integration')
         app_id,version=identity(self.exec('cat',LIVE+'/appinfo/info.xml').encode())
         if app_id!='passwords_otp':raise DeploymentError('Existing app identity mismatch')
         if version not in SUPPORTED_ASSETS:raise DeploymentError('Unsupported existing OTP version')
@@ -238,7 +243,7 @@ def main():
     data=args.archive.read_bytes();files,manifest=validate_package(data,args.sha256)
     with tempfile.TemporaryDirectory(prefix='passwords-otp-stage-')as temporary:
         source=pathlib.Path(temporary)/'passwords_otp';extract_checked(files,source)
-        backup=transaction(DockerBackend(),source,manifest['version'],{key:digest(value)for key,value in files.items()},args.backup_root.expanduser().resolve())
+        backup=transaction(DockerBackend(reviewed_passwords_version(files)),source,manifest['version'],{key:digest(value)for key,value in files.items()},args.backup_root.expanduser().resolve())
     print('Backup and transaction journal:',backup)
     print('Browser: https://localhost/apps/passwords_otp/ (hard reload). No production approval.')
 if __name__=='__main__':

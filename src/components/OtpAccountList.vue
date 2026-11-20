@@ -15,6 +15,7 @@ const vCode = {mounted: repairCode, updated: repairCode};
 const vDisabled = {mounted: repairDisabled, updated: repairDisabled};
 const vProgress = {mounted: repairProgress, updated: repairProgress};
 const visibleCount = computed(() => props.view.rows.filter(row => !row.hidden).length);
+const checking = computed(() => props.view.rows.some(row => !row.hidden && row.code === null));
 const copyDisabled = row => row.copyDisabled || row.hidden;
 function copyCode(event, row) {
     if (event.isTrusted && !copyDisabled(row)) emit('copy', row.account.id);
@@ -38,6 +39,7 @@ function details(account) {
                 :description="view.notice" />
             <p v-else-if="view.notice" class="passwords-otp-secondary">{{ view.notice }}</p>
         </div>
+        <p v-if="checking" class="passwords-otp-feedback" role="status">{{ t('copy-after-check') }}</p>
         <ul id="passwords-otp-ap2-list" class="passwords-otp-list">
             <li v-for="row in view.rows" :key="row.account.id" :hidden="row.hidden" class="passwords-otp-account">
                 <div class="passwords-otp-account__metadata">
@@ -57,8 +59,8 @@ function details(account) {
                             :aria-valuetext="row.code ? t('seconds', {count: Math.ceil(row.remainingMs / 1000)}) : t('time-checking')" />
                     </div>
                     <NcButton v-disabled="{disabled: copyDisabled(row), revision: scrubRevision}" class="passwords-otp-ap3__copy" :disabled="copyDisabled(row)"
-                        :aria-label="t('copy-account', {title: row.account.title})" @click="copyCode($event, row)">
-                        {{ t('copy') }}
+                        :aria-label="row.code === null ? t('code-checking') : t('copy-account', {title: row.account.title})" @click="copyCode($event, row)">
+                        {{ t(row.code === null ? 'code-checking' : 'copy') }}
                     </NcButton>
                 </div>
             </li>

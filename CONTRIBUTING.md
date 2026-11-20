@@ -26,7 +26,7 @@ npm run test:browser
 
 See [Development](docs/DEVELOPMENT.md) for the isolated Playwright environment, syntax checks, deterministic build and version-matched packaging. Compile before running the browser suite: it loads the actual production Vue bundle, rather than substituting runtime modules.
 
-**GitHub Actions quota is exhausted and execution is disabled.** The workflow has only a future manual `workflow_dispatch` trigger; pushes and PRs do not request Actions runs. Do not dispatch it or claim a hosted passing status during this migration. Report local checks with their exact scope and source version.
+GitHub Actions checks pull requests targeting `main` and pushes to `main`. Report local and hosted results for the exact commits and environments tested.
 
 Real Nextcloud integration is separate from synthetic unit/browser tests. See [1.1.3 verification](docs/VALIDATION_1.1.3.md), [1.1.2 verification](docs/VALIDATION_1.1.2.md), [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md), [historical 1.1.1 verification](docs/VALIDATION_VUE_1.1.1.md), the [migration report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical candidate validation](docs/VALIDATION_VUE_1.1.0.md) for each fixture and its evidence. The legacy localhost deployment tools depend on a specific previous fixture and are not production installers or general upgrade tools.
 

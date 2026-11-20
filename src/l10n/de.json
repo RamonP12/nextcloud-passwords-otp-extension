@@ -10,6 +10,7 @@
     "cancel": "Abbrechen",
     "checking-session": "Sitzung wird geprüft …",
     "code-checking": "Wird geprüft …",
+    "copy-after-check": "Sitzung wird geprüft. Sobald der Code wieder erscheint, kannst du ihn kopieren.",
     "configuration": "TOTP · {algorithm} · {digits} Stellen",
     "configured-factor-unsupported": "Der konfigurierte 2FA-Anbieter wird nicht unterstützt.",
     "copied": "OTP-Code kopiert.",

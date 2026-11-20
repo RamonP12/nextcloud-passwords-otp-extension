@@ -7,7 +7,7 @@ These gates do NOT assert PostgreSQL/AIO or production compatibility.
 """
 from __future__ import annotations
 import argparse, json, os, pathlib, shutil, subprocess, sys
-from release import VERSION, JS_ASSET, CSS_ASSET, digest, canonical_json, validate_package
+from release import VERSION, JS_ASSET, CSS_ASSET, digest, canonical_json, validate_package, reviewed_passwords_version
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 class GateError(RuntimeError):pass
 
@@ -72,7 +72,7 @@ def inspect_fixture(backend):
  db=backend.occ('config:system:get','dbtype')
  if not php.startswith('8.5.'):raise GateError('Expected the existing PHP 8.5 fixture, got '+php)
  if db!='mysql':raise GateError('Expected the existing MariaDB-backed fixture (Nextcloud dbtype=mysql), got '+db)
- if before['passwords']!='2026.11.20':
+ if before['passwords'] != reviewed_passwords_version():
   raise GateError('Original Passwords version changed: inspect compatibility before continuing')
  backend.verify(before['version'],before['files'],before)
  return before,php,db

@@ -10,6 +10,7 @@
     "cancel": "Cancel",
     "checking-session": "Checking session…",
     "code-checking": "Checking…",
+    "copy-after-check": "Checking your session. You can copy the code as soon as it reappears.",
     "configuration": "TOTP · {algorithm} · {digits} digits",
     "configured-factor-unsupported": "The configured two-factor authentication provider is unsupported.",
     "copied": "OTP code copied.",

@@ -7,9 +7,10 @@ VERSION='1.2.0-dev'
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 JS_ASSET='js/app-120-dev.mjs'
 CSS_ASSET='css/app-120-dev.css'
+PASSWORDS_POLICY='lib/Service/PasswordsDependency.php'
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php',
- 'lib/Service/PasswordsDependency.php',
+ PASSWORDS_POLICY,
  'lib/BackgroundJob/CheckPasswordsDependency.php',
  'lib/Migration/Version010102Date20261119000000.php','lib/Migration/RemoveDependencyJob.php','templates/main.php',
  CSS_ASSET,JS_ASSET,'img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
@@ -20,6 +21,18 @@ MAX_ARCHIVE=20*1024*1024
 MAX_UNPACKED=30*1024*1024
 STAMP=(2026,1,1,0,0,0)
 class PackageError(ValueError): pass
+
+def reviewed_passwords_version(files: dict[str, bytes] | None = None) -> str:
+    # Read the exact reviewed build from the checkout or a verified archive.
+    if files is None:
+        policy = checked_file(ROOT, PASSWORDS_POLICY).read_bytes()
+    else:
+        policy = files[PASSWORDS_POLICY]
+    versions = re.findall(rb"^    public const REVIEWED_VERSION = '([0-9]{4}\.[0-9]{2}\.[0-9]0)';$", policy, re.M)
+    if len(versions) != 1:
+        raise PackageError('Missing or ambiguous reviewed Passwords release line')
+    return versions[0].decode('ascii')
+
 
 def digest(data:bytes)->str:return hashlib.sha256(data).hexdigest()
 

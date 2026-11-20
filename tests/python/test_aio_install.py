@@ -119,6 +119,8 @@ def package_fixture(root):
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(b'synthetic-data')
+    policy = (release.ROOT / release.PASSWORDS_POLICY).read_bytes()
+    (root / release.PASSWORDS_POLICY).write_bytes(policy)
     (root / 'appinfo/info.xml').write_text('<info><id>passwords_otp</id><version>' + release.VERSION + '</version></info>')
     (root / 'LICENSE').write_text('GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007')
     (root / release.JS_ASSET).write_text('PASSWORDS_OTP_JS_120_DEV_VERIFIED' + '.' * 10011)
