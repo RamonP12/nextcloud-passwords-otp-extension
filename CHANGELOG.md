@@ -5,6 +5,7 @@ All notable changes to the publicly maintained project are documented here. The 
 ## [Unreleased]
 
 - Development builds use **1.2.0-dev**.
+- Add a [digest-pinned Docker build](docs/DEVELOPMENT.md#reproduce-release-archive-bytes-with-docker) and compare independent packages and the published v1.1.4 checksums in GitHub Actions.
 
 ## [1.1.4] – Session handling, localization and compatibility (2026-11-20)
 
