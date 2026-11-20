@@ -64,7 +64,7 @@ Vue batches DOM updates. `clearSensitiveDom()` therefore synchronously erases di
 
 ## Build and release boundaries
 
-Vite compiles the Single File Components to exactly **`js/app-113.mjs`** and **`css/app-113.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
+Vite compiles the Single File Components to exactly **`js/app-120-dev.mjs`** and **`css/app-120-dev.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
 
 The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs deterministic ZIP and TAR archives with the same `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
 

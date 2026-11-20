@@ -12,10 +12,15 @@ const props = defineProps({busy: Boolean, error: String,
     locale: {type: String, required: true}, t: {type: Function, required: true}});
 const emit = defineEmits(['close', 'create']);
 const label = ref(''), username = ref(''), password = ref(''), secret = ref('');
+const clearedOnTabSwitch = ref(false);
 const labelField = ref(null), secretField = ref(null), feedback = ref(null);
 const errorMessage = computed(() => props.error ? createErrorMessage(props.error, props.t) : '');
 const invalid = field => props.error === `create-invalid-${field}`;
-function clearSecrets() { password.value = ''; secret.value = ''; }
+function clearSecrets(background = false) {
+    if (background && (password.value || secret.value)) clearedOnTabSwitch.value = true;
+    password.value = '';
+    secret.value = '';
+}
 function close() {
     if (props.busy) return;
     clearSecrets();
@@ -24,6 +29,7 @@ function close() {
 function submit(event) {
     if (props.busy || !event.target.reportValidity()) return;
     const values = {label: label.value, username: username.value, password: password.value, secret: secret.value};
+    clearedOnTabSwitch.value = false;
     clearSecrets();
     emit('create', values);
 }
@@ -106,6 +112,9 @@ defineExpose({clearSecrets, focus});
             :helper-text="t('entry-secret-help')"
             spellcheck="false" autocapitalize="off" />
         <p class="passwords-otp-secondary">{{ t('entry-submit-help') }}</p>
+        <div role="status" aria-live="polite">
+            <NcNoteCard v-if="clearedOnTabSwitch" type="warning">{{ t('entry-cleared-on-tab-switch') }}</NcNoteCard>
+        </div>
         <div id="passwords-otp-ap12-feedback" ref="feedback" tabindex="-1"
             :role="error ? 'alert' : 'status'" :aria-live="error ? 'assertive' : 'polite'">
             <NcNoteCard v-if="error" type="error">{{ errorMessage }}</NcNoteCard>

@@ -4,6 +4,11 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ## [Unreleased]
 
+- Announce when a tab switch clears entered passwords or OTP secrets in the creation dialog. Keep the title and username available for retry.
+- Send the configured SHA-1 prefix for CSE creation. A hash length of zero sends an empty hash, and invalid settings stop creation before the write.
+- Localize the fallback title for unnamed OTP accounts and align the German app description with the English scope.
+- Identify development builds as **1.2.0-dev** in Nextcloud, the package manifest and asset names.
+
 - Respect the Passwords inactivity limit in the vault. Trusted app activity or user-initiated API actions extend the local deadline according to the selected mode. On expiry, remove OTP codes and form secrets and close the upstream session on a best-effort basis. See [session behavior](docs/USER_GUIDE.md#session-and-keyboard-behavior).
 - Keep OTP activation and group scope while Passwords is unavailable. Deny access on OTP requests and resume on reload when the installed dependency is compatible. Allow stable 2026.11.20 through 2026.11.29 after checking the required Passwords interfaces. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
 - Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.

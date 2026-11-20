@@ -58,7 +58,7 @@ namespace {
    public bool $enabled=true;public bool $globalEnabled=true;public bool $otpEnabled=true;
    public string $installed='2026.11.20';public string $disk='2026.11.20';public int $disableCalls=0;
    public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}
-   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.3'];}
+   public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.2.0-dev'];}
    public function __construct(private string $path) {}
    public function getAppPath($id,$ignoreCache=false){
     file_put_contents($this->path.'/appinfo/info.xml','<info><id>passwords</id><version>'.htmlspecialchars($this->disk,ENT_XML1).'</version></info>');
@@ -85,7 +85,7 @@ namespace {
  check($response->headers['Cache-Control']==='private, no-store, max-age=0','HTML no-store');
  $xml=(string)file_get_contents(__DIR__.'/../../appinfo/info.xml');
  $versionMatches=[];
- $hasVersion=preg_match('/<version>([0-9]+\.[0-9]+\.[0-9]+)<\/version>/', $xml, $versionMatches)===1;
+ $hasVersion=preg_match('/<version>([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z-]+)?)<\/version>/', $xml, $versionMatches)===1;
  $expectedAsset=$hasVersion?'app-'.str_replace('.','',$versionMatches[1]):'';
  check($expectedAsset!==''&&\OCP\Util::$scripts[0][1]===$expectedAsset&&\OCP\Util::$styles[0][1]===$expectedAsset,'versioned assets match app metadata');
  $fingerprint=$f['initial']->state['sessionFingerprint'];

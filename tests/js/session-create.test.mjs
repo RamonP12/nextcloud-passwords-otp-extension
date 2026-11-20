@@ -2,7 +2,7 @@ import {readIdlePolicy} from '../../src/ap1/session.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,synthetic,record,deferred,tick,clone} from './helpers.mjs';
-import {prepareOtpCreatePayload,readEncryptionPreference,sha1ForPasswords} from '../../src/ap12/create.mjs';
+import {readEncryptionPreference,sha1ForPasswords} from '../../src/ap12/create.mjs';
 import {webcrypto} from 'node:crypto';
 const rejectCode=(promise,code)=>assert.rejects(promise,error=>error.code===code&&!error.message.includes('PRIVATE'));
 for(const [status,code] of [[401,'auth-invalid'],[403,'auth-rate-limited'],[412,'auth-required']]){
@@ -115,6 +115,20 @@ test('CSE readiness deadline does not write',async()=>{
 test('Original Passwords hash shape is retained without changing crypto protocol',async()=>{
  assert.equal(await sha1ForPasswords('abc',webcrypto.subtle),'a9993e364706816aba3e25717850c26c9cd0d89d');
  for(const raw of [{},null,{'user.encryption.cse':true}])assert.throws(()=>readEncryptionPreference(raw));
+});
+
+test('Invalid or missing CSE hash length refuses create without sending a password hash', async () => {
+    for (const length of [undefined, null, true, -1, 41, 20.1, '20x']) {
+        const f = fixture({challenge: true, onRequest: ({path}) => path === '1.0/settings/list'
+            ? {'user.encryption.cse': 1, 'user.password.security.hash': length} : undefined});
+        try {
+            await f.ready();
+            await rejectCode(f.session.createNewOtp(synthetic(), {verifySession: async () => true}),
+                'create-hash-policy-unknown');
+            assert.equal(f.writes().length, 0);
+            assert.equal(f.session.disposed, false);
+        } finally { f.session.dispose(); }
+    }
 });
 
 test('13-minute idle CSE challenge expires before any CREATE, no false ambiguity',async()=>{

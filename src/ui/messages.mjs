@@ -8,6 +8,7 @@ const CREATE_KEYS = Object.freeze({
     'create-cse-unavailable': 'create-error.create-cse-unavailable',
     'cse-unavailable': 'create-error.cse-unavailable',
     'create-crypto-unavailable': 'create-error.create-crypto-unavailable',
+    'create-hash-policy-unknown': 'create-error.create-hash-policy-unknown',
     'create-encryption-unknown': 'create-error.create-encryption-unknown',
     'create-busy': 'create-error.create-busy',
     'create-auth-unavailable': 'create-error.create-auth-unavailable',

@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {OtpVaultSession} from '../../src/ap1/session.mjs';
 import {createClient,sodiumReady} from '../../src/ap1/upstream.js';
 import {synthetic,clone} from '../js/helpers.mjs';
 const root='https://cloud.local/index.php/apps/passwords/api/';
 globalThis.window={location:{origin:'https://cloud.local',href:'https://cloud.local/apps/passwords_otp/'}};
 const master='synthetic test master password';
-async function scenario({challenge=false,twoFactor=false,cse=false,create=false,rejectOpen=false,wrongMasterOnce=false,serverChallengeFailure=false,rateLimitBeforeCreate=false,expireBeforeCreate=null}={}){
+async function scenario({challenge=false,twoFactor=false,cse=false,create=false,rejectOpen=false,wrongMasterOnce=false,serverChallengeFailure=false,rateLimitBeforeCreate=false,expireBeforeCreate=null,hashLength=40}={}){
  await sodiumReady();const previous=globalThis.fetch,seen=[],records=[];let encryption,exportedKeychain;
  // Mock the real API authorization state. A challenge is required only until
  // session/open succeeds, not on every later session/request probe.
@@ -42,11 +43,13 @@ async function scenario({challenge=false,twoFactor=false,cse=false,create=false,
      :wrongNow?{status:'error',id:'ab6e13ba',message:'Passphrase invalid'}
      :rejectOpen?{message:'PRIVATE'}:{success:true,keys:cse?{CSEv1r1:exportedKeychain}:{}};
    if(!serverChallengeFailure&&!wrongNow&&!rejectOpen)apiAuthorized=true;
-  }else if(path==='1.0/settings/list')value={'user.encryption.cse':cse?1:0};
+  }else if(path==='1.0/settings/list')value={'user.encryption.cse':cse?1:0,'user.password.security.hash':hashLength};
   else if(path==='1.0/password/list')value=records;
   else if(path==='1.0/password/create'){
    assert.equal(options.method,'POST');const data=JSON.parse(options.body);
    if(cse){
+    const expectedHash=createHash('sha1').update(synthetic().password).digest('hex').slice(0,Number(hashLength));
+    assert.equal(data.hash,expectedHash,'POST contains exactly the configured hash prefix');
     assert.equal(data.cseType,'CSEv1r1');assert.notEqual(data.password,synthetic().password);assert.notEqual(data.customFields.includes(synthetic().secret),true);
     const plain=await encryption.decrypt({...data},'password');assert.equal(plain.password,synthetic().password);assert.equal(plain.username,synthetic().username);
    }else{assert.equal(data.cseType,'none');assert.equal(data.password,synthetic().password);}
@@ -126,3 +129,9 @@ test('Actual upstream request wrapper blocks reuse and forbidden routes before f
   await assert.rejects(client.getRequest().setPath('1.0/password/delete').setMethod('DELETE').send());assert.equal(calls,1);
  }finally{globalThis.fetch=prior;}
 });
+
+for (const hashLength of [0, 20, '30']) {
+    test(`CSE posts the configured SHA-1 prefix of ${hashLength} characters`, async () => {
+        await scenario({challenge: true, cse: true, create: true, hashLength});
+    });
+}

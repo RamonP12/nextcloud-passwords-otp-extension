@@ -11,7 +11,7 @@ const ownCode = () => sources('src').map(read).join('\n');
 
 test('Version, generated asset references and exactly pinned direct dependencies agree', () => {
     const pkg = JSON.parse(read('package.json')), lock = JSON.parse(read('package-lock.json'));
-    assert.equal(pkg.version, '1.1.3');
+    assert.equal(pkg.version, '1.2.0-dev');
     assert.equal(lock.version, pkg.version); assert.equal(lock.packages[''].version, pkg.version);
     assert.deepEqual(pkg.dependencies, lock.packages[''].dependencies);
     assert.deepEqual(pkg.devDependencies, lock.packages[''].devDependencies);
@@ -19,9 +19,9 @@ test('Version, generated asset references and exactly pinned direct dependencies
     assert.equal(read('appinfo/info.xml').match(/<version>([^<]+)<\/version>/)?.[1], pkg.version);
     assert.equal(read('templates/main.php').match(/data-template-build="([^"]+)"/)?.[1], pkg.version);
     assert.equal(read('scripts/release.py').match(/^VERSION='([^']+)'/m)?.[1], pkg.version);
-    assert.match(read('src/main.js'), /PASSWORDS_OTP_JS_113_VERIFIED/);
-    assert.match(read('src/styles.css'), /PASSWORDS_OTP_CSS_113_VERIFIED/);
-    assert.equal((read('lib/Controller/PageController.php').match(/'app-113'/g) || []).length, 2);
+    assert.match(read('src/main.js'), /PASSWORDS_OTP_JS_120_DEV_VERIFIED/);
+    assert.match(read('src/styles.css'), /PASSWORDS_OTP_CSS_120_DEV_VERIFIED/);
+    assert.equal((read('lib/Controller/PageController.php').match(/'app-120-dev'/g) || []).length, 2);
 });
 
 test('Runtime is precompiled Vue3 with Nextcloud9 components and explicit production devtools disabled', () => {
@@ -38,8 +38,8 @@ test('Runtime is precompiled Vue3 with Nextcloud9 components and explicit produc
 });
 
 test('Single JS/CSS runtime inventory excludes fixtures and old imperative entry', () => {
-    assert.match(read('vite.config.js'), /entryFileNames: 'js\/app-113\.mjs'/);
-    assert.match(read('vite.config.js'), /return 'css\/app-113\.css'/);
+    assert.match(read('vite.config.js'), /entryFileNames: 'js\/app-120-dev\.mjs'/);
+    assert.match(read('vite.config.js'), /return 'css\/app-120-dev\.css'/);
     assert.match(read('vite.config.js'), /inlineDynamicImports: true/);
     assert.match(read('vite.config.js'), /cssCodeSplit: false/);
     assert.equal(existsSync(new URL('src/ap1/index.js', root)), false);

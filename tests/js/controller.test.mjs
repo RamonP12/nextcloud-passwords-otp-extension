@@ -605,7 +605,7 @@ test('Background clears input and code DOM before delegating the visibility even
     await f.ready();
     f.doc.hidden = true;
     f.controller.visibilityChanged();
-    assert.deepEqual(f.clears.at(-1), {inputs: true, codes: true});
+    assert.deepEqual(f.clears.at(-1), {inputs: true, codes: true, background: true});
     assert.equal(f.calls.at(-1), 'visibility');
     assert.equal(f.presenterOptions().isHidden(), true);
     f.doc.hidden = false;

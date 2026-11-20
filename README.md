@@ -5,7 +5,7 @@
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. The unreleased source checks Passwords on OTP requests and resumes access once a compatible dependency returns. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
+**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. Development on `main` uses **1.2.0-dev**. It checks Passwords on OTP requests and resumes access once a compatible dependency returns. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
 
 Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.3 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
 

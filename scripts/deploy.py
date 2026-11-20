@@ -4,13 +4,14 @@ Does not deploy to production. Changes only passwords_otp files/app configuratio
 """
 from __future__ import annotations
 import argparse, datetime, hashlib, json, os, pathlib, re, shutil, ssl, subprocess, sys, tempfile, time, urllib.request, uuid
-from release import VERSION, PackageError, validate_package, extract_checked, identity, digest, canonical_json, safe_relative
+from release import VERSION, JS_ASSET, PackageError, validate_package, extract_checked, identity, digest, canonical_json, safe_relative
 LIVE='/var/www/html/custom_apps/passwords_otp'
 PHP='passwords-php'; NGINX='passwords-nginx'
 class DeploymentError(RuntimeError):pass
 class RolledBack(DeploymentError):pass
 
-SUPPORTED_ASSETS = {'0.6.1': 'ap061', '0.7.0': 'app-070', '0.7.1': 'app-071', '0.7.2': 'app-072', '0.7.3': 'app-073', '1.0.0': 'app-100', '1.0.1': 'app-101', '1.1.0': 'app-110', '1.1.1': 'app-111', '1.1.2': 'app-112', '1.1.3': 'app-113'}
+SUPPORTED_ASSETS = {'0.6.1': 'ap061', '0.7.0': 'app-070', '0.7.1': 'app-071', '0.7.2': 'app-072', '0.7.3': 'app-073', '1.0.0': 'app-100', '1.0.1': 'app-101', '1.1.0': 'app-110', '1.1.1': 'app-111', '1.1.2': 'app-112', '1.1.3': 'app-113',
+                    VERSION: pathlib.PurePosixPath(JS_ASSET).stem}
 # These exact reviewed hooks only check prerequisites/remove an own background
 # job. They never call the schema closure or alter OTP/Passwords data. Unknown
 # migrations still forbid this file/config-only rollback procedure.
@@ -18,7 +19,7 @@ DEPENDENCY_HOOKS = {
     'lib/Migration/Version010102Date20261119000000.php': '1ed35fc1d453f60e5a731144cfbcc16ccb9a8330af99786de8021ffbb40c4282',
     'lib/Migration/RemoveDependencyJob.php': 'a100b3b6349e544a8f1e3bf3d57eabb2d20e6475ebfb9e9dc9dfb9508baf3195',
 }
-SCHEMA_FREE_HOOKS = {'1.1.2': DEPENDENCY_HOOKS, '1.1.3': DEPENDENCY_HOOKS}
+SCHEMA_FREE_HOOKS = {'1.1.2': DEPENDENCY_HOOKS, '1.1.3': DEPENDENCY_HOOKS, VERSION: DEPENDENCY_HOOKS}
 
 def require_schema_free(version:str,files:dict[str,str])->None:
     hooks={name:sha for name,sha in files.items() if '/Migration/' in name}
@@ -188,7 +189,7 @@ class DockerBackend:
         asset=asset_for_version(version)
         opener=urllib.request.build_opener(NoRedirect(),urllib.request.HTTPSHandler(context=ssl._create_unverified_context()))
         for kind in ('css','js'):
-            suffix='mjs' if kind=='js' and version in ('1.1.0','1.1.1','1.1.2','1.1.3') else kind
+            suffix='mjs' if kind=='js' and version in ('1.1.0','1.1.1','1.1.2','1.1.3',VERSION) else kind
             relative=kind+'/'+asset+'.'+suffix
             request=urllib.request.Request('https://localhost/custom_apps/passwords_otp/'+relative,headers={'Cache-Control':'no-cache'})
             with opener.open(request,timeout=10)as response:
