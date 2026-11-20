@@ -4,6 +4,10 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ## [Unreleased]
 
+- Development builds use **1.2.0-dev**.
+
+## [1.1.4] – Session handling, localization and compatibility (2026-11-20)
+
 ### User-facing changes
 
 - Show when the session is being checked after returning to the window. Copy the code with a fresh click once it reappears. See [copying codes](docs/USER_GUIDE.md#view-and-copy-codes).
@@ -17,7 +21,7 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ### Build, verification and maintenance
 
-- Identify development builds as **1.2.0-dev** in Nextcloud, the package manifest and asset names.
+- Publish the verified ZIP and TAR.GZ with versioned `app-114` assets. The maintainer accepted the 1.1.3 → 1.1.4 upgrade on the localhost Docker Compose fixture. [Release and verification](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4)
 - Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
 - Define the reviewed Passwords build once in PHP. The runtime derives its maintenance range from that value, and the Python installers use the exact reviewed build.
 - Compile into `.build/vite/` and publish the verified JS and CSS into the paths used by Nextcloud.

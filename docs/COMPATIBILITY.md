@@ -1,6 +1,10 @@
 # Compatibility and supported scope
 
-## Current published version 1.1.3
+## Current published version 1.1.4
+
+See the [1.1.4 release compatibility table](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.4/docs/RELEASE_1.1.4.md#compatibility-and-upgrade) and [version-specific verification](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4).
+
+## Historical published version 1.1.3
 
 [The 1.1.3 release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) adds the display name, shield icon and direct clipboard action. See [1.1.3 verification](VALIDATION_1.1.3.md) for checks tied to the published release.
 
