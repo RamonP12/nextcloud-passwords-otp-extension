@@ -89,6 +89,89 @@ The package generator refuses an existing output directory, a dirty checkout, st
 
 [`scripts/runtime-licenses.json`](../scripts/runtime-licenses.json) pins the reviewed production dependency closure and original notices. Module provenance checks also reject an optional peer that unexpectedly contributes unreviewed code. Read [Third-party notices](../THIRD_PARTY_NOTICES.md) before changing any dependencies; `npm ci` alone is not a license review.
 
+## Compare a rebuild with a release
+
+The SHA-256 checksums attached to a GitHub release identify its exact ZIP and
+TAR.GZ bytes. Use those checksums when verifying the downloaded release for
+installation. For a source rebuild on a different host, compare the verified
+file inventory and uncompressed bytes, including `BUILD.json`. A matching
+manifest is useful only after verifying the archive entries against its hashes.
+
+Run the comparison below from the exact release tag after a successful clean
+`python3 scripts/local.py --build`. Download both published archives, their
+checksum files and `BUILD.json` into the same directory.
+
+```sh
+published_dir="$PWD/.build/published"
+rebuilt_dir="$PWD/.build/$(git rev-parse HEAD)/package"
+python3 - "$published_dir" "$rebuilt_dir" <<'PYTHON'
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path("scripts").resolve()))
+from release import VERSION, digest, validate_package
+from appstore_package import verify_tar
+
+def read_checked(directory, suffix):
+    path = directory / f"passwords_otp-{VERSION}.{suffix}"
+    expected = path.with_name(path.name + ".sha256").read_text().split()[0]
+    data = path.read_bytes()
+    if digest(data) != expected:
+        raise SystemExit(f"SHA-256 mismatch: {path}")
+    return data, expected
+
+def verified_files(directory):
+    archive, expected = read_checked(directory, "zip")
+    files, _ = validate_package(archive, expected)
+    if (directory / "BUILD.json").read_bytes() != files["BUILD.json"]:
+        raise SystemExit(f"Attached BUILD.json differs from the ZIP: {directory}")
+    tar, _ = read_checked(directory, "tar.gz")
+    verify_tar(tar, files)
+    return files
+
+published, rebuilt = (verified_files(pathlib.Path(path)) for path in sys.argv[1:])
+differences = sorted(name for name in published.keys() | rebuilt.keys()
+                     if published.get(name) != rebuilt.get(name))
+if differences:
+    raise SystemExit("Different package files: " + ", ".join(differences))
+print(f"Content matches: {len(published) - 1} payload files and BUILD.json in both formats")
+PYTHON
+```
+
+For byte-identical reproduction of v1.1.3 the tested reference toolchain was
+**Node.js 24.22.3, npm 11.19.1, CPython 3.12.14 and classic zlib 1.3.2**.
+Fresh builds from v1.1.2 and v1.1.3 reproduced their published checksums. Record the
+compression library actually used by Python when diagnosing a difference:
+
+```sh
+python3 -c 'import sys, zlib; print(sys.version); print("zlib build:", zlib.ZLIB_VERSION, "runtime:", zlib.ZLIB_RUNTIME_VERSION, "zlib-ng:", getattr(zlib, "ZLIBNG_VERSION", "not reported"))'
+```
+
+Python exposes `ZLIBNG_VERSION` starting with 3.14 when built against zlib-ng.
+For older or distribution-patched interpreters, also consult their package
+metadata or shared-library linkage. The compressed size alone cannot identify
+the compressor. [Python zlib documentation](https://docs.python.org/3/library/zlib.html)
+
+### Controlled comparison for Issue #16
+
+The tagged packer on CPython 3.12.14 with classic zlib 1.3.2 reassembled the
+verified v1.1.2 and v1.1.3 payloads to exactly the published ZIP and TAR.GZ
+bytes. In a second run, only the compressor bound to `zipfile` and `gzip`
+was switched to zlib-ng 2.3.3 in the same process. Both tags produced the
+same pattern:
+
+- All 17 payload files and `BUILD.json` matched byte for byte. ZIP entry
+  order, timestamps, permissions, compression method and CRCs matched.
+- The raw DEFLATE streams changed for exactly five ZIP entries. Those were
+  the JavaScript, CSS, `LICENSE`, `THIRD_PARTY_LICENSES.txt` and
+  `THIRD_PARTY_NOTICES.md`. For v1.1.3 the ZIP grew from 598,254 to 600,847 bytes.
+- The uncompressed TAR, gzip header and gzip trailer matched byte for byte.
+  The v1.1.3 TAR.GZ grew from 594,430 to 597,217 bytes.
+
+The cross-environment compression difference is covered by the documented
+content check. A digest-pinned build image could standardize future
+release-byte reproduction if required. [Issue #16](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/16)
+
 ## GitHub Actions status
 
 **GitHub Actions is unavailable because the account/repository quota is exhausted, and repository execution remains disabled.** The retained workflow has **`workflow_dispatch` only**. It has no push or pull-request trigger, so publishing this source or a PR does not request an Actions run.
