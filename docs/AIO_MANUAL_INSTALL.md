@@ -1,5 +1,8 @@
 # Manual AIO first-install tooling
 
+For an existing 1.1.3 installation, see the separate
+[production AIO upgrade record and procedure for 1.1.4](VALIDATION_1.1.4.md).
+
 ## Scope for v1.1.3
 
 Use this procedure to evaluate a **fresh installation on a disposable AIO/PostgreSQL

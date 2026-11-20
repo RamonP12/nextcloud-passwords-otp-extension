@@ -4,6 +4,10 @@
 
 See the [1.1.4 release compatibility table](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.4/docs/RELEASE_1.1.4.md#compatibility-and-upgrade) and [version-specific verification](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4).
 
+The [production AIO acceptance](VALIDATION_1.1.4.md) covers one manual
+1.1.3 → 1.1.4 upgrade with Nextcloud **35.0.3.2**, PHP **8.4.28**,
+PostgreSQL, Redis locking and Passwords **2026.11.20**.
+
 ## Historical published version 1.1.3
 
 [The 1.1.3 release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) adds the display name, shield icon and direct clipboard action. See [1.1.3 verification](VALIDATION_1.1.3.md) for checks tied to the published release.
