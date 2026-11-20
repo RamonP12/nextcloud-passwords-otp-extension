@@ -66,13 +66,20 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
-      - run: |
-          npm ci --no-audit --no-fund
-          npm run build
-          python3 scripts/release.py .build/package
+          fetch-depth: 0
+      - name: Compare independent builds in the pinned toolchain
+        run: |
+          bash scripts/release-container.sh HEAD .build/package
+          bash scripts/release-container.sh HEAD .build/rebuild
+          diff -qr .build/package .build/rebuild
+      - name: Reproduce the published 1.1.4 archives
+        run: |
+          bash scripts/release-container.sh v1.1.4 .build/v114
+          cd .build/v114
+          sha256sum -c <<'SUMS'
+          abe7a5c86f6872ee74689bb58ed7bc218ae9834826b4a6bdf04da59cbe53cea1  passwords_otp-1.1.4.zip
+          23667190b1a5b529041acd1351b7e72a42df7f434ef546fbc7064dafb6526720  passwords_otp-1.1.4.tar.gz
+          SUMS
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: passwords-otp-unreleased-test-package

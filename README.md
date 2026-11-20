@@ -76,7 +76,7 @@ npm run build
 npm run test:browser
 ```
 
-Package a **clean, committed checkout** with `python3 scripts/release.py .build/package`. The ZIP and TAR contain the same verified runtime payload, exact source commit and file hashes. No signing key or development fixture is packaged. See [Development](docs/DEVELOPMENT.md) for prerequisites, reproducibility and the distinction between synthetic browser checks, real Nextcloud integration and production acceptance.
+Package a **clean, committed checkout** with `python3 scripts/release.py .build/package`. To rebuild a tag with a fixed toolchain, see the [digest-pinned Docker build](docs/DEVELOPMENT.md#reproduce-release-archive-bytes-with-docker). The ZIP and TAR contain the same verified runtime payload, exact source commit and file hashes. No signing key or development fixture is packaged. See [Development](docs/DEVELOPMENT.md) for prerequisites and verification.
 
 ## Support, security and licenses
 

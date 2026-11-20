@@ -91,6 +91,34 @@ The package generator refuses an existing output directory, a dirty checkout, st
 
 [`scripts/runtime-licenses.json`](../scripts/runtime-licenses.json) pins the reviewed production dependency closure and original notices. Module provenance checks also reject an optional peer that unexpectedly contributes unreviewed code. Read [Third-party notices](../THIRD_PARTY_NOTICES.md) before changing any dependencies; `npm ci` alone is not a license review.
 
+## Reproduce release archive bytes with Docker
+
+From a checkout containing the container recipe, fetch the release tag and run
+the following on a Linux host with Git, Bash, GNU coreutils and a local Docker
+daemon. The container uses `linux/amd64`. Docker needs amd64 emulation on ARM.
+The host does not need Node.js, npm, Python or a matching zlib version.
+
+```sh
+git fetch origin tag v1.1.4
+bash scripts/release-container.sh v1.1.4
+```
+
+The default output is `.build/reproducible/<source-commit>/`. Pass a new
+directory as the second argument to choose another location. Use `HEAD` to
+build the current committed source. The command clones the selected commit
+into an isolated container, so local changes and installed packages in the
+source checkout do not enter the build. The result uses the existing release
+packer and includes the ZIP, TAR.GZ, checksums and `BUILD.json`.
+
+The [container recipe](../scripts/release-container/Dockerfile) pins the official
+Node.js and CPython base images by their platform manifest digests and verifies
+the source checksum for classic zlib. The versions are **Node.js 24.22.3**,
+**npm 11.19.1**, **CPython 3.12.14** and **classic zlib 1.4**. GitHub Actions
+compares all output files from two clean builds of the same commit and checks
+the rebuilt v1.1.4 archives against the published SHA-256 values. Keep this
+reference check when refreshing the toolchain. Compare a different release
+against its own published checksum files.
+
 ## Compare a rebuild with a release
 
 The SHA-256 checksums attached to a GitHub release identify its exact ZIP and
@@ -170,9 +198,9 @@ same pattern:
 - The uncompressed TAR, gzip header and gzip trailer matched byte for byte.
   The v1.1.3 TAR.GZ grew from 594,430 to 597,217 bytes.
 
-The cross-environment compression difference is covered by the documented
-content check. A digest-pinned build image could standardize future
-release-byte reproduction if required. [Issue #16](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/16)
+The content check covers cross-environment compression differences. Use the
+[pinned Docker build](#reproduce-release-archive-bytes-with-docker) when you need
+the same compressed bytes. [Issue #16](https://github.com/RamonP12/nextcloud-passwords-otp-extension/issues/16)
 
 ## GitHub Actions
 
