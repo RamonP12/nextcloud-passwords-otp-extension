@@ -441,6 +441,9 @@ def main():
             page.evaluate('window.__otpTestTime += 20000')
             page.locator('#passwords-otp-ap2-search').press('Shift')
             f.open()
+            # Let NcModal finish its animation frames and activate the focus trap
+            # before fast-forward coalesces pending timer and frame callbacks.
+            page.clock.run_for(100)
             page.locator('#passwords-otp-ap12-secret').fill(SECRET)
             page.evaluate("""() => {
                 window.__otpTestTime += 29000;
