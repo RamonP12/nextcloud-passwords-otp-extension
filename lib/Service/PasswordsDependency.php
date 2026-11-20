@@ -3,94 +3,69 @@
 declare(strict_types=1);
 namespace OCA\PasswordsOtp\Service;
 
+use OCA\Passwords\Helper\Token\ApiTokenHelper;
+use OCA\Passwords\Services\EnvironmentService;
 use OCA\PasswordsOtp\AppInfo\Application;
 use OCP\App\AppPathNotFoundException;
 use OCP\App\IAppManager;
-use Psr\Log\LoggerInterface;
+use ReflectionException;
+use ReflectionMethod;
 use RuntimeException;
 use Throwable;
 
 /** Global prerequisite only. User/group permissions remain a separate check. */
 final class PasswordsDependency {
     public const APP_ID = 'passwords';
-    // The upstream PHP integration is private: widen only after compatibility testing.
-    public const SUPPORTED_VERSIONS = ['2026.11.20'];
+    // Limit compatibility to maintenance builds in the reviewed stable release line.
+    private const VERSION_PATTERN = '/\A2026\.11\.2[0-9]\z/';
+    private const REQUIRED_METHODS = [
+        ApiTokenHelper::class => ['getWebUiToken'],
+        EnvironmentService::class => ['getUserId', 'isImpersonating'],
+    ];
 
-    public function __construct(private IAppManager $appManager, private LoggerInterface $logger) {}
+    public function __construct(private IAppManager $appManager) {}
 
     /** A stable, non-sensitive reason, or null when the prerequisite is satisfied. */
     public function reason(): ?string {
         try {
             $installed = $this->appManager->getAppInstalledVersions()[self::APP_ID] ?? '';
             if ($installed === '') return 'passwords-missing';
-            // Bypass the app-path cache to detect removal without an AppDisableEvent.
             $path = $this->appManager->getAppPath(self::APP_ID, true) . '/appinfo/info.xml';
+            clearstatcache(true, $path);
             if (!is_file($path) || !is_readable($path)) return 'passwords-missing';
-            $info = $this->appManager->getAppInfoByPath($path);
-            if ($info === null || ($info['id'] ?? '') !== self::APP_ID) return 'passwords-missing';
+            // Core caches info.xml by mtime, which may be preserved by an update.
+            $xml = @file_get_contents($path);
+            if ($xml === false) return 'passwords-missing';
+            $info = @simplexml_load_string($xml, \SimpleXMLElement::class, LIBXML_NONET);
+            if ($info === false || (string) $info->id !== self::APP_ID) return 'passwords-missing';
             if (!$this->appManager->isEnabledForAnyone(self::APP_ID)) return 'passwords-disabled';
-            $onDisk = $info['version'] ?? '';
-            if ($onDisk !== $installed) return 'passwords-update-pending';
-            if (!in_array($installed, self::SUPPORTED_VERSIONS, true)) return 'passwords-incompatible';
+            if ((string) $info->version !== $installed) return 'passwords-update-pending';
+            if (preg_match(self::VERSION_PATTERN, $installed) !== 1) return 'passwords-incompatible';
+            foreach (self::REQUIRED_METHODS as $class => $methods) {
+                foreach ($methods as $name) {
+                    $method = new ReflectionMethod($class, $name);
+                    if (!$method->isPublic() || $method->isStatic() || $method->isAbstract()
+                            || $method->getNumberOfRequiredParameters() !== 0) return 'passwords-api-incompatible';
+                }
+            }
             return null;
         } catch (AppPathNotFoundException) {
             return 'passwords-missing';
+        } catch (ReflectionException) {
+            return 'passwords-api-incompatible';
         } catch (Throwable) {
             return 'passwords-unavailable';
         }
     }
 
-    public function assertInstallable(): void {
-        $reason = $this->reason();
-        if ($reason !== null) throw new RuntimeException(self::message($reason));
-    }
-
-    /**
-     * Persistent self-disable, also used after missed lifecycle events.
-     * Failure to write config does not grant access: callers still receive the reason.
-     */
-    public function enforce(): ?string {
-        $reason = $this->reason();
-        if ($reason === null) return null;
-        try {
-            if ($this->appManager->isEnabledForAnyone(Application::APP_ID)) {
-                // No automatic re-enable when Passwords returns; the admin decides.
-                $this->appManager->disableApp(Application::APP_ID);
-                $this->logger->warning('Passwords OTP disabled: {reason}', [
-                    'app' => Application::APP_ID, 'reason' => $reason,
-                ]);
-            }
-        } catch (Throwable) {
-            $this->logger->error('Passwords OTP dependency unavailable; disabling the app failed.', [
-                'app' => Application::APP_ID, 'reason' => $reason,
-            ]);
-        }
-        return $reason;
-    }
-
-    /**
-     * A new installation fails before installed_version is registered. An upgrade
-     * of an existing app disables it instead, so it cannot block a server upgrade.
-     */
+    /** A new installation can fail before its installed_version is registered. */
     public function checkInstallation(): void {
         $versions = $this->appManager->getAppInstalledVersions();
-        if (($versions[Application::APP_ID] ?? '') === '') {
-            $this->assertInstallable();
-        } else {
-            $this->enforce();
+        if (($versions[Application::APP_ID] ?? '') !== '') return;
+        $reason = $this->reason();
+        if ($reason !== null) {
+            throw new RuntimeException('Passwords OTP cannot be enabled. Install and enable a compatible Passwords '
+                . '2026.11.20–2026.11.29 build and complete any pending updates. Reason: ' . $reason);
         }
-    }
-
-    public static function message(string $reason): string {
-        $detail = match ($reason) {
-            'passwords-missing' => 'The Passwords app is not installed or its files are missing.',
-            'passwords-disabled' => 'The Passwords app is disabled.',
-            'passwords-update-pending' => 'The Passwords app version on disk does not match its installed version. Complete its update first.',
-            'passwords-incompatible' => 'The installed Passwords app version has not been validated for this OTP release.',
-            default => 'The Passwords app prerequisite could not be verified.',
-        };
-        return 'Passwords OTP cannot be enabled. ' . $detail
-            . ' Install and enable Passwords ' . implode(' or ', self::SUPPORTED_VERSIONS)
-            . ' before enabling Passwords OTP.';
     }
 }

@@ -62,6 +62,14 @@ async function isWrongMasterReply(error) {
         return body?.status === 'error' && body?.id === 'ab6e13ba';
     } catch (_) { return false; }
 }
+/** Passwords config uses seconds. An absent client override uses the OTP safety default. */
+export function readIdlePolicy(settings) {
+    const seconds = settings?.['user.session.lifetime'];
+    const lifetimeMs = Number.isSafeInteger(seconds) && seconds >= 30 && Number.isSafeInteger(seconds * 1000)
+        ? seconds * 1000 : 600000;
+    const keepalive = settings?.['client.session.keepalive'];
+    return keepalive === 0 ? null : {lifetimeMs, requestsOnly: keepalive === 2};
+}
 function providerModel(provider) {
     const type = provider.getType();
     return {id: provider.getId(), type, label: String(provider.getLabel() || provider.getId()).slice(0, 100),
@@ -72,6 +80,7 @@ export class OtpVaultSession {
     #knownIds = new Set();
     #creating = false;
     #createBlocked = false;
+    #idlePolicy = null;
     constructor(client, options = {}) {
         this.client = client;
         this.authorization = null;
@@ -117,7 +126,7 @@ export class OtpVaultSession {
             }
             await this.authorization.authorize();
             this._checkActive();
-            return await this.readCount();
+            return await this.loadAuthorizedVault();
         } catch (error) { this.dispose(); throw new SessionFault(classifyError(error)); }
     }
     async unlock({password = '', providerId = '', otpCode = ''} = {}) {
@@ -152,11 +161,17 @@ export class OtpVaultSession {
                 }
                 throw error;
             }
-            return await this.readCount();
+            return await this.loadAuthorizedVault();
         } catch (error) {
             if (error?.code === 'invalid-master-key' && this.state === 'needs-auth') throw error;
             this.dispose(); throw new SessionFault(classifyError(error));
         } finally { if (token) token.setToken(''); }
+    }
+    async loadAuthorizedVault() {
+        const settings = await this.client.getRequest().setPath('1.0/settings/list').send();
+        this._checkActive();
+        this.#idlePolicy = readIdlePolicy(settings.getData());
+        return this.readCount();
     }
     /** Normal reads decrypt only customFields plus metadata of valid TOTP accounts. */
     async readCount({expectedCreation = null} = {}) {
@@ -353,7 +368,7 @@ export class OtpVaultSession {
     snapshot() {
         const ready = this.state === 'ready' && !this.disposed;
         return {state: this.state, needsChallenge: this.requiresChallenge, needsToken: this.requiresToken,
-            providers: this.providers.map(p => ({...p})), count: ready ? this.count : null,
+            providers: this.providers.map(p => ({...p})), idlePolicy: ready ? this.#idlePolicy : null, count: ready ? this.count : null,
             cseChecked: ready ? this.cseChecked : 0, otpCount: ready ? this.otpAccounts.length : null,
             invalidOtpCount: ready ? this.invalidOtpCount : 0,
             unsupportedOtpCount: ready ? this.unsupportedOtpCount : 0,
@@ -362,6 +377,7 @@ export class OtpVaultSession {
     _invalidate() {
         this.#totpKeys.clear();
         this.#knownIds.clear();
+        this.#idlePolicy = null;
         this.state = 'locked'; this.count = null; this.cseChecked = 0;
         this.otpAccounts = []; this.invalidOtpCount = 0; this.unsupportedOtpCount = 0;
     }

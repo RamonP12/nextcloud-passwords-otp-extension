@@ -10,7 +10,7 @@
     "test": "node --test tests/js/*.test.mjs",
     "test:client": "esbuild tests/client/integration.mjs --bundle --platform=node --target=node22 --format=cjs --outfile=.build/client-test.cjs && node --test .build/client-test.cjs",
     "build": "vite build",
-    "test:php": "php tests/php/security.php && php tests/php/dependencies.php",
+    "test:php": "php tests/php/security.php && php tests/php/dependencies.php && php tests/php/dependencies.php --incompatible-api",
     "watch": "vite build --watch --mode development",
     "test:browser": "python3 tests/browser/desktop.py --output .build/browser"
   },

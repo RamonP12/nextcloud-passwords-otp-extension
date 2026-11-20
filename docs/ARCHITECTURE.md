@@ -1,13 +1,13 @@
 # Architecture overview
 
-`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The **Vue edition** uses Vue 3 and Nextcloud Vue components. It adds a Passwords dependency service, public Nextcloud lifecycle listeners, a prerequisite migration and a periodic fallback check. There is **no separate OTP database or OTP data-schema change**; Nextcloud maintains normal migration/job bookkeeping.
+`passwords_otp` is an independent Nextcloud application with its own navigation entry, PHP controller and compiled assets. The **Vue edition** uses Vue 3 and Nextcloud Vue components. The unreleased source uses a Passwords dependency service and a prerequisite migration. There is **no separate OTP database or OTP data-schema change**; Nextcloud maintains normal migration/job bookkeeping.
 
 ## Request and data flow
 
 1. A valid Nextcloud browser session is required for the page and a CSRF-protected, non-cacheable bootstrap POST. Initial page state contains URLs and a session fingerprint, not the Passwords token.
-2. The dependency service verifies Passwords installation, global enablement and exact supported version before the PHP adapter acquires credentials. Per-user authorization is checked separately. The adapter still uses Passwords' internal `ApiTokenHelper` and `EnvironmentService`, checking authenticated user context and impersonation.
+2. The dependency service verifies Passwords installation, global enablement, matching supported versions and the required methods before the PHP adapter acquires credentials. Per-user authorization is checked separately. The adapter still uses Passwords' internal `ApiTokenHelper` and `EnvironmentService`, checking authenticated user context and impersonation.
 3. The browser controller validates the same-origin HTTPS configuration, creates the pinned upstream client, clears the bootstrap credential references and opens the original Passwords API session.
-4. The domain session completes supported vault/CSE challenges and parses compatible `client.ios.otp` records. It imports non-extractable WebCrypto keys; only public account metadata leaves the session snapshot.
+4. The domain session completes supported vault/CSE challenges, reads the idle policy, and parses compatible `client.ios.otp` records. It imports non-extractable WebCrypto keys; only public account metadata leaves the session snapshot.
 5. A framework-independent `TotpPresenter` controls code windows, session proofs, the local countdown and copying. The Vue list renders its display snapshots.
 6. Creating an entry requires an explicit save action, fresh authorization, field validation, the existing one-use API permit, exactly one attempted create operation, and readback verification. An uncertain result blocks retries until a new session.
 
@@ -29,22 +29,23 @@ The interface has no operation for updating or deleting existing records and no 
 | `src/ap3/ui.mjs` | DOM-independent `TotpPresenter`, time/authorization guards and trusted-click clipboard operation |
 | `src/ap9/` | Nextcloud browser-session/fingerprint verification |
 | `src/ap12/` | Existing API route allowlist, input validation and create-once domain behavior |
-| `lib/` | Dependency migration/listeners/job, public Nextcloud registration, controller/CSP/asset loading and isolated Passwords token adapter |
+| `lib/` | Dependency migration and runtime guard, legacy job cleanup, controller/CSP/asset loading and isolated Passwords token adapter |
 | `vite.config.js`, `scripts/release.py`, `scripts/appstore_package.py` | Compilation, exact output inventory, dependency notices, checked ZIP/TAR construction and explicit signing gates |
 
 The historical `ap*` names identify implementation work packages, not release versions or a deployment sequence. They remain on unchanged domain modules to avoid unnecessary changes to authentication and cryptography.
 
 ## Passwords dependency lifecycle
 
-The public Nextcloud schema has no arbitrary app-to-app dependency element. The prerequisite is enforced in application code using public OCP interfaces and lifecycle facilities. A new registration fails in the migration if Passwords is absent, disabled or incompatible; downloaded application files may already exist before that check. Activation is checked separately, including reactivation of an existing installation.
-
-Global Passwords disablement causes OTP disablement. Boot, runtime and a five-minute scheduled check handle missed events and file removal; elapsed detection time depends on requests and an operational cron runner. Denial of one user or a group does not cause global disablement. OTP never automatically re-enables itself. Read [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for exact guarantees and edge cases.
-
-This manages lifecycle coupling. It does not remove the private Passwords authentication API dependency or narrow the upstream bearer token.
+First registration uses a no-schema migration to reject an unavailable Passwords
+dependency. The controller, bootstrap and session-status routes use the
+request-time guard. App activation and group scope survive an unavailable
+dependency. If a legacy scheduled job runs, it removes its old registration.
+Read [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the published 1.1.3
+behavior and current rules.
 
 ## Vue and sensitive state
 
-The controller and session objects are plain closures/classes. They are not placed in `reactive()`, a deep Vue proxy, Pinia, a router store or persistent browser storage. The domain classes retain native private fields for keys and state. `App.vue` uses a shallow reference to public display state; this includes short-lived displayed OTP codes, but not the underlying OTP seed, WebCrypto key, upstream client or token.
+The controller owns the inactivity deadline and enforces it before updating protected content or starting guarded operations. It clears the UI and invalidates the vault immediately on expiry. The controller and session objects are plain closures/classes. They are not placed in `reactive()`, a deep Vue proxy, Pinia, a router store or persistent browser storage. The domain classes retain native private fields for keys and state. `App.vue` uses a shallow reference to public display state; this includes short-lived displayed OTP codes, but not the underlying OTP seed, WebCrypto key, upstream client or token.
 
 Form components necessarily hold short-lived input values. Passwords, master passphrases, secondary codes and setup secrets are cleared on submission, closing, hiding, teardown and terminal failure paths. The controller copies request values into its own short-lived request object before clearing the caller's form object, then clears those values in `finally` blocks. JavaScript reference clearing is not a guarantee of physical memory erasure by the browser.
 

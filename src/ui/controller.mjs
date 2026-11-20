@@ -14,17 +14,45 @@ export function createOtpController({config, pageUrl, doc, fetcher,
     createClient, sodiumReady, publish = () => {}, clear = () => {}, focus = () => {}, t = englishText,
     createSession = client => new OtpVaultSession(client),
     createPresenter = options => new TotpPresenter(options),
-    bootstrap = loadBootstrap, checkSession = makeSessionCheck} = {}) {
+    bootstrap = loadBootstrap, checkSession = makeSessionCheck, now = Date.now} = {}) {
     let session = null, presenter = null, started = false, ended = false, pageHidden = false;
     const bootstrapAbort = new AbortController();
     let state = {mode: 'loading', status: t('checking-session'), statusType: 'info',
         snapshot: null, otp: {state: 'locked', rows: [], notice: ''}, query: '', feedback: '',
         canReload: false, unlockBusy: false, unlockError: '', createOpening: false,
         createOpen: false, createBusy: false, createError: '', createBlocked: false};
-    let verifySession = async () => false;
+    let checkNextcloud = async () => false;
+    let idlePolicy = null, idleTimer, lastActivity;
+    const verifySession = async () => checkIdle() && await checkNextcloud() === true && checkIdle();
     const update = patch => { state = {...state, ...patch}; publish(state); };
     const active = () => !ended && !pageHidden && !session?.disposed;
-    const ready = () => active() && session?.state === 'ready';
+    const ready = activity => checkIdle(activity) && session?.state === 'ready';
+
+    function scheduleIdle() {
+        clearTimeout(idleTimer);
+        if (!idlePolicy) return;
+        const delay = idlePolicy.lifetimeMs - (now() - lastActivity);
+        idleTimer = setTimeout(() => { if (checkIdle()) scheduleIdle(); }, Math.min(delay, 2147483647));
+    }
+    function checkIdle(activity) {
+        if (!active()) return false;
+        if (!idlePolicy) return true;
+        const elapsed = now() - lastActivity;
+        if (elapsed < 0 || elapsed >= idlePolicy.lifetimeMs) {
+            // An already dispatched Save may have committed despite aborting its response.
+            fail(t(state.createBusy ? 'inactive-create' : 'inactive'), true);
+            return false;
+        }
+        if (activity === 'passwords' || (activity === 'input' && !idlePolicy.requestsOnly)) {
+            lastActivity = now();
+            scheduleIdle();
+        }
+        return true;
+    }
+    function closeSession() {
+        try { void Promise.resolve(session?.close()).catch(() => {}); }
+        catch (_) { session?.dispose(); }
+    }
 
     function lockUi(message) {
         // Direct clearing is necessary before a queued Vue render or a BFCache
@@ -37,13 +65,14 @@ export function createOtpController({config, pageUrl, doc, fetcher,
                 status: message, statusType: 'error'});
         }
     }
-    function fail(message) {
+    function fail(message, close = false) {
         // The first terminal cause wins. A late async rejection must not replace
         // an uncertainty/rate-limit warning or revive a BFCache-restored page.
         if (ended) return;
         ended = true;
+        clearTimeout(idleTimer);
         bootstrapAbort.abort();
-        try { session?.dispose(); }
+        try { if (close) closeSession(); else session?.dispose(); }
         finally {
             try { presenter?.dispose(); }
             finally { lockUi(message); }
@@ -57,8 +86,13 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         if (!active()) throw new SessionFault('disposed');
     }
     function showResult(snapshot) {
-        if (!active()) return;
+        if (!checkIdle()) return;
         const authorized = snapshot.state === 'ready';
+        if (authorized && state.mode !== 'ready') {
+            idlePolicy = snapshot.idlePolicy;
+            lastActivity = now();
+            scheduleIdle();
+        }
         update({mode: snapshot.state, snapshot, query: authorized ? state.query : '',
             status: authorized ? t('accounts-loaded') : t('additional-authentication'),
             statusType: 'info', unlockError: ''});
@@ -96,10 +130,10 @@ export function createOtpController({config, pageUrl, doc, fetcher,
                 fail(t('integration-unavailable'));
                 return;
             }
-            verifySession = checkSession(config, pageUrl, fetcher);
+            checkNextcloud = checkSession(config, pageUrl, fetcher);
             presenter = createPresenter({verifySession, t, isHidden: () => doc.hidden || pageHidden,
                 publish: otp => {
-                    if (ended || pageHidden) return;
+                    if (ended || pageHidden || (idlePolicy && !checkIdle())) return;
                     const nextRows = new Map(otp.rows.map(row => [row.account.id, row]));
                     // Only erase a previously visible code when it is revoked.
                     // Initial null rows and a later account being calculated
@@ -108,7 +142,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
                             && nextRows.get(row.account.id)?.code == null)) clear({codes: true});
                     update({otp});
                 },
-                notify: feedback => { if (active()) update({feedback}); },
+                notify: feedback => { if (checkIdle()) update({feedback}); },
                 fatal: message => fail(message)});
             await boundedRequest({}, () => sodiumReady(), {timeoutMs: 15000, signal: bootstrapAbort.signal});
             await requireSession();
@@ -158,7 +192,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         }
     }
     async function openCreate() {
-        if (!ready() || state.createOpen || state.createBusy || state.createOpening || state.createBlocked) return;
+        if (state.createOpen || state.createBusy || state.createOpening || state.createBlocked || !ready('passwords')) return;
         update({createOpening: true});
         try {
             await requireSession();
@@ -178,7 +212,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         return true;
     }
     async function create(values) {
-        if (!ready() || !state.createOpen || state.createBusy || state.createBlocked) {
+        if (!state.createOpen || state.createBusy || state.createBlocked || !ready('passwords')) {
             values.password = ''; values.secret = '';
             return;
         }
@@ -211,6 +245,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         if (pageHidden) return;
         pageHidden = true;
         ended = true;
+        clearTimeout(idleTimer);
         bootstrapAbort.abort();
         try { presenter?.dispose(); }
         finally {
@@ -218,8 +253,7 @@ export function createOtpController({config, pageUrl, doc, fetcher,
             finally {
                 // Local invalidation occurs synchronously inside close(); the
                 // network revocation remains best effort during navigation.
-                try { void Promise.resolve(session?.close()).catch(() => {}); }
-                catch (_) { session?.dispose(); }
+                closeSession();
             }
         }
     }
@@ -231,13 +265,15 @@ export function createOtpController({config, pageUrl, doc, fetcher,
         }
     }
     return {
+        activity: () => checkIdle('input'),
         start, unlock, openCreate, closeCreate, create, filter, pageHide, pageShow,
         copy: id => { if (ready()) presenter.copy(id); },
         visibilityChanged: () => {
+            if (!checkIdle()) return;
             if (doc.hidden) clear({inputs: true, codes: true});
             presenter?.visibilityChanged();
         },
-        focusChanged: () => presenter?.focusChanged(),
+        focusChanged: () => { if (checkIdle()) presenter?.focusChanged(); },
         fail: () => fail(t('interface-failed')),
     };
 }

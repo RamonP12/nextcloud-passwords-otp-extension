@@ -34,10 +34,11 @@ class PackageTests(unittest.TestCase):
             'node_modules/process': {'version': '0.11.10', 'license': 'MIT'},
             'node_modules/eventemitter3': {'version': '3.1.2', 'license': 'MIT'},
             'node_modules/widget': {'version': '1.0.0', 'license': 'Apache-2.0',
-                'dependencies': {'helper': '2.0.0'}, 'peerDependencies': {'peer': '^1.0.0'}},
+                'dependencies': {'helper': '2.0.0'}, 'peerDependencies': {'peer': '^1.0.0'}, 'optionalDependencies': {'optional': '1.0.0'}},
             'node_modules/widget/node_modules/helper': {'version': '2.0.0', 'license': 'BSD-2-Clause'},
             'node_modules/helper': {'version': '1.0.0', 'license': 'MIT'},
             'node_modules/peer': {'version': '1.0.0', 'license': 'MIT'},
+            'node_modules/optional': {'version': '1.0.0', 'license': 'MIT', 'optional': True},
             'node_modules/build-only': {'version': '1.0.0', 'license': 'MIT', 'dev': True},
         }
         for path, entry in packages.items():
@@ -101,6 +102,25 @@ class PackageTests(unittest.TestCase):
             self.assertEqual((root / 'unpacked' / release.JS_ASSET).read_bytes(), files[release.JS_ASSET])
             with self.assertRaises(release.PackageError):
                 release.extract_checked(files, root / 'unpacked')
+
+    def test_absent_optional_packages_are_skipped_only_when_unbundled(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            self.fixture(root)
+            optional = root / 'node_modules/optional'
+            (optional / 'package.json').unlink()
+            with self.assertRaisesRegex(release.PackageError, 'Missing dependency file'):
+                release.make_package(root, 'a' * 40)
+            (optional / 'LICENSE').unlink()
+            optional.rmdir()
+            data, _ = release.make_package(root, 'a' * 40)
+            files, _ = release.validate_package(data, release.digest(data))
+            self.assertNotIn(b'optional@1.0.0', files['THIRD_PARTY_LICENSES.txt'])
+            with self.assertRaisesRegex(release.PackageError, 'Missing dependency file'):
+                release.third_party_license_bundle(root, {'node_modules/optional'})
+            optional.symlink_to(root / 'absent-target', target_is_directory=True)
+            with self.assertRaisesRegex(release.PackageError, 'Symlink dependency file'):
+                release.make_package(root, 'a' * 40)
 
     def test_wrong_sha_and_missing_bundle(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -195,7 +215,7 @@ class PackageTests(unittest.TestCase):
                 lock['packages']['node_modules/passwords-client'][key] = value
                 (root / 'package-lock.json').write_bytes(release.canonical_json(lock))
                 with self.assertRaisesRegex(release.PackageError, 'Changed runtime dependency license/version/integrity'):
-                    release.make_package(root, 'a' * 40)
+                    release.third_party_license_bundle(root, set())
 
     def test_unreviewed_runtime_dependency_fails_closed(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -205,7 +225,7 @@ class PackageTests(unittest.TestCase):
             lock['packages']['node_modules/unknown-runtime-dep'] = {'version': '1.0.0', 'license': 'MIT'}
             (root / 'package-lock.json').write_bytes(release.canonical_json(lock))
             with self.assertRaisesRegex(release.PackageError, 'Unreviewed runtime dependency'):
-                release.make_package(root, 'a' * 40)
+                release.third_party_license_bundle(root, set())
 
     def test_symlink_notice_and_symlink_parent_fail_closed(self):
         for target in ('node_modules/process/LICENSE', 'node_modules/process'):
@@ -380,11 +400,11 @@ class PackageTests(unittest.TestCase):
             inventory['packages']['node_modules/widget']['notices'] = [record]
             inventory_file = root / release.LICENSE_INVENTORY
             inventory_file.write_bytes(release.canonical_json(inventory))
-            self.assertIn(b'Original upstream file:', release.third_party_license_bundle(root))
+            self.assertIn(b'Original upstream file:', release.third_party_license_bundle(root, set()))
             record['url'] = 'https://raw.githubusercontent.com/example/widget/main/LICENSE'
             inventory_file.write_bytes(release.canonical_json(inventory))
             with self.assertRaisesRegex(release.PackageError, 'immutable source URL'):
-                release.third_party_license_bundle(root)
+                release.third_party_license_bundle(root, set())
 
 
 if __name__ == '__main__':

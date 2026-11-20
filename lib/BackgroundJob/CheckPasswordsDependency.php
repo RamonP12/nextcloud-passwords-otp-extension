@@ -3,19 +3,14 @@
 declare(strict_types=1);
 namespace OCA\PasswordsOtp\BackgroundJob;
 
-use OCA\PasswordsOtp\Service\PasswordsDependency;
-use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\BackgroundJob\TimedJob;
+use OCP\BackgroundJob\IJobList;
+use OCP\BackgroundJob\Job;
 
-/** Fallback for removal with --keep-data/manual file deletion and missed events. */
-final class CheckPasswordsDependency extends TimedJob {
-    public function __construct(ITimeFactory $time, private PasswordsDependency $dependency) {
-        parent::__construct($time);
-        $this->setInterval(300);
-        $this->setAllowParallelRuns(false);
+/** Retire any persisted periodic check registered by a previous release. */
+final class CheckPasswordsDependency extends Job {
+    public function start(IJobList $jobList): void {
+        $jobList->remove(self::class);
     }
 
-    protected function run($argument): void {
-        $this->dependency->enforce();
-    }
+    protected function run($argument): void {}
 }

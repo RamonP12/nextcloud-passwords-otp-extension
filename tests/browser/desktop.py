@@ -46,13 +46,14 @@ def record(identifier='seed', title='Fixture account'):
 
 class Fixture:
     def __init__(self, browser, *, theme='light', width=1280, height=900, direction='ltr', auth=False, records=None, clock=TIME,
-                 locale='de-CH', expected_language='de', preferences=None, shell_language='de'):
+                 locale='de-CH', expected_language='de', preferences=None, shell_language='de', idle_settings=None, virtual_time=False):
         self.context = browser.new_context(viewport={'width': width, 'height': height},
                                           color_scheme='dark' if theme == 'dark' else 'light', locale=locale)
         self.active = True
         self.expired = False
         self.rate = 0
         self.uncertain = False
+        self.idle_settings = idle_settings or {}
         self.created = 0
         self.auth = auth
         self.authorized = not auth
@@ -62,6 +63,8 @@ class Fixture:
         self.calls = []
         self.errors = []
         self.page = self.context.new_page()
+        if virtual_time:
+            self.page.clock.install()
         self.page.on('pageerror', lambda error: self.errors.append(str(error)))
         self.page.add_init_script(f'''
 window.OC = {{config: {{version: '35.0.2.2'}}, filePath: (app, dir, file) => '{PREFIX}/apps/' + app + '/' + file}};
@@ -147,7 +150,7 @@ Object.defineProperty(navigator, 'clipboard', {{value: {{writeText(value) {{
             elif path.endswith('/session/close'):
                 value = {'success': True}
             elif path.endswith('/settings/list'):
-                value = {'user.encryption.cse': 0}
+                value = {'user.encryption.cse': 0, **self.idle_settings}
             elif path.endswith('/password/list'):
                 value = self.records
             elif path.endswith('/password/create'):
@@ -408,6 +411,31 @@ def main():
         assert all(pixels['shield'] > 240 and pixels['bow'] < 64
                    and pixels['shaft'] < 60 and pixels['outside'] == 0 for pixels in alpha), alpha
         f.close(); passed('shield-key-negative-space-16-24-32-pixels')
+        f = Fixture(browser, idle_settings={'user.session.lifetime': 30, 'client.session.keepalive': 1},
+                    virtual_time=True)
+        try:
+            page = f.page
+            page.evaluate('window.__otpTestTime += 20000')
+            page.locator('#passwords-otp-ap2-search').press('Shift')
+            f.open()
+            page.locator('#passwords-otp-ap12-secret').fill(SECRET)
+            page.evaluate("""() => {
+                window.__otpTestTime += 29000;
+                document.getElementById('passwords-otp-ap12-secret').dispatchEvent(new Event('input', {bubbles: true}));
+            }""")
+            page.clock.fast_forward(29000)
+            expect(page.get_by_role('dialog')).to_be_visible()
+            page.evaluate('window.__otpTestTime += 1000')
+            page.clock.fast_forward(1000)
+            expect(page.locator('#passwords-otp-ap1-status')).to_contain_text('wegen Inaktivität gesperrt')
+            expect(page.locator('#passwords-otp-ap2-section')).to_have_count(0)
+            expect(page.get_by_role('dialog')).to_have_count(0)
+            assert page.evaluate("""() => [...document.querySelectorAll('input[data-otp-secret]')]
+                .every(input => input.value === '')""")
+            assert not any(path.endswith('/session/keepalive') for path, _ in f.calls)
+        finally:
+            f.close()
+        passed('vault-idle-timer-trusted-activity-clears-dialog-and-codes')
         from localization import run_cases as run_localization_cases
         run_localization_cases(browser, passed)
         from lifecycle import run_cases

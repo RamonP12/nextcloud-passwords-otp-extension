@@ -23,7 +23,7 @@ manifest must agree. Older asset mappings exist only to verify and back up an
 existing app and restore it on a failed local transaction; they do not make an
 old archive a valid current installer input.
 
-### Required Passwords dependency
+### Required Passwords dependency in the published 1.1.3 package
 
 The original Passwords app is a mandatory prerequisite. Its installed version
 and on-disk metadata must both be **2026.11.20** and it must be enabled globally or for configured groups. Users also need individual access to both apps. An administrator
@@ -39,8 +39,7 @@ can enable OTP for all test users; this does not override Passwords group access
 - Restoring Passwords does not re-enable OTP automatically. The administrator
   reviews the prerequisite and enables OTP explicitly.
 
-Read [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the exact event behavior,
-recovery and timing limits. The migration checks prerequisites and adds no OTP
+See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for the published behavior and the changes in unreleased source. The migration checks prerequisites and adds no OTP
 data tables, but Nextcloud migration/job bookkeeping is real state and must be
 included in rollback verification.
 

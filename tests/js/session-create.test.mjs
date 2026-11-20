@@ -1,3 +1,4 @@
+import {readIdlePolicy} from '../../src/ap1/session.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fixture,synthetic,record,deferred,tick,clone} from './helpers.mjs';
@@ -195,4 +196,27 @@ test('Normal close is best effort but destroys local secret state synchronously'
  assert.equal(f.session.snapshot().otpAccounts.length,0);
  await pending;
  assert.ok(f.calls.some(c=>c.path==='1.0/session/close'));
+});
+
+test('Passwords lock policy uses valid server seconds and explicit keepalive modes', () => {
+ const settings=(lifetime,mode)=>({'user.session.lifetime':lifetime,'client.session.keepalive':mode});
+ assert.deepEqual(readIdlePolicy(settings(300,1)),{lifetimeMs:300000,requestsOnly:false});
+ assert.deepEqual(readIdlePolicy(settings(300,2)),{lifetimeMs:300000,requestsOnly:true});
+ assert.equal(readIdlePolicy(settings(300,0)),null);
+ for(const invalid of [undefined,0,29,-1,30.5,'60',Number.MAX_SAFE_INTEGER,{},null]){
+  assert.deepEqual(readIdlePolicy(settings(invalid,undefined)),{lifetimeMs:600000,requestsOnly:false});
+ }
+});
+
+test('Session loads idle preferences before exposing records and does not publish other settings',async()=>{
+ const f=fixture({records:[record()],onRequest:({path})=>path.endsWith('/settings/list')?{
+  'user.session.lifetime':300,'client.session.keepalive':2,'unrelated':'PRIVATE-FIXTURE'
+ }:undefined});
+ await f.ready();
+ assert.ok(f.calls.findIndex(call=>call.path.endsWith('/settings/list'))
+  < f.calls.findIndex(call=>call.path.endsWith('/password/list')));
+ assert.deepEqual(f.session.snapshot().idlePolicy,{lifetimeMs:300000,requestsOnly:true});
+ assert.doesNotMatch(JSON.stringify(f.session.snapshot()),/PRIVATE-FIXTURE/);
+ f.session.dispose();
+ assert.equal(f.session.snapshot().idlePolicy,null);
 });
