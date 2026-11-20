@@ -87,7 +87,7 @@ function fixture(options = {}) {
             options.presenterDispose?.();
         },
     };
-    const controller = createOtpController({config, t: german, pageUrl: 'https://fixture.invalid/apps/passwords_otp/',
+    const controller = createOtpController({config, t: german, now: options.now, pageUrl: 'https://fixture.invalid/apps/passwords_otp/',
         doc, fetcher: () => { throw new Error('network must be injected'); },
         publish: next => { state = next; publications.push(next); },
         clear: instruction => { clears.push(instruction); options.clear?.(instruction); },
@@ -424,7 +424,9 @@ test('CREATE passes the live verifier to the domain; duplicate submits cannot un
     assert.equal(input.password, '');
     assert.equal(input.secret, '');
     assert.equal(f.state().createBusy, true);
-    assert.equal(f.createInputs[0].context.verifySession, f.verify);
+    const checks = f.count('verify');
+    assert.equal(await f.createInputs[0].context.verifySession(), true);
+    assert.equal(f.count('verify'), checks + 1);
     assert.equal(f.controller.closeCreate(), false);
     await f.controller.create(input);
     assert.equal(f.count('create'), 1);
@@ -670,4 +672,68 @@ test('Synchronous DOM erasure is restricted to the app and dialog portal', () =>
     assert.equal(unrelated.selectors['.passwords-otp-ap3__code'][0].textContent, '001234');
     assert.equal(unrelated.selectors['.passwords-otp-ap3__code'][0].disabled, false);
     assert.doesNotThrow(() => clearSensitiveDom({getElementById: () => null}, {inputs: true, codes: true, lock: true}));
+});
+
+test('Idle expiry blocks a late copy and clears the UI before upstream close finishes', async () => {
+    let now = 1000;
+    const close = deferred();
+    const f = fixture({initialFields: {idlePolicy: {lifetimeMs: 300000, requestsOnly: false}},
+        now: () => now, close: () => close.promise});
+    await f.ready();
+    now += 299999;
+    assert.equal(await f.presenterOptions().verifySession(), true);
+    f.controller.focusChanged();
+    now++;
+    f.controller.copy('synthetic');
+    assert.equal(f.state().status, german('inactive'));
+    assert.deepEqual(f.state().otp, emptyOtp());
+    assert.deepEqual(f.clears.at(-1), {inputs: true, codes: true, lock: true});
+    assert.equal(f.count('close'), 1);
+    assert.equal(f.calls.some(call => Array.isArray(call) && call[0] === 'copy'), false);
+    f.controller.activity();
+    assert.equal(await f.presenterOptions().verifySession(), false);
+    close.resolve();
+});
+
+test('Only the configured activity extends the idle deadline', async () => {
+    for (const requestsOnly of [false, true]) {
+        let now = 1000;
+        const f = fixture({initialFields: {idlePolicy: {lifetimeMs: 300000, requestsOnly}}, now: () => now});
+        await f.ready();
+        now += 290000;
+        f.controller.activity();
+        if (requestsOnly) await f.controller.openCreate();
+        now += 290000;
+        f.controller.focusChanged();
+        assert.equal(f.state().mode, 'ready');
+        now += 10000;
+        f.controller.focusChanged();
+        assert.equal(f.state().status, german('inactive'));
+        assert.equal(f.count('close'), 1);
+    }
+    let now = 1000;
+    const f = fixture({initialFields: {idlePolicy: {lifetimeMs: 300000, requestsOnly: true}}, now: () => now});
+    await f.ready();
+    now += 299999;
+    f.controller.activity();
+    now++;
+    f.controller.focusChanged();
+    assert.equal(f.state().status, german('inactive'), 'input alone never extends request-only mode');
+});
+
+test('Idle lock while saving preserves the uncertain-write warning and rejects a late success', async () => {
+    let now = 1000;
+    const gate = deferred();
+    const f = fixture({initialFields: {idlePolicy: {lifetimeMs: 300000, requestsOnly: false}},
+        now: () => now, create: () => gate.promise});
+    await f.ready();
+    await f.controller.openCreate();
+    const save = f.controller.create(values());
+    now += 300000;
+    f.controller.visibilityChanged();
+    gate.resolve({snapshot: snapshot(), id: 'new'});
+    await save;
+    assert.equal(f.state().status, german('inactive-create'));
+    assert.equal(f.state().createOpen, false);
+    assert.equal(f.count('close'), 1);
 });

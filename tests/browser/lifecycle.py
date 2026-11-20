@@ -35,9 +35,10 @@ def wait_for_held(fixture, timeout_ms=5000):
 class HeldRequestFixture(Fixture):
     def __init__(self, browser, *, endpoint='password/create'):
         self.endpoint = endpoint
-        self.holding = True
+        self.holding = False
         self.held = []
         super().__init__(browser)
+        self.holding = True
 
     def route(self, route):
         path = urlparse(route.request.url).path

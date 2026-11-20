@@ -9,7 +9,7 @@ JS_ASSET='js/app-113.mjs'
 CSS_ASSET='css/app-113.css'
 RUNTIME=('appinfo/info.xml','appinfo/routes.php','lib/AppInfo/Application.php',
  'lib/Controller/PageController.php','lib/Service/PasswordsAuthAdapter.php',
- 'lib/Service/PasswordsDependency.php','lib/Listener/PasswordsLifecycleListener.php',
+ 'lib/Service/PasswordsDependency.php',
  'lib/BackgroundJob/CheckPasswordsDependency.php',
  'lib/Migration/Version010102Date20261119000000.php','lib/Migration/RemoveDependencyJob.php','templates/main.php',
  CSS_ASSET,JS_ASSET,'img/app.svg','LICENSE','THIRD_PARTY_NOTICES.md','THIRD_PARTY_LICENSES.txt')
@@ -111,7 +111,7 @@ def runtime_packages(lock:dict)->dict[str,dict]:
     return dict(sorted(found.items()))
 
 
-def checked_file(root:pathlib.Path,relative:str)->pathlib.Path:
+def checked_file(root:pathlib.Path,relative:str,allow_absent_package=False)->pathlib.Path|None:
     if not safe_relative(relative):raise PackageError('Unsafe dependency file path')
     path=root/relative
     if not path.resolve().is_relative_to(root.resolve()):
@@ -120,16 +120,17 @@ def checked_file(root:pathlib.Path,relative:str)->pathlib.Path:
     for part in pathlib.PurePosixPath(relative).parts:
         current=current/part
         if current.is_symlink():raise PackageError('Symlink dependency file is forbidden: '+relative)
+    if allow_absent_package and not path.parent.exists():return None
     if not path.is_file():raise PackageError('Missing dependency file: '+relative)
     return path
 
 
-def third_party_license_bundle(root:pathlib.Path)->bytes:
+def third_party_license_bundle(root:pathlib.Path,bundled_packages:set[str])->bytes:
     """Collect exact, reviewed original notices for the runtime closure.
 
     The checked-in inventory pins metadata, tarball integrity and notice hashes.
-    It deliberately includes all transitive production packages, even when a
-    module is eliminated by tree shaking. Dev-only build tools are not shipped.
+    It includes installed transitive production packages even when eliminated by
+    tree shaking. An absent optional-only package can be skipped after bundle verification. Dev-only build tools are not shipped.
     Validation/extraction of an already built ZIP requires no npm installation.
     """
     try:
@@ -158,7 +159,10 @@ def third_party_license_bundle(root:pathlib.Path)->bytes:
                     'license':license_id,'integrity':entry.get('integrity')}.items()) \
                     or not isinstance(entry.get('integrity'),str) or not entry['integrity'].startswith('sha512-'):
                 raise PackageError('Changed runtime dependency license/version/integrity: '+path)
-            metadata=json.loads(checked_file(root,path+'/package.json').read_text(encoding='utf-8'))
+            package_json=checked_file(root,path+'/package.json',
+                allow_absent_package=entry.get('optional') is True and path not in bundled_packages)
+            if package_json is None:continue
+            metadata=json.loads(package_json.read_text(encoding='utf-8'))
             if metadata.get('name')!=name or metadata.get('version')!=version or metadata.get('license')!=license_id:
                 raise PackageError('Installed dependency does not match lockfile: '+path)
             sections.extend(['-'*72,f'{name}@{version} | {license_id}', 'Lockfile path: '+path,''])
@@ -290,7 +294,6 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
     files={}
     for relative in RUNTIME+OPTIONAL:
         if relative=='THIRD_PARTY_LICENSES.txt':
-            files[relative]=third_party_license_bundle(root)
             continue
         path=root/relative
         if relative in OPTIONAL and not path.exists():continue
@@ -302,6 +305,7 @@ def make_package(root:pathlib.Path,commit:str)->tuple[bytes,dict]:
     for prohibited in [b'OTP_HOTP_WRITE_TEST_ONLY',b'hotpNext(',b'hotp-commit-uncertain',b'passwords-otp-ap4__']:
         if prohibited in js:raise PackageError('Removed feature leaked into runtime')
     bundle_inputs=validate_bundle_metadata(root,files)
+    files['THIRD_PARTY_LICENSES.txt']=third_party_license_bundle(root,set(bundle_inputs['packages']))
     manifest={'schema':1,'app':'passwords_otp','version':VERSION,'source_commit':commit,'channel':'public-source-baseline',
         'production_approved':False,'bundle_inputs':bundle_inputs,
         'files':{key:digest(value) for key,value in sorted(files.items())}}

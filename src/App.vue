@@ -40,11 +40,17 @@ const controller = createOtpController({config: props.config, pageUrl: window.lo
 // Register synchronously in setup. Waiting for mount() to return would leave a
 // failure in the initial render or mounted hooks unable to stop authentication.
 props.onControllerReady(controller.fail);
+const activityEvents = ['pointerdown', 'keydown', 'input', 'click'];
+const activity = event => {
+    if (event.isTrusted && !document.hidden
+            && event.target.closest?.('#passwords-otp-app, #passwords-otp-dialog-host')) controller.activity();
+};
 const visibility = () => controller.visibilityChanged();
 const focused = () => controller.focusChanged();
 const leaving = () => controller.pageHide();
 const returning = event => controller.pageShow(event);
 onMounted(() => {
+    for (const name of activityEvents) document.addEventListener(name, activity, true);
     document.addEventListener('visibilitychange', visibility);
     window.addEventListener('focus', focused);
     window.addEventListener('pagehide', leaving);
@@ -52,6 +58,7 @@ onMounted(() => {
     void controller.start();
 });
 onBeforeUnmount(() => {
+    for (const name of activityEvents) document.removeEventListener(name, activity, true);
     controller.pageHide();
     document.removeEventListener('visibilitychange', visibility);
     window.removeEventListener('focus', focused);

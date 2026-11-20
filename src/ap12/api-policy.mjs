@@ -1,7 +1,7 @@
 /** Accident-prevention policy; NOT a server-enforced restriction of the upstream bearer. */
 const safeOperations = new Set([
     'GET 1.0/session/request', 'POST 1.0/session/open', 'GET 1.0/session/close',
-    'GET 1.0/session/keepalive', 'GET 1.0/password/list',
+    'GET 1.0/password/list',
     'GET 1.0/settings/list', 'GET 1.0/keychain/get', 'GET 1.0/account/challenge/get'
 ]);
 const createLeases = new WeakMap();

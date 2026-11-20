@@ -15,7 +15,7 @@ final class PasswordsAuthAdapter {
     public function currentValidUid(): ?string {
         try {
             $user = $this->userSession->getUser();
-            if ($user === null || $this->dependency->enforce() !== null
+            if ($user === null || $this->dependency->reason() !== null
                     || !$this->appManager->isEnabledForUser('passwords', $user)) return null;
             $environment = Server::get(EnvironmentService::class);
             if (!($environment instanceof EnvironmentService) || $environment->isImpersonating()
@@ -27,7 +27,7 @@ final class PasswordsAuthAdapter {
         try {
             $user = $this->userSession->getUser();
             if ($user === null) return ['status' => 'unavailable', 'reason' => 'login-required'];
-            $reason = $this->dependency->enforce();
+            $reason = $this->dependency->reason();
             if ($reason !== null) return ['status' => 'unavailable', 'reason' => $reason];
             if (!$this->appManager->isEnabledForUser('passwords', $user)) {
                 return ['status' => 'unavailable', 'reason' => 'passwords-disabled'];

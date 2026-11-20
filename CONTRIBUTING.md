@@ -39,7 +39,7 @@ Real Nextcloud integration is separate from synthetic unit/browser tests. See [1
 5. State which tests actually ran. Distinguish unit fixtures, the compiled synthetic browser suite, real Nextcloud integration and AIO/PostgreSQL acceptance.
 6. Review source and dependencies before packaging from a clean commit. Generated JS/CSS must correspond to the current source/config/lock hashes; rebuild after changing those inputs.
 
-Changing the supported Passwords versions requires a new integration review; an install prerequisite does not make private upstream APIs stable. Preserve per-user denial versus global dependency failure, installation failure propagation, disable cascades, cron fallback and rollback bookkeeping. Never replace a missing real signing certificate with a self-signed release certificate.
+Changing the supported Passwords versions requires a new integration review; an install prerequisite does not make private upstream APIs stable. Preserve per-user denial versus global dependency failure, installation failure propagation, configured activation scope and rollback bookkeeping. Never replace a missing real signing certificate with a self-signed release certificate.
 
 Changing npm dependencies requires reviewing [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), the locked runtime/license inventory and actual bundled module inputs. Do not bypass an inventory, source-freshness or vulnerability gate to make a build pass.
 

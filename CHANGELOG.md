@@ -4,6 +4,10 @@ All notable changes to the publicly maintained project are documented here. The 
 
 ## [Unreleased]
 
+- Respect the Passwords inactivity limit in the vault. Trusted app activity or user-initiated API actions extend the local deadline according to the selected mode. On expiry, remove OTP codes and form secrets and close the upstream session on a best-effort basis. See [session behavior](docs/USER_GUIDE.md#session-and-keyboard-behavior).
+- Keep OTP activation and group scope while Passwords is unavailable. Deny access on OTP requests and resume on reload when the installed dependency is compatible. Allow stable 2026.11.20 through 2026.11.29 after checking the required Passwords interfaces. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
+- Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
+
 - Translate the app body into German and English. Select the first supported browser preference, match regional variants to the base language and fall back to English. The Nextcloud shell follows its own language policy. See [localization and verification](docs/LOCALIZATION.md).
 - Localize vault, list and clipboard messages, the creation dialog, required and length validation, plural notices and accessible labels. Use the localized Cancel action or Escape to close an idle dialog.
 

@@ -10,7 +10,7 @@ The steps below show the published German labels. In English, use **Search TOTP 
 
 ## Required Passwords app
 
-The administrator must install and enable Passwords **2026.11.20** before enabling OTP. Users need access to both apps. A Passwords group restriction can deny an individual user without disabling OTP for other authorized users. If Passwords is disabled, removed or changed to an unsupported version, OTP denies further operations and disables itself through the documented lifecycle checks. After restoring the prerequisite, the administrator must enable OTP explicitly; it does not reactivate itself.
+Users need access to both apps. Published 1.1.3 requires Passwords **2026.11.20** and can require explicit OTP reactivation after restoring Passwords. In the unreleased app, dependency loss blocks access at runtime. Once a compatible Passwords installation returns, reload the OTP page. [Dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
 
 The interface cannot revoke a code already copied to another application. Normal session/window checks remain active. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md) for detection timing and administrator recovery.
 
@@ -39,6 +39,22 @@ Choose **OTP speichern** to confirm. Pressing Enter in an input field does not c
 If the interface reports an uncertain save result, verify the original Passwords records before attempting another create operation. The app blocks a blind retry because the first request might already have been stored.
 
 ## Session and keyboard behavior
+
+In the unreleased app, OTP reads the Passwords inactivity duration and
+keepalive mode from the API when the vault opens. The default duration is
+**600 seconds**. Reload OTP to apply a setting changed in Passwords.
+
+| Passwords mode | OTP behavior |
+| --- | --- |
+| Explicit always keep alive (0) | The local inactivity timer is disabled. |
+| Keep alive on activity (1) or no explicit mode | Trusted keyboard, pointer and form input in OTP extend the deadline. |
+| Keep alive only on requests (2) | Only user actions that require a Passwords request, such as opening or saving the new-entry form, extend the deadline. |
+
+The periodic Nextcloud login checks never extend the OTP deadline. OTP sends
+no periodic Passwords keepalive requests. When the vault locks, the app clears
+codes and form secrets. Reload to open a fresh vault session. If the lock
+occurred during a save, check Passwords for the entry before trying again.
+[Passwords keepalive modes in upstream source](https://git.mdns.eu/nextcloud/passwords/-/blob/2026.11.0/src/js/Manager/KeepAliveManager.js)
 
 The app checks login validity before new mandatory time windows and when returning to the page. Leaving or hiding the page clears displayed codes and secret inputs; focus restoration requires appropriate verification before codes are shown again. Navigating away and returning through browser history can require a reload and fresh vault authentication.
 

@@ -13,6 +13,7 @@ In the published [v1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-ex
 - TOTP is computed locally using WebCrypto from compatible Passwords records. Only validated TOTP fields are used; HOTP and invalid fields are not misrepresented as TOTP.
 - Existing short but syntactically valid legacy Base32 secrets can be read (5 bytes minimum); newly entered secrets must be at least 10 bytes, which is still shorter than the 160-bit RFC 4226 recommended key.
 - Before each new 30-second slot and on focus, server-side Nextcloud session validity is checked. A failed or stale check must not allow new codes. A code from the currently verified slot may remain visible until it expires, and already copied codes cannot be revoked.
+- The unreleased inactivity lock clears OTP codes, keys and inputs according to the Passwords idle policy. Server-side session closure is best effort. Login checks and code rotation do not renew the local deadline.
 - Passwords API sessions may expire independently of the Nextcloud login. Before opening the create dialog and before writing, session/request is checked. HTTP 403/429 is treated as an API access/rate-limit error, not necessarily an expired Nextcloud login.
 - A wrong Passwords CSE master passphrase is only retried for the known upstream **HTTP 401 / ab6e13ba** response. Unrecognized failures, including **HTTP 500 / 033d1943**, are not silently treated as user typing errors.
 - On pagehide, local OTP state is immediately cleared; closing the upstream session is best-effort only.

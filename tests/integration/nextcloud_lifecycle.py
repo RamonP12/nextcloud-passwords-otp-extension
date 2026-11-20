@@ -52,7 +52,7 @@ def main() -> None:
         if len(body) != expected['bytes'] or digest(body) != expected['sha256']:
             raise RuntimeError(f'Source cache differs from pinned Nextcloud 35.0.2: {relative}')
     env = dict(os.environ, OTP_NC_SOURCE=str(cache))
-    completed = subprocess.run([args.php, '-n', str(ROOT / 'tests/integration/core_lifecycle.php')],
+    completed = subprocess.run([args.php, str(ROOT / 'tests/integration/core_lifecycle.php')],
                                cwd=ROOT, env=env, capture_output=True, text=True, timeout=60)
     if completed.returncode != 0:
         raise RuntimeError('Core component integration failed:\n' + completed.stdout + completed.stderr)

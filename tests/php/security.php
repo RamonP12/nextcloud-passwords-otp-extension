@@ -46,22 +46,33 @@ namespace {
   $request=new class implements \OCP\IRequest {public string $protocol='https';public string $header='';public function getServerProtocol(){return $this->protocol;}public function getHeader($name){return $this->header;}};
   $session=new class implements \OCP\ISession {public string $id='synthetic-session';public function getId(){return $this->id;}};
   $users=new class implements \OCP\IUserSession {public bool $enabled=true;public function getUser(){return $this->enabled?new class {public function getUID(){return 'synthetic';}}:null;}};
-  $apps=new class implements \OCP\App\IAppManager {
+  static $metadataPath = null;
+  if ($metadataPath === null) {
+   $metadataPath = sys_get_temp_dir().'/otp-security-'.bin2hex(random_bytes(8));
+   mkdir($metadataPath.'/appinfo',0700,true);
+   register_shutdown_function(static function () use ($metadataPath): void {
+    @unlink($metadataPath.'/appinfo/info.xml'); @rmdir($metadataPath.'/appinfo'); @rmdir($metadataPath);
+   });
+  }
+  $apps=new class($metadataPath) implements \OCP\App\IAppManager {
    public bool $enabled=true;public bool $globalEnabled=true;public bool $otpEnabled=true;
    public string $installed='2026.11.20';public string $disk='2026.11.20';public int $disableCalls=0;
    public function isEnabledForUser($id,$user){return $id==='passwords'&&$this->enabled;}
    public function getAppInstalledVersions(){return ['passwords'=>$this->installed,'passwords_otp'=>'1.1.3'];}
-   public function getAppPath($id,$ignoreCache=false){return dirname(__DIR__,2);}
+   public function __construct(private string $path) {}
+   public function getAppPath($id,$ignoreCache=false){
+    file_put_contents($this->path.'/appinfo/info.xml','<info><id>passwords</id><version>'.htmlspecialchars($this->disk,ENT_XML1).'</version></info>');
+    return $this->path;
+   }
    public function getAppInfoByPath($path){return ['id'=>'passwords','version'=>$this->disk];}
    public function isEnabledForAnyone($id){return $id==='passwords'?$this->globalEnabled:$this->otpEnabled;}
    public function disableApp($id){if($id!=='passwords_otp')throw new \RuntimeException('wrong app disabled');$this->otpEnabled=false;++$this->disableCalls;}
   };
-  $logger=new class implements \Psr\Log\LoggerInterface {public function warning($message,array $context=[]){}public function error($message,array $context=[]){}};
   $initial=new class implements \OCP\AppFramework\Services\IInitialState {public array $state=[];public function provideInitialState($key,$value){$this->state=$value;}};
   $urls=new class implements \OCP\IURLGenerator {public bool $fail=false;public function linkToRoute($name){if($this->fail)throw new \RuntimeException('PRIVATE');return '/synthetic/'.$name;}};
   $environment=new EnvironmentService();$helper=new ApiTokenHelper();
   Server::$services=[EnvironmentService::class=>$environment,ApiTokenHelper::class=>$helper];
-  $dependency=new PasswordsDependency($apps,$logger);
+  $dependency=new PasswordsDependency($apps);
   $adapter=new PasswordsAuthAdapter($apps,$users,$dependency);
   $controller=new PageController($request,$initial,$urls,$adapter,$session);
   return compact('request','session','users','apps','initial','urls','environment','helper','adapter','controller');
@@ -122,7 +133,16 @@ namespace {
   else $f['apps']->disk='2026.12.1';
   check($f['adapter']->currentValidUid()===null,'global dependency rejects session '.$case);
   check($f['adapter']->acquire()['status']==='unavailable'&&$f['helper']->calls===0,'global dependency never resolves token '.$case);
-  check(!$f['apps']->otpEnabled&&$f['apps']->disableCalls===1,'global dependency disables only OTP once '.$case);
+  $f['controller']->index();
+  check($f['initial']->state['status']==='unavailable','global dependency blocks initial state '.$case);
+  check($f['controller']->sessionStatus()->status===403,'global dependency denies session status '.$case);
+  check($f['controller']->bootstrap()->status===403,'global dependency denies bootstrap '.$case);
+  check($f['apps']->otpEnabled&&$f['apps']->disableCalls===0,'global dependency never changes enablement '.$case);
+  $f['apps']->globalEnabled=true;$f['apps']->installed=$f['apps']->disk='2026.11.21';
+  $f['controller']->index();
+  check($f['initial']->state['status']==='ready','compatible restored dependency permits new page '.$case);
+  $f['request']->header=$f['initial']->state['sessionFingerprint'];
+  check($f['controller']->bootstrap()->status===200,'credentials return when compatibility is restored '.$case);
  }
  $f=fixture();$f['controller']->index();$f['request']->header=$f['initial']->state['sessionFingerprint'];
  $f['helper']->callback=function()use($f){$f['apps']->globalEnabled=false;};

@@ -127,7 +127,7 @@ def package_fixture(root):
                       return_value=b'SYNTHETIC AIO TEST LICENSE NOTICES - NOT FOR DISTRIBUTION\n') as licenses, \
             patch.object(release, 'validate_bundle_metadata', return_value={'module_count': 0, 'packages': []}):
         data, manifest = release.make_package(root, COMMIT)
-    licenses.assert_called_once_with(root)
+    licenses.assert_called_once_with(root, set())
     path = root / 'candidate.zip'
     path.write_bytes(data)
     files, _ = release.validate_package(data, release.digest(data))

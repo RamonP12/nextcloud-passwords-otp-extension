@@ -28,6 +28,14 @@ eventless removal and per-user **Passwords** group isolation remain open.
 
 **Newer Nextcloud or Passwords versions are not automatically supported.** In particular, changes to `ApiTokenHelper`, `EnvironmentService`, session behavior or encryption formats require another compatibility review.
 
+## Unreleased source
+
+The request-time guard accepts matching stable Passwords **2026.11.20–2026.11.29**
+manifests when the required private methods are available. Passwords is still
+required for every new OTP vault session. See [dependency lifecycle](DEPENDENCY_LIFECYCLE.md)
+for historical and current behavior. Both Node.js 22 and 24 can build development
+packages. The 1.1.3 distribution evidence above applies to its exact tag.
+
 ## Historical published v1.0.0 evidence
 
 | Component | Recorded evidence | Boundary |

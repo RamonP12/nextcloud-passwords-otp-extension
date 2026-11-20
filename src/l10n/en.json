@@ -44,6 +44,8 @@
     "entry-secret-help": "Enter the service setup key. New entries use SHA-1, six digits and a 30-second period.",
     "entry-submit-help": "Select “Save OTP” to create the entry. Pressing Enter in a field does not create an entry.",
     "entry-username": "Username (optional)",
+    "inactive": "The vault locked after inactivity. Reload the page to continue.",
+    "inactive-create": "The vault locked while saving. Check Passwords before trying again.",
     "integration-unavailable": "The Passwords integration is unavailable.",
     "interface-failed": "The interface could not run safely. Reload the page.",
     "invalid-entries": {

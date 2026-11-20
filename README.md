@@ -5,7 +5,7 @@
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Current source: 1.1.3.** The [latest published package](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3) is v1.1.3. Passwords **2026.11.20** must be installed and enabled. New installation registration is rejected when that prerequisite is absent. Incompatible activation is reversed, and loss of the dependency disables OTP. Per-user group denial does not disable OTP for other users. See the [dependency lifecycle and its timing limits](docs/DEPENDENCY_LIFECYCLE.md).
+**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. The unreleased source checks Passwords on OTP requests and resumes access once a compatible dependency returns. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
 
 Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.3 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
 
@@ -23,6 +23,7 @@ The migration includes a Vite build, local regression tests against the compiled
 - Create **new** Passwords entries with an Android-compatible TOTP custom field; manage sharing and later edits in the original Passwords app.
 - Complete compatible Passwords CSE master-passphrase and secondary-factor challenges.
 - Recheck the Nextcloud login before new code windows, on focus and when returning to the page; reject expired or near-expiry clipboard copies.
+- Lock the vault locally after inactivity according to Passwords settings in the unreleased source.
 - Use Nextcloud component styling, keyboard-accessible controls, distinct status messages and responsive layouts.
 
 The published **1.1.3** app uses German. The next release's [localized interface](docs/LOCALIZATION.md) selects German or English from the browser's preferences and uses English when no supported preference matches. The [user guide](docs/USER_GUIDE.md) describes both copy controls and the display name used by each version.
@@ -32,7 +33,7 @@ The published **1.1.3** app uses German. The next release's [localized interface
 | Scope | Status |
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
-| Passwords integration target | Passwords 2026.11.20; exact version required; dependency enforcement does not turn internal upstream classes into public APIs |
+| Passwords integration | Published 1.1.3 requires 2026.11.20. The unreleased app accepts 2026.11.20 through 2026.11.29 with runtime checks. |
 | Version 1.1.3 | [Published release and verification on MariaDB, SQLite and PostgreSQL with Redis](docs/VALIDATION_1.1.3.md) |
 | Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |

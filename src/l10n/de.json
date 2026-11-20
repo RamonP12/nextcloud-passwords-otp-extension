@@ -44,6 +44,8 @@
     "entry-secret-help": "Einrichtungsschlüssel des Dienstes. Neuanlage: SHA-1, 6 Stellen, 30 Sekunden.",
     "entry-submit-help": "Mit «OTP speichern» bestätigen. Enter in einem Eingabefeld erstellt keinen Eintrag.",
     "entry-username": "Benutzername (optional)",
+    "inactive": "Der Tresor wurde wegen Inaktivität gesperrt. Lade die Seite neu.",
+    "inactive-create": "Der Tresor wurde während des Speicherns gesperrt. Prüfe Passwords vor einem neuen Versuch.",
     "integration-unavailable": "Die Passwords-Integration ist nicht verfügbar.",
     "interface-failed": "Die Oberfläche konnte nicht sicher ausgeführt werden. Bitte Seite neu laden.",
     "invalid-entries": {
