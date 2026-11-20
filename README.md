@@ -5,7 +5,7 @@
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. Development on `main` uses **1.2.0-dev**. It checks Passwords on OTP requests and resumes access once a compatible dependency returns. See [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md).
+**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. Development on `main` uses **1.2.0-dev**. It checks Passwords on OTP requests and resumes access once a compatible dependency returns. See the [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md) and [unreleased changes](CHANGELOG.md#unreleased).
 
 Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.3 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
 
@@ -13,7 +13,7 @@ Obtain the version-matched **tar.gz**, its checksum and build manifest from the 
 
 The current source uses **Vue 3.5.45** and **Nextcloud Vue 9.14.1** for the application layout, forms, dialogs, buttons and status messages. The existing Passwords authentication, encryption, OTP parsing, WebCrypto calculation and create-once API policy remain separate from the Vue presentation layer.
 
-The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [1.1.3 release and verification record](docs/VALIDATION_1.1.3.md), the [1.1.2 verification record](docs/VALIDATION_1.1.2.md), [historical 1.1.1 verification and local acceptance record](docs/VALIDATION_VUE_1.1.1.md), [migration implementation report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical 1.1.0 candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the exact scope of each result. GitHub Actions runs on pushes to `main`, pull requests targeting `main` and manual dispatch. See the [verification runs](https://github.com/RamonP12/nextcloud-passwords-otp-extension/actions) for hosted results.
+The migration includes a Vite build, local regression tests against the compiled application, and strict package and license checks. Read the [1.1.3 release and verification record](docs/VALIDATION_1.1.3.md), the [1.1.2 verification record](docs/VALIDATION_1.1.2.md), [historical 1.1.1 verification and local acceptance record](docs/VALIDATION_VUE_1.1.1.md), [migration implementation report](docs/NEXTCLOUD_VUE_MIGRATION.md) and [historical 1.1.0 candidate validation](docs/VALIDATION_VUE_1.1.0.md) for the exact scope of each result. GitHub Actions runs on pushes to `main`, pull requests targeting `main` and manual dispatch. See the [development verification record](docs/DEVELOPMENT.md#verification-on-2026-11-20) for the restored workflow and its results.
 
 ## Features
 
@@ -38,7 +38,7 @@ The published **1.1.3** app uses German. The next release's [localized interface
 | Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
 | Published v1.0.0 | Exact ZIP passed the recorded 2026-11-11 localhost/Nextcloud/MariaDB acceptance: 10/10 blocks, 49/49 checks |
-| Production AIO/PostgreSQL | [One maintainer-confirmed manual 0.7.3 → 1.1.3 replacement](docs/VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19). Full-stack AIO installer and production rollback verification are open. |
+| Production AIO/PostgreSQL | [Manual 0.7.3 → 1.1.3 replacement](docs/VALIDATION_1.1.3.md#maintainer-confirmed-production-aio-replacement-2026-11-19) and [OTP reactivation after the upgrade to Nextcloud 35.0.3](docs/VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation) on one installation. Full-stack AIO installer and production rollback verification are open. |
 
 The earlier v1.0.0 results are historical evidence, not test results for the Vue migration. See [compatibility](docs/COMPATIBILITY.md), [v1.0.0 local acceptance](docs/LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md), [historical validation](docs/VALIDATION.md) and the [v1.0.0 release integrity/mutability record](docs/RELEASE_INTEGRITY_v1.0.0.md).
 

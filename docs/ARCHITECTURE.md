@@ -22,6 +22,7 @@ The interface has no operation for updating or deleting existing records and no 
 | `src/components/` | Vault authentication, OTP account list, and new-entry dialog using Nextcloud Vue controls |
 | `src/ui/controller.mjs` | Framework-independent startup, unlock, create, error and page-lifecycle orchestration |
 | `src/ui/dom-safety.mjs` | Small scoped, synchronous erasure boundary before Vue's queued rendering or a BFCache snapshot |
+| `src/l10n/` | Browser-language selection, English fallback and the bundled German and English catalogs |
 | `src/ui/messages.mjs` | Finite public error vocabulary; arbitrary upstream exception text is not rendered |
 | `src/ap1/` | Existing bootstrap, transport, upstream client and domain-session implementation |
 | `src/ap2/` | OTP parsing, safe public metadata, search and list notice text |
@@ -57,14 +58,15 @@ Vue batches DOM updates. `clearSensitiveDom()` therefore synchronously erases di
 - New mandatory 30-second windows, individual account-period boundaries, backward time changes, visibility restoration and focus changes require appropriate session verification.
 - Asynchronous verification is bound to its request start and generation. A delayed response or HMAC completion cannot authorize a later window or revive a terminated session.
 - Search changes visibility without resetting authorization or recomputing valid codes. Hidden search results cannot be copied.
-- Clipboard invocation remains synchronous within the user's copy action, with a fresh validity check and at least **2.5 seconds** remaining. Leading zeroes are preserved as strings.
+- The displayed code and separate copy button share the same handler. Both support click, Enter and Space. Clipboard invocation is synchronous within that action, with a fresh validity check and at least **2.5 seconds** remaining. Leading zeroes are preserved as strings.
+- While focus or session verification is pending, the code is hidden, copying is disabled and the interface announces the check. Copying requires a fresh action after verification.
 - Page navigation and BFCache restoration clear local sensitive state and require reload; upstream server-session closure remains best effort.
 
-`NcDialog` uses the application's explicit action buttons, blocks close while saving, and disables this dialog's entrance/exit transitions to avoid delayed focus-trap activation during rapid navigation. A small keyboard guard provides immediate containment, including a focused busy status. Its dedicated portal is placed at body level so the real Nextcloud header cannot cover the modal. Form Enter does not implicitly create an entry; Enter or Space on **OTP speichern** remains available. The displayed code itself remains non-interactive, as requested feature #7 is outside this migration.
+`NcDialog` uses the application's explicit action buttons, blocks close while saving, and disables this dialog's entrance/exit transitions to avoid delayed focus-trap activation during rapid navigation. A small keyboard guard provides immediate containment, including a focused busy status. Its dedicated portal is placed at body level so the real Nextcloud header cannot cover the modal. Form Enter does not implicitly create an entry; Enter or Space on **OTP speichern** remains available. A tab switch clears the password and OTP secret and shows a notice when either field had a value. The title and username stay available.
 
 ## Build and release boundaries
 
-Vite compiles the Single File Components to exactly **`js/app-120-dev.mjs`** and **`css/app-120-dev.css`**. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
+Vite compiles the Single File Components in `.build/vite/` and verifies the output before copying **`js/app-120-dev.mjs`** and **`css/app-120-dev.css`** into the served paths. PHP loads the JavaScript as an ES module. Dependencies are bundled locally; there is no runtime CDN, router requirement or Node.js service.
 
 The build writes `.build/bundle-modules.json` with actual module inputs, hashes of both output assets, production mode and a complete hash inventory of `src/`, `package.json`, `package-lock.json` and `vite.config.js`. Changes during compilation or after compilation invalidate the candidate. External runtime imports and application inputs outside `src/` are rejected, including browser-test fixtures. The release script cross-checks these against the explicit license inventory, permits only the fixed runtime file set, and constructs deterministic ZIP and TAR archives with the same `BUILD.json` and complete third-party notices. Archive checks also enforce size limits, safe paths, no symlinks, file hashes and a source-commit identity. Packaging requires a clean committed checkout.
 

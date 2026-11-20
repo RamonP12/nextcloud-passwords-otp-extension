@@ -14,10 +14,10 @@
 ## Security and acceptance
 
 - Vulnerability reports belong in [GitHub Private Vulnerability Reporting](../.github/SECURITY.md). The feature is configured in repository settings, not by the policy file itself.
-- Dependency scanning/alerts and security updates are separate GitHub repository settings. The [Dependabot configuration](../.github/dependabot.yml) currently pauses routine version-update PRs while CI is disabled.
+- Dependency scanning/alerts and security updates are separate GitHub repository settings. The [Dependabot configuration](../.github/dependabot.yml) sets the routine version-update limit to zero.
 - The exact published v1.0.0 ZIP passed local Nextcloud 35 / MariaDB acceptance: **10/10 blocks, 49/49 checks**. See [local acceptance](LOCAL_ACCEPTANCE_v1.0.0_2026-11-11.md) and [validation](VALIDATION.md).
 - A fresh AIO/PostgreSQL first-install acceptance remains open; `production_approved=false`.
-- GitHub Actions has no recorded runs while disabled. Do not require a green CI check until workflows are enabled and a named check is observed.
+- The v1.0.0 evidence was local. See [Development](DEVELOPMENT.md#github-actions) for the active workflow and later hosted results.
 
 ## Future releases
 
