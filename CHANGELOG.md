@@ -22,6 +22,7 @@ All notable changes to the publicly maintained project are documented here. The 
 ### Build, verification and maintenance
 
 - Publish the verified ZIP and TAR.GZ with versioned `app-114` assets. The maintainer accepted the 1.1.3 → 1.1.4 upgrade on the localhost Docker Compose fixture. [Release and verification](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4)
+- Record the maintainer-confirmed [production AIO upgrade from 1.1.3 to 1.1.4](docs/VALIDATION_1.1.4.md) on Nextcloud 35.0.3 with PostgreSQL and Redis locking. OTP was briefly disabled for the file exchange while the Nextcloud status checks showed no maintenance mode.
 - Fix packages built with Node.js 22 by permitting absent optional dependencies outside the verified bundle. Bundled packages and installed notice files still undergo the existing license checks.
 - Define the reviewed Passwords build once in PHP. The runtime derives its maintenance range from that value, and the Python installers use the exact reviewed build.
 - Compile into `.build/vite/` and publish the verified JS and CSS into the paths used by Nextcloud.

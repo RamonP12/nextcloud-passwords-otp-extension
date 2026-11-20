@@ -4,7 +4,7 @@
 
 | Version | Status |
 | --- | --- |
-| 1.1.4 | Current GitHub release with localhost acceptance. [Version-specific verification](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4) |
+| 1.1.4 | Current GitHub release with localhost and single-installation AIO acceptance. [Version-specific verification](../docs/VALIDATION_1.1.4.md) |
 | 1.1.3 | Historical GitHub release. Unsigned TAR/ZIP, verified localhost upgrade and OTP functions. See the [verification record](../docs/VALIDATION_1.1.3.md) for the acceptance limits. |
 | 1.1.2 | Historical Vue release with documented Passwords prerequisite and localhost lifecycle checks |
 | 1.1.1 | Historical Vue release; superseded, tag and assets unchanged |

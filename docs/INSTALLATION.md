@@ -4,6 +4,11 @@
 
 Use the [1.1.4 packages](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4) and the matching [release and upgrade notes](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.4/docs/RELEASE_1.1.4.md).
 
+For an existing 1.1.3 deployment on Nextcloud AIO, use the
+[app-only upgrade procedure](VALIDATION_1.1.4.md#app-only-upgrade-procedure).
+The administrator accepted this procedure on one production PostgreSQL/Redis
+installation. The separate [AIO tool](AIO_MANUAL_INSTALL.md) is for first installs.
+
 ## Historical GitHub release 1.1.3
 
 [Version 1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)

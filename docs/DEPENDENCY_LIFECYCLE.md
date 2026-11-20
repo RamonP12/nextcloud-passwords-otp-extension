@@ -48,6 +48,8 @@ The AIO 15.1.1 record shows a failed OTP activation before Passwords activation
 and a successful manual recovery. Its exact original exception is unavailable.
 For systems running the released 1.1.3, follow the historical steps in the
 [production upgrade record](VALIDATION_1.1.3.md#production-aio-core-upgrade-and-otp-reactivation).
+For the subsequent app-only 1.1.3 → 1.1.4 upgrade, see the
+[production AIO procedure and acceptance](VALIDATION_1.1.4.md).
 The version-specific deployment tools use the exact reviewed dependency build
 from [the PHP policy](../lib/Service/PasswordsDependency.php). On development
 source this is `2026.11.20`, which also defines the runtime maintenance line.
