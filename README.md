@@ -1,13 +1,13 @@
 # Passwords OTP Generator – unofficial companion for Nextcloud Passwords
 
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
-[![Release: v1.1.3](https://img.shields.io/badge/release-v1.1.3-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)
+[![Release: v1.1.4](https://img.shields.io/badge/release-v1.1.4-blue.svg)](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4)
 
 An **independent, unofficial Nextcloud app** that displays time-based one-time password (TOTP) codes from [Nextcloud Passwords](https://apps.nextcloud.com/apps/passwords). It provides a focused interface without modifying the original Passwords application.
 
-**Latest published release: 1.1.3.** It requires Passwords **2026.11.20** and can disable OTP if that prerequisite is lost. Development on `main` uses **1.2.0-dev**. It checks Passwords on OTP requests and resumes access once a compatible dependency returns. See the [dependency lifecycle](docs/DEPENDENCY_LIFECYCLE.md) and [unreleased changes](CHANGELOG.md#unreleased).
+**Latest published release: 1.1.4.** It checks Passwords on OTP requests and resumes access after reload when a compatible dependency returns. Development on `main` uses **1.2.0-dev**. See the [1.1.4 upgrade notes](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.4/docs/RELEASE_1.1.4.md) and [changelog](CHANGELOG.md#114--session-handling-localization-and-compatibility-2026-11-20).
 
-Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.3 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
+Obtain the version-matched **tar.gz**, its checksum and build manifest from the [v1.1.4 GitHub Release](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4). The ZIP is also provided for the existing transactional localhost installer. The published **v1.0.0** archive, tag and historical acceptance records remain unchanged. The unsigned packages are for manual distribution. Store publication is tracked in #14. [App Store packaging](docs/APPSTORE_PACKAGING.md) separates archive compatibility from certificate signing and publication.
 
 ## Vue migration
 
@@ -23,17 +23,18 @@ The migration includes a Vite build, local regression tests against the compiled
 - Create **new** Passwords entries with an Android-compatible TOTP custom field; manage sharing and later edits in the original Passwords app.
 - Complete compatible Passwords CSE master-passphrase and secondary-factor challenges.
 - Recheck the Nextcloud login before new code windows, on focus and when returning to the page; reject expired or near-expiry clipboard copies.
-- Lock the vault locally after inactivity according to Passwords settings in the unreleased source.
+- Lock the vault locally after inactivity according to Passwords settings.
 - Use Nextcloud component styling, keyboard-accessible controls, distinct status messages and responsive layouts.
 
-The published **1.1.3** app uses German. The next release's [localized interface](docs/LOCALIZATION.md) selects German or English from the browser's preferences and uses English when no supported preference matches. The [user guide](docs/USER_GUIDE.md) describes both copy controls and the display name used by each version.
+The 1.1.4 [localized interface](docs/LOCALIZATION.md) selects German or English from the browser's preferences and uses English when no supported preference matches. The [user guide](docs/USER_GUIDE.md) describes both copy controls and the display name used by each version.
 
 ## Compatibility and verification
 
 | Scope | Status |
 | --- | --- |
 | App metadata | Nextcloud 35; PHP 8.3–8.5 |
-| Passwords integration | Published 1.1.3 requires 2026.11.20. The unreleased app accepts 2026.11.20 through 2026.11.29 with runtime checks. |
+| Passwords integration | 1.1.4 accepts 2026.11.20 through 2026.11.29 with runtime checks. Installer tooling requires the reviewed build 2026.11.20. |
+| Version 1.1.4 | [Localhost acceptance and automated checks](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4) passed, including the 1.1.3 upgrade on Docker Compose and a separate SQLite fixture. |
 | Version 1.1.3 | [Published release and verification on MariaDB, SQLite and PostgreSQL with Redis](docs/VALIDATION_1.1.3.md) |
 | Version 1.1.2 | [Maintainer-confirmed localhost upgrade and normal dependency lifecycle](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) passed on one Nextcloud/MariaDB fixture; fresh install/removal, group separation and production AIO remain untested |
 | Vue localhost acceptance | Maintainer confirmed all five manual checks on candidate 1.1.0: independent TOTP reference, clipboard, search, persistence and logout invalidation |
@@ -44,7 +45,7 @@ The earlier v1.0.0 results are historical evidence, not test results for the Vue
 
 ## Installation
 
-Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Use the [`v1.1.3` tagged scripts](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.3) for the published 1.1.3 package. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
+Start with [Installation](docs/INSTALLATION.md) and [AIO installation and rollback](docs/AIO_MANUAL_INSTALL.md). **Always use the installer scripts from the same source version as the archive.** Use the [`v1.1.4` tagged scripts](https://github.com/RamonP12/nextcloud-passwords-otp-extension/tree/v1.1.4) for the published 1.1.4 package. Download the `v1.0.0` tagged scripts when working with the historical 1.0.0 archive.
 
 The AIO tool supports **first-time installation only** and refuses an existing `passwords_otp` deployment, including older internal versions such as 0.7.3. The dependency migration checks prerequisites and adds no OTP data tables. [The 1.1.3 verification record](docs/VALIDATION_1.1.3.md) covers the 1.1.2 → 1.1.3 localhost upgrade and the separate manual replacement on production AIO. [The 1.1.2 acceptance record](docs/LOCAL_ACCEPTANCE_v1.1.2_2026-11-19.md) covers the earlier dependency lifecycle checks.
 

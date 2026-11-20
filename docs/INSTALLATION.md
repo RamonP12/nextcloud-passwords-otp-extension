@@ -1,6 +1,10 @@
 # Installation and version selection
 
-## Current GitHub release 1.1.3
+## Current GitHub release 1.1.4
+
+Use the [1.1.4 packages](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.4) and the matching [release and upgrade notes](https://github.com/RamonP12/nextcloud-passwords-otp-extension/blob/v1.1.4/docs/RELEASE_1.1.4.md).
+
+## Historical GitHub release 1.1.3
 
 [Version 1.1.3](https://github.com/RamonP12/nextcloud-passwords-otp-extension/releases/tag/v1.1.3)
 requires Nextcloud 35, PHP 8.3–8.5 and Passwords **2026.11.20**. Use the
