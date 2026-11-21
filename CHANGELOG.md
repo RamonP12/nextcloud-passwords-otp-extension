@@ -6,6 +6,7 @@ All notable changes to the publicly maintained project are documented here. The 
 
 - Development builds use **1.2.0-dev**.
 - Add a [digest-pinned Docker build](docs/DEVELOPMENT.md#reproduce-release-archive-bytes-with-docker) and compare independent packages and the published v1.1.4 checksums in GitHub Actions.
+- Prevent Nextcloud Vue's delayed focus trap from activating after the OTP dialog has unmounted. Verify that restoring a page from the back-forward cache keeps the session-ended notice and clears sensitive fields even during dialog opening.
 
 ## [1.1.4] – Session handling, localization and compatibility (2026-11-20)
 

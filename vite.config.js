@@ -4,6 +4,29 @@ import {createHash} from 'node:crypto';
 import {mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import {dirname, relative, resolve} from 'node:path';
 
+// NcModal's enter callback can resume after a pagehide unmounted the dialog.
+// Check the modal again after its await, before activating the focus trap.
+function guardModalFocusTrap() {
+    const chunk = '/node_modules/@nextcloud/vue/dist/chunks/NcModal.mjs';
+    const original = `    async function useFocusTrap() {
+      if (focusTrap) {
+        return;
+      }
+      await nextTick();`;
+    const guarded = original + '\n      if (focusTrap || !showModal.value || !maskElement.value?.isConnected) return;';
+    return {
+        name: 'otp-guard-nextcloud-modal-focus-trap',
+        enforce: 'pre',
+        transform(code, id) {
+            if (!id.endsWith(chunk)) return;
+            if (code.split(original).length !== 2) {
+                this.error('Review the NcModal focus trap guard for this @nextcloud/vue version');
+            }
+            return {code: code.replace(original, guarded), map: null};
+        },
+    };
+}
+
 /** Bind reviewed dependencies to modules in the output. Build-only metadata. */
 function bundleInventory() {
     let sourceInputs;
@@ -84,7 +107,7 @@ function bundleInventory() {
 // development generators in the shared app preset. Vue components stay native.
 // Nextcloud resolves .mjs assets itself; this bundle needs no runtime chunks.
 export default defineConfig({
-        plugins: [vue(), bundleInventory()],
+        plugins: [guardModalFocusTrap(), vue(), bundleInventory()],
         define: {__VUE_OPTIONS_API__: true, __VUE_PROD_DEVTOOLS__: false, __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false},
         build: {
             outDir: '.build/vite',
