@@ -312,8 +312,12 @@ def main():
         assert page.evaluate('__copied') == ['028742'] * 4
         f.close(); passed('direct-and-separate-copy-keyboard-trusted-leading-zero-expiry')
         for mode in ['expired-open', 'expired-submit', 'rate403', 'rate429', 'uncertain', 'focus-revocation', 'pagehide-bfcache']:
-            f = Fixture(browser)
+            restore_from_cache = mode == 'pagehide-bfcache'
+            f = Fixture(browser, virtual_time=restore_from_cache)
             page = f.page
+            if restore_from_cache:
+                # Keep NcModal's enter frames pending until after pagehide.
+                page.clock.pause_at(page.evaluate('new Date().getTime() + 1000'))
             if mode == 'expired-open':
                 f.expired = True
                 page.locator('#passwords-otp-ap12-open').click()
@@ -329,6 +333,7 @@ def main():
                 elif mode == 'focus-revocation':
                     f.active = False; page.evaluate("window.dispatchEvent(new Event('focus'))")
                 else:
+                    expect(page.get_by_role('dialog')).to_have_class(re.compile(r'\bfade-enter-active\b'))
                     cleared = page.evaluate('''() => {
                         window.dispatchEvent(new Event('pagehide'));
                         const code = [...document.querySelectorAll('.passwords-otp-ap3__code')].every(el => !/\\d/.test(el.textContent));
@@ -338,6 +343,8 @@ def main():
                         return code && inputs && dialogHidden;
                     }''')
                     assert cleared, 'security erasure must be synchronous, before Vue nextTick'
+                    page.clock.run_for(100)
+                    assert not page.evaluate('__vueFailures'), page.evaluate('__vueFailures')
             expected = 'Passwords-API-Sitzung ist abgelaufen' if mode.startswith('expired') else 'begrenzt Anfragen' if mode.startswith('rate') else 'unklar' if mode == 'uncertain' else 'Nextcloud-Sitzung nicht mehr' if mode == 'focus-revocation' else 'Sitzung beendet'
             expect(page.locator('#passwords-otp-ap1-status')).to_contain_text(expected)
             expect(page.get_by_role('dialog')).to_have_count(0)
